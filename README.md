@@ -204,31 +204,84 @@ src/
 
 ## Status de Implementação
 
-### ✅ Implementado (MVP)
-- [x] Sistema de upload de documentos
-- [x] Sistema completo de tickets com SLA
-- [x] Inbox e chat por ticket
-- [x] Notificações in-app em tempo real
-- [x] Dashboard Adworks (backoffice)
-- [x] Central de tarefas para clientes
-- [x] Gestão de leads (CRM completo)
-- [x] Formulários públicos de captura
-- [x] Onboarding wizard conversacional
-- [x] Multi-tenant com RLS
+### ✅ Implementado (MVP Completo)
+- [x] **Autenticação multi-tenant com RBAC** - 7 perfis diferentes, isolamento por client_id
+- [x] **Onboarding wizard completo** - Todas as 12 etapas funcionais:
+  - Dados da empresa
+  - Endereço completo
+  - Sócios (com múltiplos sócios)
+  - Atividade e CNAE
+  - Impostos e regime tributário
+  - Documentos
+  - Certificado digital
+  - Domínio
+  - Email corporativo (Google/Microsoft)
+  - Site institucional
+  - Marca (INPI)
+  - CRM e fontes de leads
+- [x] **Sistema de documentos** - Upload com Supabase Storage, validação, comentários
+- [x] **Sistema de tickets** - CNPJ, INPI, Fiscal com SLA, checklist, timeline
+- [x] **Inbox e chat** - Mensageria por ticket com visibilidade CLIENT/INTERNAL
+- [x] **Notificações em tempo real** - In-app com subscriptions, contador de não lidas
+- [x] **Central de tarefas** - Lista inteligente de pendências com priorização
+- [x] **Dashboard Adworks** - KPIs, alertas de SLA, métricas consolidadas
+- [x] **CRM completo** - Pipeline Kanban, drag & drop, busca, filtros
+- [x] **Formulários públicos** - Captura de leads isolada por cliente
+- [x] **Gatilhos automáticos**:
+  - Criar ticket CNPJ ao completar onboarding
+  - Criar ticket INPI ao solicitar marca
+  - Notificar documentos inválidos
+  - Notificar mudanças de status de tickets
+- [x] **PWA** - Instalável, manifest configurado, pronto para web push
 
 ### 🚧 Próximos Passos (Fase 2)
-- [ ] Completar todos os formulários do onboarding wizard
-- [ ] Notificações por email (SMTP)
-- [ ] Integração real com domínios (Registro.br/Reseller)
-- [ ] Site builder com templates
-- [ ] Notificações web push
-- [ ] Integração Cora (conta PJ)
-- [ ] Provisionamento Google Workspace/Microsoft 365
-- [ ] Billing e pagamentos
-- [ ] Emissão de NF
+- [ ] Notificações por email (SMTP via Edge Functions)
+- [ ] Integração real com domínios (Registro.br/Reseller APIs)
+- [ ] Site builder visual com templates editáveis
+- [ ] Notificações web push completas
+- [ ] Integração Cora (conta PJ via API)
+- [ ] Provisionamento automático Google Workspace/Microsoft 365
+- [ ] Sistema de billing e pagamentos
+- [ ] Emissão de NF automática
 - [ ] Relatórios fiscais automáticos
-- [ ] Gatilhos automáticos (criar tickets ao completar onboarding)
 - [ ] Sistema de auditoria expandido
+- [ ] Recuperação de senha
+- [ ] Páginas de configurações completas
+
+## Fluxos Automáticos (Gatilhos)
+
+O sistema possui triggers automáticos que criam tickets e notificações:
+
+### 1. Onboarding Completo → Ticket CNPJ
+Quando todas as etapas do onboarding estão como SUBMITTED ou APPROVED:
+- Cria automaticamente um ticket do tipo TICKET_CNPJ com status NEW
+- Define SLA de 15 dias
+- Notifica todos os usuários da empresa cliente
+
+### 2. Solicitação de Marca → Ticket INPI
+Quando o cliente solicita registro de marca na etapa "brand":
+- Cria automaticamente um ticket do tipo TICKET_INPI com status NEW
+- Define SLA de 30 dias
+- Notifica todos os usuários da empresa cliente
+
+### 3. Documento Inválido → Notificação
+Quando um operador marca um documento como INVALID:
+- Cria notificação do tipo DOC_REQUIRED para todos os usuários
+- A tarefa aparece automaticamente na central de tarefas
+- O documento fica destacado para reenvio
+
+### 4. Documento Aprovado → Notificação
+Quando um documento é aprovado:
+- Cria notificação do tipo DOC_APPROVED
+- Remove a tarefa da central de tarefas
+
+### 5. Ticket Muda de Status → Notificação
+Quando o status de um ticket muda:
+- Cria notificação com o novo status em linguagem humana
+- Se status for WAITING_CLIENT, cria tarefa para o cliente responder
+- Se status for APPROVED ou DONE, notifica conclusão
+
+Todos os gatilhos são implementados via PostgreSQL Functions e Triggers para garantir consistência e performance.
 
 ## Build e Deploy
 
