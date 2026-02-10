@@ -35,6 +35,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: CheckSquare, label: 'Tarefas', path: '/tasks' },
     { icon: Inbox, label: 'Mensagens', path: '/inbox' },
     { icon: Users, label: 'CRM', path: '/crm' },
+    { icon: Users, label: 'Equipe', path: '/team' },
     { icon: User, label: 'Conta', path: '/account' },
   ];
 
@@ -43,7 +44,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: Building2, label: 'Clientes', path: '/adworks/clients' },
     { icon: FileText, label: 'Tickets CNPJ', path: '/adworks/tickets/cnpj' },
     { icon: Briefcase, label: 'Tickets INPI', path: '/adworks/tickets/inpi' },
-    { icon: Inbox, label: 'Fiscal', path: '/adworks/fiscal' },
+    { icon: Inbox, label: 'Tickets Fiscal', path: '/adworks/tickets/fiscal' },
     { icon: Settings, label: 'Configurações', path: '/adworks/settings' },
   ];
 
