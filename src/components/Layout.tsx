@@ -51,16 +51,16 @@ export function Layout({ children }: LayoutProps) {
   const navItems = isAdworks ? adworksNavItems : clientNavItems;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-adworks-gray">
+      <nav className="bg-white border-b border-gray-100 shadow-adw-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-adworks-blue rounded-adw flex items-center justify-center shadow-lg shadow-adworks-blue/20">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">Adworks</span>
+                <span className="text-xl font-extrabold tracking-tight text-adworks-dark">ADWORKS</span>
               </Link>
             </div>
 
@@ -95,8 +95,8 @@ export function Layout({ children }: LayoutProps) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center py-3 px-4 ${
-                    isActive ? 'text-blue-600' : 'text-gray-600'
+                  className={`flex flex-col items-center py-3 px-4 transition-all duration-200 ${
+                    isActive ? 'text-adworks-blue font-bold translate-y-[-2px]' : 'text-gray-400 hover:text-adworks-blue'
                   }`}
                 >
                   <Icon className="w-6 h-6" />
@@ -119,10 +119,10 @@ export function Layout({ children }: LayoutProps) {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-adw transition-all duration-200 ${
                       isActive
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-adworks-blue text-white shadow-lg shadow-adworks-blue/20'
+                        : 'text-gray-400 hover:bg-gray-50 hover:text-adworks-blue'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
