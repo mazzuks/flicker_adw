@@ -63,6 +63,17 @@ export function TicketsCNPJ() {
     setLoading(false);
   };
 
+  const updateTicketStatus = async (ticketId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('tickets')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('id', ticketId);
+
+    if (!error) {
+      loadTickets();
+    }
+  };
+
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
       NEW: 'Novo',
@@ -271,10 +282,17 @@ export function TicketsCNPJ() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <CheckSquare className="w-5 h-5 inline" />
-                      </button>
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <select 
+                        value={ticket.status}
+                        onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
+                        className="text-xs border rounded-md px-2 py-1 bg-white shadow-sm focus:ring-1 focus:ring-adworks-blue outline-none"
+                      >
+                        <option value="NEW">Novo</option>
+                        <option value="IN_PROGRESS">Em Andamento</option>
+                        <option value="WAITING_CLIENT">Pedir Documento</option>
+                        <option value="DONE">Concluir</option>
+                      </select>
+                      <button className="text-adworks-blue hover:text-blue-900 ml-2">
                         <MessageSquare className="w-5 h-5 inline" />
                       </button>
                     </td>
