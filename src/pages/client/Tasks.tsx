@@ -172,86 +172,80 @@ export function Tasks() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Suas Tarefas</h1>
-        <p className="text-gray-600 mt-1">
-          {tasks.length === 0
-            ? 'Parabéns! Você não tem tarefas pendentes'
-            : `Você tem ${tasks.length} ${tasks.length === 1 ? 'tarefa pendente' : 'tarefas pendentes'}`}
-        </p>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
+            Tarefas
+          </h1>
+          <p className="text-gray-500 font-medium">Ações necessárias para o seu CNPJ avançar.</p>
+        </div>
+        <div className="bg-white px-6 py-3 rounded-2xl shadow-adw-soft border border-gray-100 flex items-center space-x-3">
+          <span className="text-sm font-black text-adworks-blue">{tasks.length}</span>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pendências</span>
+        </div>
       </div>
 
       {tasks.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+        <div className="bg-white rounded-[2.5rem] p-20 text-center shadow-adw-soft border border-gray-100 border-dashed">
+          <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-green-500" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Tudo em dia!
-          </h2>
-          <p className="text-gray-600">
-            Não há tarefas pendentes no momento. Continue acompanhando seu progresso no dashboard.
-          </p>
+          <h2 className="text-2xl font-black text-adworks-dark mb-2">Tudo em dia!</h2>
+          <p className="text-gray-500 max-w-xs mx-auto">Nenhuma ação pendente no momento. Nossa equipe está trabalhando no seu processo.</p>
           <button
             onClick={() => navigate('/')}
-            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="mt-8 bg-adworks-blue text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg"
           >
             Voltar ao Dashboard
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4">
           {tasks.map((task) => {
             const Icon = getIcon(task.type);
+            const priorityColor = task.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-adworks-blue';
             return (
               <div
                 key={task.id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:border-adworks-blue/30 transition-all gap-6"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {task.title}
-                        </h3>
-                        <span
-                          className={`text-xs font-medium px-2 py-1 rounded-full border ${getPriorityColor(
-                            task.priority
-                          )}`}
-                        >
-                          {getPriorityLabel(task.priority)}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 mb-3">{task.description}</p>
-                      {task.dueDate && (
-                        <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            Prazo: {new Date(task.dueDate).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                <div className="flex items-start space-x-6">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${priorityColor} bg-opacity-20 transition-transform group-hover:scale-110`}>
+                    <Icon className="w-8 h-8" />
                   </div>
-                  <button
-                    onClick={() => navigate(task.actionUrl)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0 ml-4"
-                  >
-                    <span>{task.action}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <div className="flex items-center space-x-3 mb-1">
+                      <h3 className="text-xl font-black text-adworks-dark tracking-tight">{task.title}</h3>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter border ${
+                        task.priority === 'high' ? 'border-red-200 text-red-600 bg-red-50' : 'border-blue-200 text-adworks-blue bg-blue-50'
+                      }`}>
+                        {task.priority === 'high' ? 'Urgente' : 'Normal'}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 font-medium">{task.description}</p>
+                    {task.dueDate && (
+                      <div className="flex items-center mt-2 text-xs text-gray-400 font-bold uppercase tracking-wider">
+                        <Calendar className="w-3.5 h-3.5 mr-1" />
+                        PRAZO: {new Date(task.dueDate).toLocaleDateString('pt-BR')}
+                      </div>
+                    )}
+                  </div>
                 </div>
+                
+                <button
+                  onClick={() => navigate(task.actionUrl)}
+                  className="bg-adworks-blue text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg shadow-adworks-blue/20 flex items-center justify-center space-x-2 active:scale-95"
+                >
+                  <span>{task.action}</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
               </div>
             );
           })}
