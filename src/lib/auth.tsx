@@ -138,18 +138,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (data.user && !error) {
-      await supabase.from('user_profiles').insert({
+      // Pequeno delay para garantir que o trigger de auth termine (se houver)
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const { error: profileError } = await supabase.from('user_profiles').insert({
         id: data.user.id,
         email,
         full_name: fullName,
         role_global: 'CLIENT_OWNER',
       });
 
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+      }
+
       const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const { data: client } = await supabase
+      const { data: client, error: clientError } = await supabase
         .from('clients')
         .insert({
-          name: fullName,
+          name: `Empresa de ${fullName}`,
           slug: `${slug}-${Date.now()}`,
           plan: 'basic',
           status: 'ONBOARDING',
@@ -157,12 +164,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (client) {
+      if (client && !clientError) {
         await supabase.from('client_memberships').insert({
           client_id: client.id,
           user_id: data.user.id,
           role_in_client: 'CLIENT_OWNER',
         });
+      } else if (clientError) {
+        console.error('Error creating client:', clientError);
       }
     }
 
