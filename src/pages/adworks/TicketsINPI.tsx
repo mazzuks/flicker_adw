@@ -37,15 +37,15 @@ export default function TicketsINPI() {
     try {
       const { data, error } = await supabase
         .from('tickets')
-        .select('*, company:companies(legal_name)')
-        .eq('type', 'INPI')
+        .select('*, client:clients(name)')
+        .eq('type', 'TICKET_INPI')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       const ticketsWithCompany = (data || []).map((ticket: any) => ({
         ...ticket,
-        company_name: ticket.company?.legal_name || 'N/A',
+        company_name: ticket.client?.name || 'N/A',
       }));
 
       setTickets(ticketsWithCompany);
@@ -78,7 +78,7 @@ export default function TicketsINPI() {
   const updateTicketStatus = async (ticketId: string, newStatus: string) => {
     await supabase
       .from('tickets')
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .update({ status: newStatus as any, updated_at: new Date().toISOString() })
       .eq('id', ticketId);
 
     loadTickets();

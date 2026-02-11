@@ -39,6 +39,17 @@ export function Documents() {
     }
   }, [currentClientId]);
 
+  const updateDocumentStatus = async (docId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('documents')
+      .update({ status: newStatus as any, updated_at: new Date().toISOString() })
+      .eq('id', docId);
+
+    if (!error) {
+      loadDocuments();
+    }
+  };
+
   const loadDocuments = async () => {
     if (!currentClientId) return;
 

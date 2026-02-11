@@ -32,7 +32,7 @@ export default function Clients() {
   const loadCompanies = async () => {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('clients')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -41,12 +41,14 @@ export default function Clients() {
       const companiesWithCounts = await Promise.all(
         (data || []).map(async (company) => {
           const { count } = await supabase
-            .from('company_members')
+            .from('client_memberships')
             .select('*', { count: 'exact', head: true })
-            .eq('company_id', company.id);
+            .eq('client_id', company.id);
 
           return {
             ...company,
+            legal_name: company.name,
+            onboarding_completed: company.status === 'ACTIVE',
             member_count: count || 0,
           };
         })
