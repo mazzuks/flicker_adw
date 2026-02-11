@@ -9,6 +9,7 @@ interface Ticket {
   status: string;
   priority: string;
   sla_due_at: string | null;
+  data_json: any;
   created_at: string;
   updated_at: string;
   client: {
@@ -25,7 +26,9 @@ export function TicketsCNPJ() {
   const { isAdworks } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (isAdworks) {
@@ -130,6 +133,75 @@ export function TicketsCNPJ() {
 
   return (
     <div>
+      {/* Modal Dossier */}
+      {isModalOpen && selectedTicket && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-adworks-gray/30">
+              <div>
+                <span className="text-[10px] font-black text-adworks-blue uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Dossier do Cliente</span>
+                <h2 className="text-2xl font-black text-adworks-dark mt-2 italic">{selectedTicket.client?.fantasy_name || selectedTicket.client?.name}</h2>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="w-12 h-12 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-adworks-dark transition-all shadow-sm"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-adworks-gray/50 rounded-3xl p-6 border border-gray-100">
+                  <h3 className="text-sm font-black text-adworks-dark uppercase mb-4 flex items-center">
+                    <Building2 className="w-4 h-4 mr-2 text-adworks-blue" />
+                    Dados Cadastrais
+                  </h3>
+                  <div className="space-y-3">
+                    <p className="text-sm"><span className="text-gray-400 font-bold uppercase text-[10px]">Nome Fantasia:</span> <br/><span className="font-bold">{selectedTicket.data_json?.fantasy_name || 'N/A'}</span></p>
+                    <p className="text-sm"><span className="text-gray-400 font-bold uppercase text-[10px]">Segmento:</span> <br/><span className="font-bold">{selectedTicket.data_json?.segment || 'N/A'}</span></p>
+                    <p className="text-sm"><span className="text-gray-400 font-bold uppercase text-[10px]">Cidade/UF:</span> <br/><span className="font-bold">{selectedTicket.data_json?.city} / {selectedTicket.data_json?.state}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-adworks-gray/50 rounded-3xl p-6 border border-gray-100">
+                  <h3 className="text-sm font-black text-adworks-dark uppercase mb-4 flex items-center">
+                    <Clock className="w-4 h-4 mr-2 text-adworks-blue" />
+                    Status do Processo
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-600">Prioridade:</span>
+                      <span className={`text-xs font-black uppercase ${getPriorityColor(selectedTicket.priority)}`}>{selectedTicket.priority}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-600">SLA:</span>
+                      <span className="text-sm font-black">{selectedTicket.sla_due_at ? new Date(selectedTicket.sla_due_at).toLocaleDateString('pt-BR') : 'Sem prazo'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                <h3 className="text-sm font-black text-adworks-dark uppercase mb-4">Dossiê Completo (JSON)</h3>
+                <pre className="bg-adworks-dark text-adworks-accent p-4 rounded-2xl text-[11px] overflow-x-auto font-mono">
+                  {JSON.stringify(selectedTicket.data_json || {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+
+            <div className="p-8 border-t border-gray-100 bg-adworks-gray/30 flex justify-end">
+               <button 
+                onClick={() => setIsModalOpen(false)}
+                className="bg-adworks-blue text-white px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg"
+              >
+                Fechar Dossiê
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Tickets CNPJ</h1>
@@ -292,7 +364,13 @@ export function TicketsCNPJ() {
                         <option value="WAITING_CLIENT">Pedir Documento</option>
                         <option value="DONE">Concluir</option>
                       </select>
-                      <button className="text-adworks-blue hover:text-blue-900 ml-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedTicket(ticket);
+                          setIsModalOpen(true);
+                        }}
+                        className="text-adworks-blue hover:text-blue-900 ml-2"
+                      >
                         <MessageSquare className="w-5 h-5 inline" />
                       </button>
                     </td>
