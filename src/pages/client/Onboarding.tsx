@@ -801,89 +801,103 @@ export function Onboarding() {
     }
   };
 
-  const currentStep = STEPS[currentStepIndex];
   const progress = Math.round(((currentStepIndex + 1) / STEPS.length) * 100);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
 
+  const currentStep = STEPS[currentStepIndex];
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Cadastro da Empresa</h1>
-        <p className="text-gray-600 mt-1">Complete as informações para começar</p>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-white rounded-2xl p-8 shadow-adw-soft border border-gray-100">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div>
+            <span className="text-xs font-black text-adworks-blue uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">
+              PASSO {currentStepIndex + 1} DE {STEPS.length}
+            </span>
+            <h1 className="text-3xl font-black text-adworks-dark mt-2 tracking-tight">
+              {currentStep.label}
+            </h1>
+            <p className="text-gray-500 mt-1">{currentStep.description}</p>
+          </div>
+          <div className="hidden md:block">
+            <div className="flex space-x-1">
+              {STEPS.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    idx === currentStepIndex
+                      ? 'w-8 bg-adworks-blue'
+                      : idx < currentStepIndex
+                      ? 'bg-green-500'
+                      : 'bg-gray-200'
+                  }`}
+                ></div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-adworks-gray/50 rounded-2xl p-8 border border-dashed border-gray-200">
+            {renderStepContent()}
+          </div>
+
+          <div className="flex justify-between items-center pt-6 border-t border-gray-100">
+            <button
+              onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
+              disabled={currentStepIndex === 0}
+              className="flex items-center space-x-2 text-gray-400 hover:text-adworks-dark font-bold disabled:opacity-30 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>VOLTAR</span>
+            </button>
+
+            <button
+              onClick={saveStep}
+              className="flex items-center space-x-2 bg-adworks-blue text-white px-8 py-4 rounded-adw font-black hover:bg-blue-700 transition-all shadow-lg shadow-adworks-blue/20 disabled:opacity-50"
+            >
+              <span>{currentStepIndex === STEPS.length - 1 ? 'FINALIZAR' : 'PRÓXIMO PASSO'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Progresso</span>
-            <span className="text-sm font-medium text-blue-600">{progress}%</span>
-          </div>
-          <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div
-              className="bg-blue-600 h-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {STEPS.map((step, idx) => {
+          const status = stepStatuses[step.key];
+          const isActive = idx === currentStepIndex;
+          const isCompleted = status === 'APPROVED' || status === 'SUBMITTED';
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">
-          {STEPS.map((step, index) => (
+          return (
             <button
               key={step.key}
-              onClick={() => setCurrentStepIndex(index)}
-              className={`p-3 rounded-lg text-left transition-colors ${
-                index === currentStepIndex
-                  ? 'bg-blue-50 border-2 border-blue-600'
-                  : stepStatuses[step.key] === 'APPROVED'
-                  ? 'bg-green-50 border border-green-200'
-                  : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+              onClick={() => setCurrentStepIndex(idx)}
+              className={`p-3 rounded-xl border text-left transition-all duration-200 ${
+                isActive
+                  ? 'border-adworks-blue bg-blue-50 shadow-md translate-y-[-2px]'
+                  : 'border-gray-100 bg-white hover:border-gray-200'
               }`}
             >
-              <div className="flex items-center space-x-2 mb-1">
-                {stepStatuses[step.key] === 'APPROVED' ? (
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                ) : (
-                  <Circle className="w-4 h-4 text-gray-400" />
-                )}
-                <span className="text-xs font-medium text-gray-900">{index + 1}</span>
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[10px] font-black uppercase ${isActive ? 'text-adworks-blue' : 'text-gray-400'}`}>
+                  Etapa {idx + 1}
+                </span>
+                {isCompleted && <CheckCircle className="w-3 h-3 text-green-500" />}
               </div>
-              <p className="text-xs text-gray-700 line-clamp-1">{step.label}</p>
+              <p className={`text-xs font-bold truncate ${isActive ? 'text-adworks-dark' : 'text-gray-600'}`}>
+                {step.label}
+              </p>
             </button>
-          ))}
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{currentStep.label}</h2>
-          <p className="text-gray-600">{currentStep.description}</p>
-        </div>
-
-        <div className="space-y-6 mb-8">{renderStepContent()}</div>
-
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-          <button
-            onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
-            disabled={currentStepIndex === 0}
-            className="flex items-center space-x-2 px-6 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Anterior</span>
-          </button>
-
-          <button
-            onClick={saveStep}
-            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <span>{currentStepIndex === STEPS.length - 1 ? 'Finalizar' : 'Próximo passo'}</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
