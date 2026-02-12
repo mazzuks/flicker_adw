@@ -1,340 +1,135 @@
 import { useState, useEffect } from 'react';
-import { Users, UserPlus, Mail, Shield, Trash2, Crown } from 'lucide-react';
+import { Users, UserPlus, Mail, Shield, Trash2, Crown, ChevronRight, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 
 type Member = {
   id: string;
   user_id: string;
-  role: string;
+  role_in_client: string;
   created_at: string;
-  user_email: string;
-  user_name: string;
+  email: string;
+  full_name: string;
 };
 
 export default function Team() {
-  const { user } = useAuth();
+  const { user, currentClientId } = useAuth();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('USER');
-  const [currentUserRole, setCurrentUserRole] = useState<string>('');
-  const [companyId, setCompanyId] = useState<string>('');
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    loadTeamData();
-  }, [user]);
+    if (currentClientId) {
+      loadTeamData();
+    }
+  }, [currentClientId]);
 
   const loadTeamData = async () => {
-    if (!user) return;
-
     try {
-      const { data: membership } = await supabase
-        .from('company_members')
-        .select('company_id, role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!membership) return;
-
-      setCompanyId(membership.company_id);
-      setCurrentUserRole(membership.role);
-
-      const { data: membersData, error } = await supabase
-        .from('company_members')
-        .select('id, user_id, role, created_at')
-        .eq('company_id', membership.company_id)
+      const { data, error } = await supabase
+        .from('client_memberships')
+        .select(`
+          id,
+          user_id,
+          role_in_client,
+          created_at,
+          user:user_id (
+            email,
+            full_name
+          )
+        `)
+        .eq('client_id', currentClientId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      const membersWithDetails = await Promise.all(
-        (membersData || []).map(async (member) => {
-          const { data: { user: userData } } = await supabase.auth.admin.getUserById(member.user_id);
-          return {
-            ...member,
-            user_email: userData?.email || 'N/A',
-            user_name: userData?.user_metadata?.name || 'Sem nome',
-          };
-        })
-      );
+      const formattedMembers = (data || []).map((m: any) => ({
+        id: m.id,
+        user_id: m.user_id,
+        role_in_client: m.role_in_client,
+        created_at: m.created_at,
+        email: m.user?.email || 'N/A',
+        full_name: m.user?.full_name || 'Sem nome'
+      }));
 
-      setMembers(membersWithDetails);
+      setMembers(formattedMembers);
     } catch (err: any) {
-      setMessage({ type: 'error', text: 'Erro ao carregar membros da equipe' });
+      console.error('Erro ao carregar equipe:', err);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      const { data: existingUser } = await supabase
-        .from('company_members')
-        .select('id')
-        .eq('company_id', companyId)
-        .limit(1)
-        .single();
-
-      const { error } = await supabase
-        .from('pending_invites')
-        .insert({
-          company_id: companyId,
-          email: inviteEmail.toLowerCase(),
-          role: inviteRole,
-          invited_by: user?.id,
-        });
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: `Convite enviado para ${inviteEmail}` });
-      setShowInviteModal(false);
-      setInviteEmail('');
-      setInviteRole('USER');
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Erro ao enviar convite' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemoveMember = async (memberId: string, memberEmail: string) => {
-    if (!confirm(`Tem certeza que deseja remover ${memberEmail} da equipe?`)) return;
-
-    try {
-      const { error } = await supabase
-        .from('company_members')
-        .delete()
-        .eq('id', memberId);
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: 'Membro removido com sucesso' });
-      loadTeamData();
-    } catch (err: any) {
-      setMessage({ type: 'error', text: 'Erro ao remover membro' });
-    }
-  };
-
-  const handleChangeRole = async (memberId: string, newRole: string) => {
-    try {
-      const { error } = await supabase
-        .from('company_members')
-        .update({ role: newRole })
-        .eq('id', memberId);
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: 'Função atualizada com sucesso' });
-      loadTeamData();
-    } catch (err: any) {
-      setMessage({ type: 'error', text: 'Erro ao atualizar função' });
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'OWNER':
-        return 'bg-purple-100 text-purple-700';
-      case 'ADMIN':
-        return 'bg-blue-100 text-blue-700';
-      case 'USER':
-        return 'bg-green-100 text-green-700';
-      default:
-        return 'bg-slate-100 text-slate-700';
-    }
-  };
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'OWNER':
-        return <Crown className="w-4 h-4" />;
-      case 'ADMIN':
-        return <Shield className="w-4 h-4" />;
-      default:
-        return <Users className="w-4 h-4" />;
-    }
-  };
-
-  const canManageMembers = currentUserRole === 'OWNER' || currentUserRole === 'ADMIN';
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Equipe</h1>
-          <p className="text-slate-600 mt-1">Gerencie os membros da sua empresa</p>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">Minha Equipe</h1>
+          <p className="text-gray-500 font-medium">Colaboradores com acesso ao painel da sua empresa.</p>
         </div>
-        {canManageMembers && (
-          <button
-            onClick={() => setShowInviteModal(true)}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            <UserPlus className="w-4 h-4" />
-            Convidar Membro
-          </button>
-        )}
+        <button className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2">
+          <UserPlus className="w-5 h-5" />
+          <span>Convidar Membro</span>
+        </button>
       </div>
 
-      {message.text && (
-        <div className={`p-4 rounded-lg ${
-          message.type === 'success'
-            ? 'bg-green-50 text-green-700 border border-green-200'
-            : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
-          {message.text}
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">
-                  Membro
-                </th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">
-                  Função
-                </th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">
-                  Desde
-                </th>
-                {canManageMembers && (
-                  <th className="text-right py-3 px-6 text-sm font-semibold text-slate-700">
-                    Ações
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {members.map((member) => (
-                <tr key={member.id} className="hover:bg-slate-50">
-                  <td className="py-4 px-6">
-                    <div>
-                      <p className="font-medium text-slate-900">{member.user_name}</p>
-                      <p className="text-sm text-slate-600">{member.user_email}</p>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    {canManageMembers && member.role !== 'OWNER' ? (
-                      <select
-                        value={member.role}
-                        onChange={(e) => handleChangeRole(member.id, e.target.value)}
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(member.role)}`}
-                      >
-                        <option value="USER">Usuário</option>
-                        <option value="ADMIN">Admin</option>
-                      </select>
-                    ) : (
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(member.role)}`}>
-                        {getRoleIcon(member.role)}
-                        {member.role === 'OWNER' ? 'Proprietário' : member.role === 'ADMIN' ? 'Admin' : 'Usuário'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-4 px-6 text-sm text-slate-600">
-                    {new Date(member.created_at).toLocaleDateString('pt-BR')}
-                  </td>
-                  {canManageMembers && (
-                    <td className="py-4 px-6 text-right">
-                      {member.role !== 'OWNER' && member.user_id !== user?.id && (
-                        <button
-                          onClick={() => handleRemoveMember(member.id, member.user_email)}
-                          className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="bg-white p-6 rounded-[2.5rem] shadow-adw-soft border border-gray-100 flex flex-col md:flex-row gap-6 items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nome ou e-mail..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-adworks-gray border-none rounded-2xl focus:ring-2 focus:ring-adworks-blue text-adworks-dark font-bold"
+          />
         </div>
       </div>
 
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {members.map((member) => (
+          <div key={member.id} className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group relative overflow-hidden">
+            {member.role_in_client === 'CLIENT_OWNER' && (
+              <div className="absolute top-0 right-0 bg-adworks-blue text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest rounded-bl-xl shadow-md">
+                Proprietário
               </div>
-              <h2 className="text-xl font-semibold text-slate-900">Convidar Membro</h2>
-            </div>
-
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="email@exemplo.com"
-                  required
-                />
+            )}
+            
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-adworks-gray rounded-2xl flex items-center justify-center font-black text-adworks-blue text-xl group-hover:scale-105 transition-transform">
+                {member.full_name.charAt(0).toUpperCase()}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Função
-                </label>
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="USER">Usuário</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-                <p className="text-xs text-slate-500 mt-1">
-                  Admin: Pode gerenciar membros e configurações
+                <h3 className="text-lg font-black text-adworks-dark uppercase italic tracking-tight">{member.full_name}</h3>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mt-1">
+                   <Mail className="w-3.5 h-3.5" />
+                   {member.email}
                 </p>
               </div>
+            </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowInviteModal(false);
-                    setInviteEmail('');
-                    setInviteRole('USER');
-                  }}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {loading ? 'Enviando...' : 'Enviar Convite'}
-                </button>
-              </div>
-            </form>
+            <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                 <Shield className="w-4 h-4 text-adworks-blue" />
+                 <span className="text-[10px] font-black text-adworks-dark uppercase tracking-widest">
+                   {member.role_in_client === 'CLIENT_OWNER' ? 'Dono da Empresa' : 'Colaborador'}
+                 </span>
+               </div>
+               <button className="text-gray-300 hover:text-red-500 transition-colors">
+                  <Trash2 className="w-5 h-5" />
+               </button>
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
