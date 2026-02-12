@@ -24,7 +24,7 @@ import { AdworksDashboard } from './pages/adworks/AdworksDashboard';
 import { AdworksTasks } from './pages/adworks/AdworksTasks';
 import { AdworksTeam } from './pages/adworks/AdworksTeam';
 import { Inbox as OperatorInbox } from './pages/client/Inbox';
-import ClientsList from './pages/adworks/Clients';
+import { Clients as ClientsList } from './pages/adworks/Clients';
 import { TicketsCNPJ } from './pages/adworks/TicketsCNPJ';
 import { TicketsFiscal } from './pages/adworks/TicketsFiscal';
 import { TicketsINPI } from './pages/adworks/TicketsINPI';

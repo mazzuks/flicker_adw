@@ -29,7 +29,7 @@ type Ticket = {
   amount?: number;
 };
 
-export default function TicketsFiscal() {
+export function TicketsFiscal() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);

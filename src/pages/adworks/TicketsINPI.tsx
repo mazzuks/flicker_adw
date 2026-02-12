@@ -15,7 +15,7 @@ type Ticket = {
   company_name?: string;
 };
 
-export default function TicketsINPI() {
+export function TicketsINPI() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);

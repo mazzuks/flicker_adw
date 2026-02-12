@@ -31,7 +31,7 @@ type Company = {
   member_count?: number;
 };
 
-export default function Clients() {
+export function Clients() {
   const { setCurrentClientId } = useAuth();
   const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
