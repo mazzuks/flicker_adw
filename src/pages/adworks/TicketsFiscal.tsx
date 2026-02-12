@@ -15,6 +15,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { BatchFiscalUpload } from '../../components/BatchFiscalUpload';
 
 type Ticket = {
   id: string;
@@ -35,6 +36,7 @@ export function TicketsFiscal() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [showBatchModal, setShowBatchModal] = useState(false);
 
   useEffect(() => {
     loadTickets();
@@ -97,6 +99,14 @@ export function TicketsFiscal() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {showBatchModal && (
+        <BatchFiscalUpload 
+          onClose={() => setShowBatchModal(false)} 
+          onComplete={() => {
+            loadTickets();
+          }} 
+        />
+      )}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
@@ -105,7 +115,10 @@ export function TicketsFiscal() {
           <p className="text-gray-500 font-medium tracking-tight">Publicação de guias e controle de faturamento dos clientes.</p>
         </div>
         <div className="flex gap-3">
-           <button className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2">
+           <button 
+             onClick={() => setShowBatchModal(true)}
+             className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2"
+           >
              <Plus className="w-5 h-5" />
              <span>Subir Lote DAS</span>
            </button>
