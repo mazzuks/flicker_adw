@@ -99,7 +99,7 @@ export function AdworksDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div 
           onClick={() => navigate(`${basePath}/clients`)}
-          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group"
+          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group active:scale-95"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-adworks-blue group-hover:text-white transition-colors">
@@ -113,7 +113,7 @@ export function AdworksDashboard() {
 
         <div 
           onClick={() => navigate(`${basePath}/tasks`)}
-          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group"
+          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group active:scale-95"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
@@ -127,7 +127,7 @@ export function AdworksDashboard() {
 
         <div 
           onClick={() => navigate(`${basePath}/tasks`, { state: { filter: 'urgent' } })}
-          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group"
+          className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all cursor-pointer group active:scale-95"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
@@ -141,7 +141,10 @@ export function AdworksDashboard() {
           <h3 className="text-4xl font-black text-adworks-dark tracking-tighter">{stats.overdueTickets}</h3>
         </div>
 
-        <div className={`p-8 rounded-[2.5rem] shadow-2xl text-white hover:scale-[1.02] transition-all ${isOperator ? 'bg-adworks-dark' : 'bg-orange-600'} shadow-blue-500/20`}>
+        <div 
+          onClick={() => navigate(`${basePath}/tasks`)}
+          className={`p-8 rounded-[2.5rem] shadow-2xl text-white hover:scale-[1.02] transition-all cursor-pointer active:scale-95 ${isOperator ? 'bg-adworks-dark' : 'bg-orange-600'} shadow-blue-500/20`}
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
               <CheckCircle className="w-7 h-7 text-white" />
@@ -165,7 +168,7 @@ export function AdworksDashboard() {
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <button 
                 onClick={() => navigate(`${basePath}/tickets/cnpj`)}
-                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-adworks-blue/30 hover:bg-white transition-all text-left"
+                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-adworks-blue/30 hover:bg-white transition-all text-left active:scale-95"
               >
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
                   <Building2 className="w-6 h-6 text-adworks-blue" />
@@ -176,7 +179,7 @@ export function AdworksDashboard() {
 
               <button 
                 onClick={() => navigate(`${basePath}/tickets/inpi`)}
-                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-purple-300 hover:bg-white transition-all text-left"
+                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-purple-300 hover:bg-white transition-all text-left active:scale-95"
               >
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
                   <Briefcase className="w-6 h-6 text-purple-600" />
@@ -188,7 +191,7 @@ export function AdworksDashboard() {
         </div>
 
         <div className={`${isOperator ? 'bg-adworks-dark' : 'bg-adworks-blue'} rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group`}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-110 transition-all"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-110 transition-all duration-700"></div>
           <h3 className="text-xl font-black mb-8 uppercase italic tracking-tighter">Status da Fila</h3>
           <div className="space-y-6">
             <div className="flex items-center justify-between">
