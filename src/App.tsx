@@ -36,6 +36,8 @@ import { TicketsINPI } from './pages/adworks/TicketsINPI';
  * 3. /client   -> Painel da Empresa (Clientes)
  */
 
+import { MasterSettings } from './pages/adworks/MasterSettings';
+
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
   
@@ -107,7 +109,7 @@ function AppRoutes() {
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />
             <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20">Master Analytics Area</div>} />
-            <Route path="settings" element={<div className="p-20 text-center font-black opacity-20">Global Configuration</div>} />
+            <Route path="settings" element={<MasterSettings />} />
           </Route>
         )}
       </Route>
