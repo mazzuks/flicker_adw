@@ -113,7 +113,7 @@ function AppRoutes() {
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />
             <Route path="settings" element={<MasterSettings />} />
-            <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20">Master Analytics Area</div>} />
+            <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20 text-adworks-dark uppercase italic tracking-tighter">Master Analytics Area (Fase 2)</div>} />
           </Route>
         )}
       </Route>
