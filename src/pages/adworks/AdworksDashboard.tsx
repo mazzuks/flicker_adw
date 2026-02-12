@@ -8,6 +8,12 @@ import {
   CheckCircle,
   AlertTriangle,
   TrendingUp,
+  ArrowUpRight,
+  Zap,
+  LayoutDashboard,
+  Building2,
+  Briefcase,
+  Activity
 } from 'lucide-react';
 
 export function AdworksDashboard() {
@@ -31,8 +37,7 @@ export function AdworksDashboard() {
   const loadStats = async () => {
     const { data: clients } = await supabase
       .from('clients')
-      .select('id, status')
-      .eq('status', 'ACTIVE');
+      .select('id, status');
 
     const { data: allTickets } = await supabase.from('tickets').select('*');
 
@@ -41,7 +46,7 @@ export function AdworksDashboard() {
 
     setStats({
       totalClients: clients?.length || 0,
-      activeClients: clients?.length || 0,
+      activeClients: clients?.filter(c => c.status === 'ACTIVE').length || 0,
       totalTickets: allTickets?.length || 0,
       newTickets: allTickets?.filter((t) => t.status === 'NEW').length || 0,
       inProgressTickets: allTickets?.filter((t) => t.status === 'IN_PROGRESS').length || 0,
@@ -54,7 +59,7 @@ export function AdworksDashboard() {
       completedThisMonth:
         allTickets?.filter(
           (t) =>
-            t.status === 'DONE' &&
+            (t.status === 'DONE' || t.status === 'APPROVED') &&
             new Date(t.updated_at) >= firstDayOfMonth
         ).length || 0,
     });
@@ -65,155 +70,143 @@ export function AdworksDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Adworks</h1>
-        <p className="text-gray-600 mt-1">Visão geral das operações</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <TrendingUp className="w-5 h-5 text-green-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{stats.activeClients}</p>
-          <p className="text-sm text-gray-600">Clientes Ativos</p>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
+            Command Center
+          </h1>
+          <p className="text-gray-500 font-medium tracking-tight">Gestão operacional da Adworks em tempo real.</p>
         </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-purple-600" />
-            </div>
+        <div className="bg-adworks-dark px-6 py-3 rounded-2xl shadow-xl flex items-center space-x-4 border border-white/10">
+          <div className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-adworks-blue"></span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{stats.totalTickets}</p>
-          <p className="text-sm text-gray-600">Total de Tickets</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{stats.inProgressTickets}</p>
-          <p className="text-sm text-gray-600">Em Andamento</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{stats.completedThisMonth}</p>
-          <p className="text-sm text-gray-600">Concluídos este mês</p>
+          <span className="text-xs font-black text-blue-200 uppercase tracking-widest">Operator Online</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Status dos Tickets</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-gray-900">Novos</p>
-                <p className="text-xs text-gray-600">Aguardando atribuição</p>
-              </div>
-              <span className="text-2xl font-bold text-blue-600">{stats.newTickets}</span>
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
+              <Users className="w-7 h-7 text-adworks-blue" />
             </div>
-            <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-gray-900">Aguardando Cliente</p>
-                <p className="text-xs text-gray-600">Pendente de resposta</p>
-              </div>
-              <span className="text-2xl font-bold text-yellow-600">
-                {stats.waitingClientTickets}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-gray-900">Atrasados</p>
-                <p className="text-xs text-gray-600">SLA vencido</p>
-              </div>
-              <span className="text-2xl font-bold text-red-600">{stats.overdueTickets}</span>
-            </div>
+            <ArrowUpRight className="w-5 h-5 text-green-500" />
           </div>
+          <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Clientes Ativos</p>
+          <h3 className="text-4xl font-black text-adworks-dark tracking-tighter">{stats.activeClients}</h3>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate('/adworks/tickets/cnpj')}
-              className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Tickets CNPJ</p>
-                  <p className="text-sm text-gray-600">Gerenciar abertura de empresas</p>
-                </div>
-                <FileText className="w-5 h-5 text-gray-400" />
-              </div>
-            </button>
-            <button
-              onClick={() => navigate('/adworks/tickets/inpi')}
-              className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Tickets INPI</p>
-                  <p className="text-sm text-gray-600">Gerenciar registro de marcas</p>
-                </div>
-                <FileText className="w-5 h-5 text-gray-400" />
-              </div>
-            </button>
-            <button
-              onClick={() => navigate('/adworks/clients')}
-              className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Clientes</p>
-                  <p className="text-sm text-gray-600">Visualizar todos os clientes</p>
-                </div>
-                <Users className="w-5 h-5 text-gray-400" />
-              </div>
-            </button>
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center">
+              <FileText className="w-7 h-7 text-purple-600" />
+            </div>
+            <div className="bg-purple-100 px-2 py-1 rounded text-[10px] font-black text-purple-700">FILA</div>
           </div>
+          <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Total de Tickets</p>
+          <h3 className="text-4xl font-black text-adworks-dark tracking-tighter">{stats.totalTickets}</h3>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-adw-soft border border-gray-100 hover:scale-[1.02] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center">
+              <AlertTriangle className="w-7 h-7 text-orange-500" />
+            </div>
+            {stats.overdueTickets > 0 && (
+              <span className="animate-pulse bg-red-500 w-3 h-3 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
+            )}
+          </div>
+          <p className="text-sm font-black text-gray-400 uppercase tracking-widest text-orange-600">Atrasados (SLA)</p>
+          <h3 className="text-4xl font-black text-adworks-dark tracking-tighter">{stats.overdueTickets}</h3>
+        </div>
+
+        <div className="bg-adworks-blue p-8 rounded-[2.5rem] shadow-2xl shadow-adworks-blue/30 text-white hover:scale-[1.02] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+              <CheckCircle className="w-7 h-7 text-white" />
+            </div>
+            <Activity className="w-5 h-5 text-blue-200" />
+          </div>
+          <p className="text-sm font-black text-blue-200 uppercase tracking-widest">Concluídos (Mês)</p>
+          <h3 className="text-4xl font-black tracking-tighter">{stats.completedThisMonth}</h3>
         </div>
       </div>
 
-      {stats.overdueTickets > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <div className="flex items-start space-x-3">
-            <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900 mb-1">
-                Atenção: {stats.overdueTickets} ticket(s) atrasado(s)
-              </h3>
-              <p className="text-sm text-red-800">
-                Alguns tickets ultrapassaram o prazo do SLA e precisam de atenção imediata.
-              </p>
-              <button
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-adw-soft border border-gray-100">
+           <div className="flex items-center justify-between mb-10">
+              <h2 className="text-xl font-black text-adworks-dark uppercase italic flex items-center">
+                <Zap className="w-6 h-6 mr-2 text-adworks-blue" />
+                Ações Rápidas do Operador
+              </h2>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <button 
                 onClick={() => navigate('/adworks/tickets/cnpj')}
-                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-adworks-blue/30 hover:bg-white transition-all text-left"
               >
-                Ver tickets atrasados
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                  <Building2 className="w-6 h-6 text-adworks-blue" />
+                </div>
+                <h4 className="font-black text-adworks-dark text-lg mb-1">Fila de CNPJ</h4>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stats.newTickets} Novos processos aguardando</p>
               </button>
+
+              <button 
+                onClick={() => navigate('/adworks/tickets/inpi')}
+                className="group p-8 bg-adworks-gray/50 rounded-3xl border border-transparent hover:border-adworks-blue/30 hover:bg-white transition-all text-left"
+              >
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                  <Briefcase className="w-6 h-6 text-purple-600" />
+                </div>
+                <h4 className="font-black text-adworks-dark text-lg mb-1">Registro de Marcas</h4>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Acompanhar protocolos INPI</p>
+              </button>
+           </div>
+        </div>
+
+        <div className="bg-adworks-dark rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-adworks-blue/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+          <h3 className="text-xl font-black mb-8 uppercase italic tracking-tighter">Status da Fila</h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Em Andamento</span>
+              <span className="text-lg font-black text-adworks-blue">{stats.inProgressTickets}</span>
+            </div>
+            <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+               <div className="bg-adworks-blue h-full" style={{ width: `${(stats.inProgressTickets / (stats.totalTickets || 1)) * 100}%` }}></div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aguardando Cliente</span>
+              <span className="text-lg font-black text-orange-500">{stats.waitingClientTickets}</span>
+            </div>
+            <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+               <div className="bg-orange-500 h-full" style={{ width: `${(stats.waitingClientTickets / (stats.totalTickets || 1)) * 100}%` }}></div>
             </div>
           </div>
+          
+          <div className="mt-12 pt-8 border-t border-white/5">
+             <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">Performance Diária</p>
+             <div className="flex items-end gap-1 h-12">
+                {[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
+                  <div key={i} className="flex-1 bg-white/10 rounded-t-sm group-hover:bg-adworks-blue/50 transition-all" style={{ height: `${h}%` }}></div>
+                ))}
+             </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
