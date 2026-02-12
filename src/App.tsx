@@ -11,29 +11,46 @@ import { LeadForm } from './pages/public/LeadForm';
 // 👤 CLIENT DOMAIN COMPONENTS
 import { Dashboard as ClientDashboard } from './pages/client/Dashboard';
 import { Onboarding as ClientOnboarding } from './pages/client/Onboarding';
+import { Documents as ClientDocuments } from './pages/client/Documents';
 import { Tasks as ClientTasks } from './pages/client/Tasks';
 import { Inbox as ClientInbox } from './pages/client/Inbox';
 import { CRM as ClientCRM } from './pages/client/CRM';
 import { Finance as ClientFinance } from './pages/client/Finance';
 import ClientAccount from './pages/client/Account';
 import ClientTeam from './pages/client/Team';
-import { Documents as ClientDocuments } from './pages/client/Documents';
 
-// 🎧 OPERATOR DOMAIN COMPONENTS
-import { AdworksDashboard } from './pages/adworks/AdworksDashboard';
-import { AdworksTasks } from './pages/adworks/AdworksTasks';
-import { AdworksTeam } from './pages/adworks/AdworksTeam';
+// 🎧 OPERATOR & MASTER COMPONENTS (Unified)
+import { 
+  AdworksDashboard, 
+  AdworksTasks, 
+  AdworksTeam, 
+  Clients as ClientsList, 
+  TicketsCNPJ, 
+  TicketsFiscal, 
+  TicketsINPI, 
+  MasterSettings 
+} from './pages/adworks';
+
 import { Inbox as OperatorInbox } from './pages/client/Inbox';
-import { Clients as ClientsList } from './pages/adworks/Clients';
-import { TicketsCNPJ } from './pages/adworks/TicketsCNPJ';
-import { TicketsFiscal } from './pages/adworks/TicketsFiscal';
-import { TicketsINPI } from './pages/adworks/TicketsINPI';
-import { MasterSettings } from './pages/adworks/MasterSettings';
+
+/**
+ * 🏢 ARQUITETURA DE TRÊS CAIXAS (DOMÍNIOS ISOLADOS)
+ * 1. /master   -> Gestão Total (Admins)
+ * 2. /operator -> Fila de Trabalho (Equipe)
+ * 3. /client   -> Painel da Empresa (Clientes)
+ */
 
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
-  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) return <Navigate to="/master" replace />;
-  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') return <Navigate to="/operator" replace />;
+  
+  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) {
+    return <Navigate to="/master" replace />;
+  }
+  
+  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') {
+    return <Navigate to="/operator" replace />;
+  }
+  
   return <Navigate to="/client" replace />;
 }
 
@@ -84,6 +101,7 @@ function AppRoutes() {
             <Route path="tickets/inpi" element={<TicketsINPI />} />
             <Route path="tickets/fiscal" element={<TicketsFiscal />} />
             <Route path="clients" element={<ClientsList />} />
+            <Route path="messages" element={<OperatorInbox />} />
           </Route>
         )}
 

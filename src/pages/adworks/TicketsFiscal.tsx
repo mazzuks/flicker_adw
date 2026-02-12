@@ -156,7 +156,7 @@ export function TicketsFiscal() {
                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Mês Ref.</th>
                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Valor Guia</th>
                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-               <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Ações</th>
+               <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Ações</th>
              </tr>
            </thead>
            <tbody className="divide-y divide-gray-50">
@@ -178,7 +178,7 @@ export function TicketsFiscal() {
                  <td className="px-8 py-6">
                     {getStatusBadge(ticket.status)}
                  </td>
-                 <td className="px-8 py-6">
+                 <td className="px-8 py-6 text-right">
                     <button className="w-10 h-10 bg-adworks-gray text-gray-400 rounded-xl flex items-center justify-center hover:bg-adworks-blue hover:text-white transition-all">
                        <ArrowUpRight className="w-5 h-5" />
                     </button>
