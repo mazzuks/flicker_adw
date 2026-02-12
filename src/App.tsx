@@ -24,6 +24,8 @@ import { Finance } from './pages/client/Finance';
 
 import { AdworksTasks } from './pages/adworks/AdworksTasks';
 
+import { AdworksTeam } from './pages/adworks/AdworksTeam';
+
 function AppRoutes() {
   const { user, loading, isAdworks } = useAuth();
 
@@ -63,6 +65,7 @@ function AppRoutes() {
                 {/* 🎧 OPERATOR ROUTES (Adworks) */}
                 <Route path="/adworks" element={<AdworksDashboard />} />
                 <Route path="/adworks/clients" element={<Clients />} />
+                <Route path="/adworks/team" element={<AdworksTeam />} />
                 <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
                 <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
                 <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />

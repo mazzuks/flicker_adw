@@ -51,6 +51,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: FileText, label: 'Tickets CNPJ', path: '/adworks/tickets/cnpj' },
     { icon: Briefcase, label: 'Tickets INPI', path: '/adworks/tickets/inpi' },
     { icon: Inbox, label: 'Tickets Fiscal', path: '/adworks/tickets/fiscal' },
+    { icon: Users, label: 'Equipe', path: '/adworks/team' },
     { icon: Settings, label: 'Configurações', path: '/adworks/settings' },
   ];
 
