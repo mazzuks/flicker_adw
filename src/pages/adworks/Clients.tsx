@@ -18,7 +18,8 @@ import {
   Download,
   Trash2,
   CheckSquare,
-  MessageSquare
+  MessageSquare,
+  Plus
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
