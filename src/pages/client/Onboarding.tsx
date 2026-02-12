@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
-import { CheckCircle, Circle, ArrowRight, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { 
+  CheckCircle, 
+  Circle, 
+  ArrowRight, 
+  ArrowLeft, 
+  Plus, 
+  Trash2, 
+  Globe, 
+  Search, 
+  Zap, 
+  XCircle,
+  CheckCircle2
+} from 'lucide-react';
 
 interface Step {
   key: string;
@@ -29,7 +41,24 @@ export function Onboarding() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [stepStatuses, setStepStatuses] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [domainStatus, setDomainStatus] = useState<{available: boolean, domain: string} | null>(null);
+
+  const checkDomain = async () => {
+    if (!formData.domain_name) return;
+    setGenerating(true);
+    try {
+      const domain = `${formData.domain_name}${formData.domain_extension || '.com.br'}`;
+      const { data, error } = await supabase.functions.invoke('domain-checker', {
+        body: { domain }
+      });
+      if (!error) setDomainStatus(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (currentClientId) {
@@ -502,37 +531,70 @@ export function Onboarding() {
 
       case 'domain':
         return (
-          <>
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">
                 Qual domínio deseja para sua empresa?
               </label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={formData.domain_name || ''}
-                  onChange={(e) => setFormData({ ...formData, domain_name: e.target.value })}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="minhaempresa"
-                />
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                  <input
+                    type="text"
+                    value={formData.domain_name || ''}
+                    onChange={(e) => setFormData({ ...formData, domain_name: e.target.value })}
+                    className="w-full pl-11 pr-4 py-4 bg-white border-none rounded-2xl shadow-inner focus:ring-2 focus:ring-adworks-blue font-bold text-adworks-dark"
+                    placeholder="minhaempresa"
+                  />
+                </div>
                 <select
                   value={formData.domain_extension || '.com.br'}
                   onChange={(e) => setFormData({ ...formData, domain_extension: e.target.value })}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-6 py-4 bg-white border-none rounded-2xl shadow-inner focus:ring-2 focus:ring-adworks-blue font-black text-xs uppercase tracking-widest"
                 >
                   <option value=".com.br">.com.br</option>
                   <option value=".com">.com</option>
                   <option value=".net">.net</option>
-                  <option value=".org">.org</option>
+                  <option value=".app">.app</option>
                 </select>
               </div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                Vamos verificar a disponibilidade do domínio e providenciar o registro para você.
+
+            <button
+              type="button"
+              onClick={checkDomain}
+              disabled={generating || !formData.domain_name}
+              className="w-full bg-adworks-dark text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-adworks-blue transition-all shadow-xl disabled:opacity-30 flex items-center justify-center gap-3"
+            >
+              {generating ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : <Search className="w-4 h-4" />}
+              VERIFICAR DISPONIBILIDADE
+            </button>
+
+            {domainStatus && (
+              <div className={`p-6 rounded-[2rem] border-2 animate-in zoom-in duration-300 ${domainStatus.available ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm ${domainStatus.available ? 'text-green-500' : 'text-red-500'}`}>
+                    {domainStatus.available ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                  </div>
+                  <div>
+                    <p className="font-black uppercase tracking-tighter italic text-lg leading-none mb-1">{domainStatus.domain}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-70">
+                      {domainStatus.available ? 'Está disponível! Podemos registrar agora.' : 'Já possui dono. Tente outra variação.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 flex gap-4">
+              <Zap className="w-6 h-6 text-adworks-blue shrink-0" />
+              <p className="text-xs font-medium text-blue-700 leading-relaxed italic">
+                "Um domínio curto e fácil de lembrar aumenta em 30% a conversão dos seus anúncios digitais."
               </p>
             </div>
-          </>
+          </div>
         );
 
       case 'email':
