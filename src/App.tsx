@@ -20,11 +20,10 @@ import { TicketsCNPJ } from './pages/adworks/TicketsCNPJ';
 import TicketsFiscal from './pages/adworks/TicketsFiscal';
 import TicketsINPI from './pages/adworks/TicketsINPI';
 import Clients from './pages/adworks/Clients';
-
 import { Finance } from './pages/client/Finance';
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdworks } = useAuth();
 
   if (loading) {
     return (
@@ -48,6 +47,7 @@ function AppRoutes() {
           <PrivateRoute>
             <Layout>
               <Routes>
+                {/* 👤 CLIENT ROUTES */}
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/documents" element={<Documents />} />
@@ -58,12 +58,19 @@ function AppRoutes() {
                 <Route path="/team" element={<Team />} />
                 <Route path="/finance" element={<Finance />} />
 
+                {/* 🎧 OPERATOR ROUTES (Adworks) */}
                 <Route path="/adworks" element={<AdworksDashboard />} />
+                <Route path="/adworks/clients" element={<Clients />} />
                 <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
                 <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
                 <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />
-                <Route path="/adworks/clients" element={<Clients />} />
+                {/* Futuras rotas de operador aqui */}
+                <Route path="/adworks/tasks" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Fila de Tarefas Operacionais em breve</div>} />
+                <Route path="/adworks/inbox" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Inbox Global em breve</div>} />
                 <Route path="/adworks/settings" element={<div className="text-center py-12">Configurações em breve</div>} />
+                
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Layout>
           </PrivateRoute>
