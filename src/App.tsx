@@ -21,10 +21,20 @@ import TicketsFiscal from './pages/adworks/TicketsFiscal';
 import TicketsINPI from './pages/adworks/TicketsINPI';
 import Clients from './pages/adworks/Clients';
 import { Finance } from './pages/client/Finance';
-
 import { AdworksTasks } from './pages/adworks/AdworksTasks';
-
 import { AdworksTeam } from './pages/adworks/AdworksTeam';
+
+function RootRedirect() {
+  const { isAdworks, currentClientId } = useAuth();
+  
+  // Se for Adworks e não estiver impersonando, vai pro Command Center
+  if (isAdworks && !currentClientId) {
+    return <Navigate to="/adworks" replace />;
+  }
+  
+  // Se for cliente (ou Adworks impersonando), vai pro Dashboard de Cliente
+  return <Navigate to="/dashboard" replace />;
+}
 
 function AppRoutes() {
   const { user, loading, isAdworks } = useAuth();
@@ -32,7 +42,7 @@ function AppRoutes() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
@@ -51,8 +61,11 @@ function AppRoutes() {
           <PrivateRoute>
             <Layout>
               <Routes>
-                {/* 👤 CLIENT ROUTES */}
-                <Route path="/" element={<Dashboard />} />
+                {/* 🧭 INTELLIGENT ROOT REDIRECT */}
+                <Route path="/" element={<RootRedirect />} />
+
+                {/* 👤 CLIENT DOMAIN (/dashboard/...) */}
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/documents" element={<Documents />} />
                 <Route path="/tasks" element={<Tasks />} />
@@ -62,16 +75,20 @@ function AppRoutes() {
                 <Route path="/team" element={<Team />} />
                 <Route path="/finance" element={<Finance />} />
 
-                {/* 🎧 OPERATOR ROUTES (Adworks) */}
-                <Route path="/adworks" element={<AdworksDashboard />} />
-                <Route path="/adworks/clients" element={<Clients />} />
-                <Route path="/adworks/team" element={<AdworksTeam />} />
-                <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
-                <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
-                <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />
-                <Route path="/adworks/tasks" element={<AdworksTasks />} />
-                <Route path="/adworks/inbox" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Inbox Global em breve</div>} />
-                <Route path="/adworks/settings" element={<div className="text-center py-12">Configurações em breve</div>} />
+                {/* 🎧 OPERATOR DOMAIN (/adworks/...) */}
+                {isAdworks && (
+                  <>
+                    <Route path="/adworks" element={<AdworksDashboard />} />
+                    <Route path="/adworks/clients" element={<Clients />} />
+                    <Route path="/adworks/team" element={<AdworksTeam />} />
+                    <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
+                    <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
+                    <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />
+                    <Route path="/adworks/tasks" element={<AdworksTasks />} />
+                    <Route path="/adworks/inbox" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Inbox Global em breve</div>} />
+                    <Route path="/adworks/settings" element={<div className="text-center py-12">Configurações em breve</div>} />
+                  </>
+                )}
                 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

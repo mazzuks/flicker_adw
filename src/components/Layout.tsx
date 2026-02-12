@@ -36,7 +36,7 @@ export function Layout({ children }: LayoutProps) {
   };
 
   const clientNavItems = [
-    { icon: Home, label: 'Início', path: '/' },
+    { icon: Home, label: 'Início', path: '/dashboard' },
     { icon: CheckSquare, label: 'Tarefas', path: '/tasks' },
     { icon: Inbox, label: 'Mensagens', path: '/inbox' },
     { icon: Users, label: 'CRM', path: '/crm' },
@@ -83,6 +83,27 @@ export function Layout({ children }: LayoutProps) {
                 </div>
                 <span className="text-xl font-extrabold tracking-tight text-adworks-dark">ADWORKS</span>
               </Link>
+            </div>
+
+            <div className="hidden md:flex md:items-center md:space-x-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-adworks-blue text-white shadow-lg shadow-adworks-blue/20' 
+                        : 'text-gray-400 hover:text-adworks-dark hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
 
             <div className="flex items-center space-x-4">
