@@ -22,6 +22,8 @@ import TicketsINPI from './pages/adworks/TicketsINPI';
 import Clients from './pages/adworks/Clients';
 import { Finance } from './pages/client/Finance';
 
+import { AdworksTasks } from './pages/adworks/AdworksTasks';
+
 function AppRoutes() {
   const { user, loading, isAdworks } = useAuth();
 
@@ -64,8 +66,7 @@ function AppRoutes() {
                 <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
                 <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
                 <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />
-                {/* Futuras rotas de operador aqui */}
-                <Route path="/adworks/tasks" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Fila de Tarefas Operacionais em breve</div>} />
+                <Route path="/adworks/tasks" element={<AdworksTasks />} />
                 <Route path="/adworks/inbox" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Inbox Global em breve</div>} />
                 <Route path="/adworks/settings" element={<div className="text-center py-12">Configurações em breve</div>} />
                 
