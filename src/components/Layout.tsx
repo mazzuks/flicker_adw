@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { NotificationCenter } from './NotificationCenter';
 import {
@@ -14,10 +14,11 @@ import {
   FileText,
   Briefcase,
   Settings,
+  Zap
 } from 'lucide-react';
 
 interface LayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
@@ -32,91 +33,98 @@ export function Layout({ children }: LayoutProps) {
 
   const stopImpersonating = () => {
     setCurrentClientId(null);
-    navigate('/adworks');
+    navigate('/admin');
   };
 
   const clientNavItems = [
-    { icon: Home, label: 'Início', path: '/dashboard' },
-    { icon: CheckSquare, label: 'Tarefas', path: '/tasks' },
-    { icon: Inbox, label: 'Mensagens', path: '/inbox' },
-    { icon: Users, label: 'CRM', path: '/crm' },
-    { icon: FileText, label: 'Financeiro', path: '/finance' },
-    { icon: Users, label: 'Equipe', path: '/team' },
-    { icon: User, label: 'Conta', path: '/account' },
+    { icon: Home, label: 'Início', path: '/app' },
+    { icon: CheckSquare, label: 'Tarefas', path: '/app/tasks' },
+    { icon: Inbox, label: 'Mensagens', path: '/app/messages' },
+    { icon: Users, label: 'CRM', path: '/app/crm' },
+    { icon: FileText, label: 'Financeiro', path: '/app/finance' },
+    { icon: Users, label: 'Equipe', path: '/app/team' },
+    { icon: User, label: 'Conta', path: '/app/account' },
   ];
 
   const adworksNavItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/adworks' },
-    { icon: Building2, label: 'Clientes', path: '/adworks/clients' },
-    { icon: FileText, label: 'Tickets CNPJ', path: '/adworks/tickets/cnpj' },
-    { icon: Briefcase, label: 'Tickets INPI', path: '/adworks/tickets/inpi' },
-    { icon: Inbox, label: 'Tickets Fiscal', path: '/adworks/tickets/fiscal' },
-    { icon: Users, label: 'Equipe', path: '/adworks/team' },
-    { icon: Settings, label: 'Configurações', path: '/adworks/settings' },
+    { icon: LayoutDashboard, label: 'Command Center', path: '/admin' },
+    { icon: Building2, label: 'Clientes', path: '/admin/clients' },
+    { icon: CheckSquare, label: 'Trabalho', path: '/admin/tasks' },
+    { icon: FileText, label: 'Tickets CNPJ', path: '/admin/tickets/cnpj' },
+    { icon: Briefcase, label: 'Tickets INPI', path: '/admin/tickets/inpi' },
+    { icon: Inbox, label: 'Tickets Fiscal', path: '/admin/tickets/fiscal' },
+    { icon: Users, label: 'Time Adworks', path: '/admin/team' },
+    { icon: Settings, label: 'Ajustes', path: '/admin/settings' },
   ];
 
-  // Se for Adworks MAS estiver impersonando um cliente, mostra menu de cliente + banner de aviso
-  const isImpersonating = isAdworks && currentClientId;
-  const navItems = isImpersonating ? clientNavItems : (isAdworks ? adworksNavItems : clientNavItems);
+  // Se a rota começa com /admin, usa menu de operador. Senão, menu de cliente.
+  const isViewingAdmin = location.pathname.startsWith('/admin');
+  const navItems = isViewingAdmin ? adworksNavItems : clientNavItems;
+
+  const isImpersonating = isAdworks && currentClientId && !isViewingAdmin;
 
   return (
     <div className="min-h-screen bg-adworks-gray">
       {isImpersonating && (
-        <div className="bg-orange-500 text-white px-4 py-2 text-center text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-lg z-[100] relative">
-          <Zap className="w-4 h-4 animate-pulse" />
-          Modo Visualização: Você está logado como cliente
+        <div className="bg-orange-600 text-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-6 shadow-2xl z-[100] relative animate-in slide-in-from-top duration-500">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 animate-pulse" />
+            VENDO COMO CLIENTE
+          </div>
           <button 
             onClick={stopImpersonating}
-            className="bg-white text-orange-600 px-3 py-1 rounded-lg font-black hover:bg-orange-50 transition-all ml-4"
+            className="bg-white text-orange-600 px-4 py-1.5 rounded-full font-black hover:bg-orange-50 transition-all shadow-sm active:scale-95"
           >
-            SAIR DA VISÃO
+            VOLTAR AO ADMIN
           </button>
         </div>
       )}
-      <nav className="bg-white border-b border-gray-100 shadow-adw-soft">
+
+      <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-adworks-blue rounded-adw flex items-center justify-center shadow-lg shadow-adworks-blue/20">
-                  <Building2 className="w-6 h-6 text-white" />
+          <div className="flex justify-between h-20">
+            <div className="flex items-center gap-12">
+              <Link to="/" className="flex items-center space-x-2 group">
+                <div className="w-12 h-12 bg-adworks-blue rounded-2xl flex items-center justify-center shadow-lg shadow-adworks-blue/20 group-hover:scale-105 transition-transform">
+                  <Building2 className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xl font-extrabold tracking-tight text-adworks-dark">ADWORKS</span>
+                <span className="text-xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
               </Link>
+
+              <div className="hidden lg:flex items-center space-x-1">
+                {navItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center space-x-2 px-4 py-2.5 rounded-2xl transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-adworks-blue text-white shadow-xl shadow-adworks-blue/20 scale-105' 
+                          : 'text-gray-400 hover:text-adworks-dark hover:bg-gray-50'
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="hidden md:flex md:items-center md:space-x-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${
-                      isActive 
-                        ? 'bg-adworks-blue text-white shadow-lg shadow-adworks-blue/20' 
-                        : 'text-gray-400 hover:text-adworks-dark hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <NotificationCenter />
 
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{profile?.full_name || profile?.email}</p>
-                  <p className="text-xs text-gray-500">{profile?.role_global}</p>
+              <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-black text-adworks-dark uppercase tracking-tight">{profile?.full_name}</p>
+                  <p className="text-[9px] font-bold text-adworks-blue uppercase tracking-widest opacity-60">
+                    {isViewingAdmin ? 'Nível Operador' : 'Nível Cliente'}
+                  </p>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-gray-600 hover:text-gray-900"
+                  className="w-10 h-10 rounded-xl bg-adworks-gray text-gray-400 hover:text-red-500 transition-all flex items-center justify-center border border-transparent hover:border-red-100"
                   title="Sair"
                 >
                   <LogOut className="w-5 h-5" />
@@ -127,57 +135,9 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </nav>
 
-      {!isAdworks && (
-        <div className="md:hidden bg-white border-b border-gray-200">
-          <div className="flex justify-around">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex flex-col items-center py-3 px-4 transition-all duration-200 ${
-                    isActive ? 'text-adworks-blue font-bold translate-y-[-2px]' : 'text-gray-400 hover:text-adworks-blue'
-                  }`}
-                >
-                  <Icon className="w-6 h-6" />
-                  <span className="text-xs mt-1">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isAdworks && (
-          <div className="mb-6">
-            <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-adw transition-all duration-200 ${
-                      isActive
-                        ? 'bg-adworks-blue text-white shadow-lg shadow-adworks-blue/20'
-                        : 'text-gray-400 hover:bg-gray-50 hover:text-adworks-blue'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <main>{children}</main>
-      </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {children || <Outlet />}
+      </main>
     </div>
   );
 }

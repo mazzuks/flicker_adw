@@ -6,34 +6,33 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import { Dashboard } from './pages/client/Dashboard';
-import { Onboarding } from './pages/client/Onboarding';
-import { CRM } from './pages/client/CRM';
-import { Documents } from './pages/client/Documents';
-import { Tasks } from './pages/client/Tasks';
-import { Inbox } from './pages/client/Inbox';
-import Account from './pages/client/Account';
-import Team from './pages/client/Team';
 import { LeadForm } from './pages/public/LeadForm';
+
+// 👤 CLIENT DOMAIN COMPONENTS
+import { Dashboard as ClientDashboard } from './pages/client/Dashboard';
+import { Onboarding as ClientOnboarding } from './pages/client/Onboarding';
+import { Tasks as ClientTasks } from './pages/client/Tasks';
+import { Inbox as ClientInbox } from './pages/client/Inbox';
+import { CRM as ClientCRM } from './pages/client/CRM';
+import { Finance as ClientFinance } from './pages/client/Finance';
+import ClientAccount from './pages/client/Account';
+import ClientTeam from './pages/client/Team';
+import { Documents as ClientDocuments } from './pages/client/Documents';
+
+// 🎧 OPERATOR DOMAIN COMPONENTS
 import { AdworksDashboard } from './pages/adworks/AdworksDashboard';
+import { AdworksTasks } from './pages/adworks/AdworksTasks';
+import { AdworksTeam } from './pages/adworks/AdworksTeam';
+import { Inbox as OperatorInbox } from './pages/client/Inbox'; // Placeholder: To be specialized
+import ClientsList from './pages/adworks/Clients';
 import { TicketsCNPJ } from './pages/adworks/TicketsCNPJ';
 import TicketsFiscal from './pages/adworks/TicketsFiscal';
 import TicketsINPI from './pages/adworks/TicketsINPI';
-import Clients from './pages/adworks/Clients';
-import { Finance } from './pages/client/Finance';
-import { AdworksTasks } from './pages/adworks/AdworksTasks';
-import { AdworksTeam } from './pages/adworks/AdworksTeam';
 
 function RootRedirect() {
   const { isAdworks, currentClientId } = useAuth();
-  
-  // Se for Adworks e não estiver impersonando, vai pro Command Center
-  if (isAdworks && !currentClientId) {
-    return <Navigate to="/adworks" replace />;
-  }
-  
-  // Se for cliente (ou Adworks impersonando), vai pro Dashboard de Cliente
-  return <Navigate to="/dashboard" replace />;
+  if (isAdworks && !currentClientId) return <Navigate to="/admin" replace />;
+  return <Navigate to="/app" replace />;
 }
 
 function AppRoutes() {
@@ -61,36 +60,36 @@ function AppRoutes() {
           <PrivateRoute>
             <Layout>
               <Routes>
-                {/* 🧭 INTELLIGENT ROOT REDIRECT */}
                 <Route path="/" element={<RootRedirect />} />
 
-                {/* 👤 CLIENT DOMAIN (/dashboard/...) */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/documents" element={<Documents />} />
-                <Route path="/tasks" element={<Tasks />} />
-                <Route path="/inbox" element={<Inbox />} />
-                <Route path="/crm" element={<CRM />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="/finance" element={<Finance />} />
+                {/* 👤 CLIENT BOX (/app/...) */}
+                <Route path="/app">
+                  <Route index element={<ClientDashboard />} />
+                  <Route path="onboarding" element={<ClientOnboarding />} />
+                  <Route path="documents" element={<ClientDocuments />} />
+                  <Route path="tasks" element={<ClientTasks />} />
+                  <Route path="messages" element={<ClientInbox />} />
+                  <Route path="crm" element={<ClientCRM />} />
+                  <Route path="finance" element={<ClientFinance />} />
+                  <Route path="account" element={<ClientAccount />} />
+                  <Route path="team" element={<ClientTeam />} />
+                </Route>
 
-                {/* 🎧 OPERATOR DOMAIN (/adworks/...) */}
+                {/* 🎧 OPERATOR BOX (/admin/...) */}
                 {isAdworks && (
-                  <>
-                    <Route path="/adworks" element={<AdworksDashboard />} />
-                    <Route path="/adworks/clients" element={<Clients />} />
-                    <Route path="/adworks/team" element={<AdworksTeam />} />
-                    <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
-                    <Route path="/adworks/tickets/inpi" element={<TicketsINPI />} />
-                    <Route path="/adworks/tickets/fiscal" element={<TicketsFiscal />} />
-                    <Route path="/adworks/tasks" element={<AdworksTasks />} />
-                    <Route path="/adworks/inbox" element={<div className="p-8 text-center text-gray-500 font-bold uppercase tracking-widest italic">Inbox Global em breve</div>} />
-                    <Route path="/adworks/settings" element={<div className="text-center py-12">Configurações em breve</div>} />
-                  </>
+                  <Route path="/admin">
+                    <Route index element={<AdworksDashboard />} />
+                    <Route path="clients" element={<ClientsList />} />
+                    <Route path="team" element={<AdworksTeam />} />
+                    <Route path="tasks" element={<AdworksTasks />} />
+                    <Route path="messages" element={<OperatorInbox />} />
+                    <Route path="tickets/cnpj" element={<TicketsCNPJ />} />
+                    <Route path="tickets/inpi" element={<TicketsINPI />} />
+                    <Route path="tickets/fiscal" element={<TicketsFiscal />} />
+                    <Route path="settings" element={<div className="p-12 text-center font-black italic">Settings Area</div>} />
+                  </Route>
                 )}
                 
-                {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Layout>
