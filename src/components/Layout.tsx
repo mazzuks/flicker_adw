@@ -18,7 +18,8 @@ import {
   BarChart3,
   ShieldCheck,
   Package,
-  Layers
+  Layers,
+  Globe
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -44,34 +45,41 @@ export function Layout({ children }: LayoutProps) {
   const isOperatorPath = location.pathname.startsWith('/operator');
   const isClientPath = location.pathname.startsWith('/client');
 
+  // 👤 CAIXINHA DO CLIENTE
   const clientNavItems = [
-    { icon: Home, label: 'Dashboard', path: '/client' },
-    { icon: Package, label: 'Onboarding', path: '/client/onboarding' },
-    { icon: CheckSquare, label: 'Tarefas', path: '/client/tasks' },
-    { icon: Inbox, label: 'Mensagens', path: '/client/messages' },
-    { icon: Users, label: 'CRM', path: '/client/crm' },
-    { icon: FileText, label: 'Financeiro', path: '/client/finance' },
+    { icon: Home, label: 'Início', path: '/client', mobile: true },
+    { icon: Package, label: 'Abertura', path: '/client/onboarding', mobile: false },
+    { icon: CheckSquare, label: 'Tarefas', path: '/client/tasks', mobile: true },
+    { icon: Inbox, label: 'Mensagens', path: '/client/messages', mobile: true },
+    { icon: Users, label: 'CRM', path: '/client/crm', mobile: true },
+    { icon: FileText, label: 'Financeiro', path: '/client/finance', mobile: true },
+    { icon: Globe, label: 'Meu Site', path: '/client/site', mobile: false },
   ];
 
+  // 🎧 CAIXINHA DO OPERADOR
   const operatorNavItems = [
-    { icon: LayoutDashboard, label: 'Minha Fila', path: '/operator' },
-    { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks' },
-    { icon: FileText, label: 'CNPJ', path: '/operator/tickets/cnpj' },
-    { icon: Briefcase, label: 'INPI', path: '/operator/tickets/inpi' },
-    { icon: Inbox, label: 'Fiscal', path: '/operator/tickets/fiscal' },
-    { icon: Building2, label: 'Clientes', path: '/operator/clients' },
+    { icon: LayoutDashboard, label: 'Minha Fila', path: '/operator', mobile: true },
+    { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks', mobile: true },
+    { icon: FileText, label: 'CNPJ', path: '/operator/tickets/cnpj', mobile: false },
+    { icon: Briefcase, label: 'INPI', path: '/operator/tickets/inpi', mobile: false },
+    { icon: Inbox, label: 'Fiscal', path: '/operator/tickets/fiscal', mobile: false },
+    { icon: Building2, label: 'Clientes', path: '/operator/clients', mobile: true },
+    { icon: Inbox, label: 'Chat Global', path: '/operator/messages', mobile: true },
   ];
 
+  // 🛡️ CAIXINHA DO MASTER
   const masterNavItems = [
-    { icon: Layers, label: 'Overview', path: '/master' },
-    { icon: CheckSquare, label: 'Tarefas', path: '/master/tasks' },
-    { icon: Building2, label: 'Clientes', path: '/master/clients' },
-    { icon: Users, label: 'Equipe', path: '/master/team' },
-    { icon: BarChart3, label: 'Métricas', path: '/master/analytics' },
-    { icon: Settings, label: 'Ajustes', path: '/master/settings' },
+    { icon: Layers, label: 'Overview', path: '/master', mobile: true },
+    { icon: CheckSquare, label: 'Tarefas', path: '/master/tasks', mobile: true },
+    { icon: Building2, label: 'Clientes', path: '/master/clients', mobile: true },
+    { icon: Users, label: 'Equipe', path: '/master/team', mobile: false },
+    { icon: BarChart3, label: 'Métricas', path: '/master/analytics', mobile: false },
+    { icon: Settings, label: 'Ajustes', path: '/master/settings', mobile: false },
   ];
 
   const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
+  const mobileNavItems = navItems.filter(item => item.mobile);
+
   const isImpersonating = isAdworks && currentClientId && isClientPath;
 
   const getThemeColor = () => {
@@ -117,7 +125,6 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-12">
-              {/* Logo Area */}
               <Link to="/" className="flex items-center space-x-3 group">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110 ${
                   isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
@@ -127,7 +134,6 @@ export function Layout({ children }: LayoutProps) {
                 <span className="text-2xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
               </Link>
 
-              {/* Menu Items (Pill Style) */}
               <div className="hidden lg:flex items-center space-x-1 bg-adworks-gray/50 p-1.5 rounded-[1.5rem]">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
@@ -149,7 +155,6 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
 
-            {/* User Profile Area */}
             <div className="flex items-center space-x-8">
               <NotificationCenter />
 
@@ -179,9 +184,9 @@ export function Layout({ children }: LayoutProps) {
         {children || <Outlet />}
       </main>
 
-      {/* MOBILE NAV BOTTOM */}
+      {/* 📱 MOBILE NAV BOTTOM (Intelligent Filtering) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-         {navItems.slice(0, 5).map((item) => {
+         {mobileNavItems.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1.5 ${
