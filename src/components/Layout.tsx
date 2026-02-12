@@ -40,12 +40,10 @@ export function Layout({ children }: LayoutProps) {
     navigate('/master');
   };
 
-  // 1. IDENTIFICAÇÃO DA CAIXINHA ATUAL VIA URL
   const isMasterPath = location.pathname.startsWith('/master');
   const isOperatorPath = location.pathname.startsWith('/operator');
   const isClientPath = location.pathname.startsWith('/client');
 
-  // 👤 CAIXINHA DO CLIENTE
   const clientNavItems = [
     { icon: Home, label: 'Dashboard', path: '/client' },
     { icon: Package, label: 'Onboarding', path: '/client/onboarding' },
@@ -55,7 +53,6 @@ export function Layout({ children }: LayoutProps) {
     { icon: FileText, label: 'Financeiro', path: '/client/finance' },
   ];
 
-  // 🎧 CAIXINHA DO OPERADOR
   const operatorNavItems = [
     { icon: LayoutDashboard, label: 'Minha Fila', path: '/operator' },
     { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks' },
@@ -65,24 +62,30 @@ export function Layout({ children }: LayoutProps) {
     { icon: Building2, label: 'Clientes', path: '/operator/clients' },
   ];
 
-  // 🛡️ CAIXINHA DO MASTER
   const masterNavItems = [
     { icon: Layers, label: 'Overview', path: '/master' },
+    { icon: CheckSquare, label: 'Tarefas', path: '/master/tasks' },
     { icon: Building2, label: 'Clientes', path: '/master/clients' },
     { icon: Users, label: 'Equipe', path: '/master/team' },
     { icon: BarChart3, label: 'Métricas', path: '/master/analytics' },
     { icon: Settings, label: 'Ajustes', path: '/master/settings' },
   ];
 
-  // Definição contextual do Menu
   const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
-
   const isImpersonating = isAdworks && currentClientId && isClientPath;
+
+  const getThemeColor = () => {
+    if (isMasterPath) return 'orange-600';
+    if (isOperatorPath) return 'adworks-dark';
+    return 'adworks-blue';
+  };
+
+  const themeColor = getThemeColor();
 
   return (
     <div className="min-h-screen bg-adworks-gray">
-      {/* INDICADOR DE CONTEXTO (GPS VISUAL) */}
-      <div className={`px-4 py-1 text-[9px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2 text-white ${
+      {/* ⚡ TOP NAVIGATION (GPS Indicator) */}
+      <div className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2 text-white shadow-sm ${
         isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
       }`}>
         {isMasterPath ? (
@@ -109,58 +112,62 @@ export function Layout({ children }: LayoutProps) {
         </div>
       )}
 
-      <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
-            <div className="flex items-center gap-10">
-              <Link to="/" className="flex items-center space-x-2 group">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 ${
+      {/* 🚀 MODERN NAVIGATION BAR (Vibe Platto) */}
+      <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50 h-24 flex items-center">
+        <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-12">
+              {/* Logo Area */}
+              <Link to="/" className="flex items-center space-x-3 group">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110 ${
                   isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
                 } shadow-blue-500/20`}>
                   <Building2 className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
+                <span className="text-2xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
               </Link>
 
-              <div className="hidden lg:flex items-center space-x-1">
+              {/* Menu Items (Pill Style) */}
+              <div className="hidden lg:flex items-center space-x-1 bg-adworks-gray/50 p-1.5 rounded-[1.5rem]">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center space-x-2 px-4 py-2.5 rounded-2xl transition-all duration-300 ${
+                      className={`flex items-center space-x-2 px-6 py-3 rounded-2xl transition-all duration-300 ${
                         isActive 
-                          ? (isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue') + ' text-white shadow-xl scale-105' 
-                          : 'text-gray-400 hover:text-adworks-dark hover:bg-gray-50'
+                          ? `bg-${themeColor} text-white shadow-xl scale-105` 
+                          : 'text-gray-400 hover:text-adworks-dark'
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest leading-none">{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex items-center space-x-6">
+            {/* User Profile Area */}
+            <div className="flex items-center space-x-8">
               <NotificationCenter />
 
-              <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
+              <div className="flex items-center gap-5 pl-8 border-l border-gray-100">
                 <div className="text-right hidden sm:block">
-                  <p className="text-xs font-black text-adworks-dark uppercase tracking-tight">{profile?.full_name}</p>
-                  <p className={`text-[9px] font-bold uppercase tracking-widest ${
-                    isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-blue opacity-100' : 'text-adworks-blue'
+                  <p className="text-sm font-black text-adworks-dark uppercase tracking-tighter leading-none">{profile?.full_name}</p>
+                  <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-1 ${
+                    isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-blue' : 'text-adworks-blue'
                   }`}>
                     {isMasterPath ? 'Master Admin' : isOperatorPath ? 'Operador' : 'Cliente'}
                   </p>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="w-10 h-10 rounded-xl bg-adworks-gray text-gray-400 hover:text-red-500 transition-all flex items-center justify-center border border-transparent hover:border-red-100"
+                  className="w-12 h-12 rounded-2xl bg-adworks-gray text-gray-400 hover:text-red-500 transition-all flex items-center justify-center border border-transparent hover:border-red-100 hover:shadow-inner"
                   title="Sair"
                 >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-6 h-6" />
                 </button>
               </div>
             </div>
@@ -168,17 +175,17 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-32">
         {children || <Outlet />}
       </main>
 
-      {/* MOBILE NAV BOTTOM (Contextual) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex justify-around items-center z-50 shadow-2xl">
+      {/* MOBILE NAV BOTTOM */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
          {navItems.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1 ${
-                isActive ? (isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-dark' : 'text-adworks-blue') : 'text-gray-400'
+              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1.5 ${
+                isActive ? `text-${themeColor}` : 'text-gray-400'
               }`}>
                 <item.icon className={`w-6 h-6 transition-all ${isActive ? 'scale-110' : ''}`} />
                 <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>

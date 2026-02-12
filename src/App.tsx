@@ -28,27 +28,12 @@ import { Clients as ClientsList } from './pages/adworks/Clients';
 import { TicketsCNPJ } from './pages/adworks/TicketsCNPJ';
 import { TicketsFiscal } from './pages/adworks/TicketsFiscal';
 import { TicketsINPI } from './pages/adworks/TicketsINPI';
-
-/**
- * 🏢 ARQUITETURA DE TRÊS CAIXAS (DOMÍNIOS ISOLADOS)
- * 1. /master   -> Gestão Total (Admins)
- * 2. /operator -> Fila de Trabalho (Equipe)
- * 3. /client   -> Painel da Empresa (Clientes)
- */
-
 import { MasterSettings } from './pages/adworks/MasterSettings';
 
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
-  
-  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) {
-    return <Navigate to="/master" replace />;
-  }
-  
-  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') {
-    return <Navigate to="/operator" replace />;
-  }
-  
+  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) return <Navigate to="/master" replace />;
+  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') return <Navigate to="/operator" replace />;
   return <Navigate to="/client" replace />;
 }
 
@@ -105,11 +90,12 @@ function AppRoutes() {
         {/* 🛡️ CAIXINHA DO MASTER (/master) */}
         {isMaster && (
           <Route path="master">
-            <Route index element={<AdworksDashboard />} /> {/* Master Dashboard especializado em breve */}
+            <Route index element={<AdworksDashboard />} />
+            <Route path="tasks" element={<AdworksTasks />} />
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />
-            <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20">Master Analytics Area</div>} />
             <Route path="settings" element={<MasterSettings />} />
+            <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20">Master Analytics Area</div>} />
           </Route>
         )}
       </Route>
