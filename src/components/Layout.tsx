@@ -35,6 +35,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: CheckSquare, label: 'Tarefas', path: '/tasks' },
     { icon: Inbox, label: 'Mensagens', path: '/inbox' },
     { icon: Users, label: 'CRM', path: '/crm' },
+    { icon: FileText, label: 'Financeiro', path: '/finance' },
     { icon: Users, label: 'Equipe', path: '/team' },
     { icon: User, label: 'Conta', path: '/account' },
   ];

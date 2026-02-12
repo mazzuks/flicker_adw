@@ -21,6 +21,8 @@ import TicketsFiscal from './pages/adworks/TicketsFiscal';
 import TicketsINPI from './pages/adworks/TicketsINPI';
 import Clients from './pages/adworks/Clients';
 
+import { Finance } from './pages/client/Finance';
+
 function AppRoutes() {
   const { user, loading } = useAuth();
 
@@ -54,6 +56,7 @@ function AppRoutes() {
                 <Route path="/crm" element={<CRM />} />
                 <Route path="/account" element={<Account />} />
                 <Route path="/team" element={<Team />} />
+                <Route path="/finance" element={<Finance />} />
 
                 <Route path="/adworks" element={<AdworksDashboard />} />
                 <Route path="/adworks/tickets/cnpj" element={<TicketsCNPJ />} />
