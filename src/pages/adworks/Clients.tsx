@@ -12,9 +12,13 @@ import {
   ChevronRight,
   ShieldCheck,
   CreditCard,
-  FileText
+  FileText,
+  LogIn,
+  MoreVertical
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
+import { useNavigate } from 'react-router-dom';
 
 type Company = {
   id: string;
@@ -28,11 +32,14 @@ type Company = {
 };
 
 export default function Clients() {
+  const { setCurrentClientId } = useAuth();
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     loadCompanies();
@@ -41,6 +48,11 @@ export default function Clients() {
   useEffect(() => {
     filterCompanies();
   }, [searchTerm, statusFilter, companies]);
+
+  const handleImpersonate = (clientId: string) => {
+    setCurrentClientId(clientId);
+    navigate('/');
+  };
 
   const loadCompanies = async () => {
     try {
@@ -207,7 +219,34 @@ export default function Clients() {
                         {new Date(company.created_at).toLocaleDateString('pt-BR')}
                      </div>
                    </div>
-                   <div className="flex items-center justify-end">
+                   <div className="flex items-center justify-end gap-2 relative">
+                      <div className="relative">
+                        <button 
+                          onClick={() => setOpenMenuId(openMenuId === company.id ? null : company.id)}
+                          className="w-10 h-10 rounded-xl bg-adworks-gray text-gray-400 hover:text-adworks-dark transition-all flex items-center justify-center"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                        
+                        {openMenuId === company.id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[100] overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
+                            <button 
+                              onClick={() => handleImpersonate(company.id)}
+                              className="w-full text-left px-4 py-3 text-xs font-black uppercase tracking-widest text-adworks-blue hover:bg-blue-50 flex items-center gap-3 transition-colors"
+                            >
+                              <LogIn className="w-4 h-4" />
+                              Logar como Cliente
+                            </button>
+                            <button 
+                              className="w-full text-left px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400 hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                              Ver Dossiê
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
                       <button className="w-12 h-12 rounded-2xl bg-adworks-gray text-gray-400 hover:bg-adworks-blue hover:text-white transition-all flex items-center justify-center group-hover:shadow-lg">
                         <ChevronRight className="w-6 h-6" />
                       </button>

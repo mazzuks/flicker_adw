@@ -187,6 +187,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdworks = profile?.role_global?.startsWith('ADWORKS_') || profile?.role_global?.startsWith('OPERATOR_') || false;
 
+  const impersonateClient = (clientId: string | null) => {
+    setCurrentClientId(clientId);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -199,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
-        setCurrentClientId,
+        setCurrentClientId: impersonateClient,
         isAdworks,
       }}
     >

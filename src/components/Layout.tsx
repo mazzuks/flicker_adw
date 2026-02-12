@@ -21,13 +21,18 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { profile, signOut, isAdworks } = useAuth();
+  const { profile, signOut, isAdworks, currentClientId, setCurrentClientId } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
+  };
+
+  const stopImpersonating = () => {
+    setCurrentClientId(null);
+    navigate('/adworks');
   };
 
   const clientNavItems = [
@@ -49,10 +54,24 @@ export function Layout({ children }: LayoutProps) {
     { icon: Settings, label: 'Configurações', path: '/adworks/settings' },
   ];
 
-  const navItems = isAdworks ? adworksNavItems : clientNavItems;
+  // Se for Adworks MAS estiver impersonando um cliente, mostra menu de cliente + banner de aviso
+  const isImpersonating = isAdworks && currentClientId;
+  const navItems = isImpersonating ? clientNavItems : (isAdworks ? adworksNavItems : clientNavItems);
 
   return (
     <div className="min-h-screen bg-adworks-gray">
+      {isImpersonating && (
+        <div className="bg-orange-500 text-white px-4 py-2 text-center text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-lg z-[100] relative">
+          <Zap className="w-4 h-4 animate-pulse" />
+          Modo Visualização: Você está logado como cliente
+          <button 
+            onClick={stopImpersonating}
+            className="bg-white text-orange-600 px-3 py-1 rounded-lg font-black hover:bg-orange-50 transition-all ml-4"
+          >
+            SAIR DA VISÃO
+          </button>
+        </div>
+      )}
       <nav className="bg-white border-b border-gray-100 shadow-adw-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
