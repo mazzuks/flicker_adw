@@ -17,7 +17,8 @@ import {
   Zap,
   BarChart3,
   ShieldCheck,
-  Package
+  Package,
+  Layers
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -36,72 +37,74 @@ export function Layout({ children }: LayoutProps) {
 
   const stopImpersonating = () => {
     setCurrentClientId(null);
-    navigate('/admin');
+    navigate('/master');
   };
 
-  const isViewingAdmin = location.pathname.startsWith('/admin');
+  // 1. IDENTIFICAÇÃO DA CAIXINHA ATUAL VIA URL
+  const isMasterPath = location.pathname.startsWith('/master');
+  const isOperatorPath = location.pathname.startsWith('/operator');
+  const isClientPath = location.pathname.startsWith('/client');
 
-  // 👤 CAIXINHA DO CLIENTE (/app)
+  // 👤 CAIXINHA DO CLIENTE
   const clientNavItems = [
-    { icon: Home, label: 'Dashboard', path: '/app' },
-    { icon: Package, label: 'Onboarding', path: '/app/onboarding' },
-    { icon: CheckSquare, label: 'Tarefas', path: '/app/tasks' },
-    { icon: Inbox, label: 'Mensagens', path: '/app/messages' },
-    { icon: Users, label: 'CRM', path: '/app/crm' },
-    { icon: FileText, label: 'Financeiro', path: '/app/finance' },
+    { icon: Home, label: 'Dashboard', path: '/client' },
+    { icon: Package, label: 'Onboarding', path: '/client/onboarding' },
+    { icon: CheckSquare, label: 'Tarefas', path: '/client/tasks' },
+    { icon: Inbox, label: 'Mensagens', path: '/client/messages' },
+    { icon: Users, label: 'CRM', path: '/client/crm' },
+    { icon: FileText, label: 'Financeiro', path: '/client/finance' },
   ];
 
-  // 🎧 CAIXINHA DO OPERADOR (/admin)
-  const adworksNavItems = [
-    { icon: LayoutDashboard, label: 'Command Center', path: '/admin' },
-    { icon: Building2, label: 'Clientes', path: '/admin/clients' },
-    { icon: CheckSquare, label: 'Fila de Trabalho', path: '/admin/tasks' },
-    { icon: FileText, label: 'Tickets CNPJ', path: '/admin/tickets/cnpj' },
-    { icon: Briefcase, label: 'Tickets INPI', path: '/admin/tickets/inpi' },
-    { icon: Inbox, label: 'Chat Global', path: '/admin/messages' },
+  // 🎧 CAIXINHA DO OPERADOR
+  const operatorNavItems = [
+    { icon: LayoutDashboard, label: 'Minha Fila', path: '/operator' },
+    { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks' },
+    { icon: FileText, label: 'CNPJ', path: '/operator/tickets/cnpj' },
+    { icon: Briefcase, label: 'INPI', path: '/operator/tickets/inpi' },
+    { icon: Inbox, label: 'Fiscal', path: '/operator/tickets/fiscal' },
+    { icon: Building2, label: 'Clientes', path: '/operator/clients' },
   ];
 
-  // 🛡️ CAIXINHA DO MASTER (Extra links no /admin)
+  // 🛡️ CAIXINHA DO MASTER
   const masterNavItems = [
-    ...adworksNavItems,
-    { icon: Users, label: 'Equipe', path: '/admin/team' },
-    { icon: BarChart3, label: 'Métricas', path: '/admin/analytics' },
-    { icon: Settings, label: 'Configurações', path: '/admin/settings' },
+    { icon: Layers, label: 'Overview', path: '/master' },
+    { icon: Building2, label: 'Clientes', path: '/master/clients' },
+    { icon: Users, label: 'Equipe', path: '/master/team' },
+    { icon: BarChart3, label: 'Métricas', path: '/master/analytics' },
+    { icon: Settings, label: 'Ajustes', path: '/master/settings' },
   ];
 
-  const isMaster = profile?.role_global === 'ADWORKS_SUPERADMIN';
-  const navItems = isViewingAdmin 
-    ? (isMaster ? masterNavItems : adworksNavItems) 
-    : clientNavItems;
+  // Definição contextual do Menu
+  const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
 
-  const isImpersonating = isAdworks && currentClientId && !isViewingAdmin;
+  const isImpersonating = isAdworks && currentClientId && isClientPath;
 
   return (
     <div className="min-h-screen bg-adworks-gray">
-      {/* INDICADOR DE CONTEXTO GLOBAL */}
-      {isViewingAdmin ? (
-        <div className="bg-adworks-dark text-white px-4 py-1 text-[9px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2 border-b border-white/5">
-          <ShieldCheck className="w-3 h-3 text-adworks-blue" />
-          Ambiente de Operação Interna
-        </div>
-      ) : (
-        <div className="bg-adworks-blue text-white px-4 py-1 text-[9px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2">
-          <Building2 className="w-3 h-3" />
-          Painel do Empreendedor
-        </div>
-      )}
+      {/* INDICADOR DE CONTEXTO (GPS VISUAL) */}
+      <div className={`px-4 py-1 text-[9px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2 text-white ${
+        isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
+      }`}>
+        {isMasterPath ? (
+          <><Zap className="w-3 h-3" /> Master Administration Control</>
+        ) : isOperatorPath ? (
+          <><ShieldCheck className="w-3 h-3 text-adworks-blue" /> Operator Workforce Domain</>
+        ) : (
+          <><Building2 className="w-3 h-3" /> Entrepreneur Portal</>
+        )}
+      </div>
 
       {isImpersonating && (
-        <div className="bg-orange-600 text-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-6 shadow-2xl z-[100] relative animate-in slide-in-from-top duration-500">
+        <div className="bg-orange-600 text-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-6 shadow-2xl z-[100] relative animate-in slide-in-from-top duration-500 border-b border-orange-500">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 animate-pulse" />
-            VISÃO DO CLIENTE ATIVA
+            MODO IMPERSONAÇÃO: VOCÊ ESTÁ VENDO COMO CLIENTE
           </div>
           <button 
             onClick={stopImpersonating}
             className="bg-white text-orange-600 px-4 py-1.5 rounded-full font-black hover:bg-orange-50 transition-all shadow-sm active:scale-95"
           >
-            VOLTAR AO ADMIN
+            VOLTAR AO MASTER
           </button>
         </div>
       )}
@@ -109,9 +112,11 @@ export function Layout({ children }: LayoutProps) {
       <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
-            <div className="flex items-center gap-12">
+            <div className="flex items-center gap-10">
               <Link to="/" className="flex items-center space-x-2 group">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 ${isViewingAdmin ? 'bg-adworks-dark' : 'bg-adworks-blue'} shadow-blue-500/20`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 ${
+                  isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
+                } shadow-blue-500/20`}>
                   <Building2 className="w-7 h-7 text-white" />
                 </div>
                 <span className="text-xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
@@ -126,7 +131,7 @@ export function Layout({ children }: LayoutProps) {
                       to={item.path}
                       className={`flex items-center space-x-2 px-4 py-2.5 rounded-2xl transition-all duration-300 ${
                         isActive 
-                          ? 'bg-adworks-blue text-white shadow-xl shadow-adworks-blue/20 scale-105' 
+                          ? (isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue') + ' text-white shadow-xl scale-105' 
                           : 'text-gray-400 hover:text-adworks-dark hover:bg-gray-50'
                       }`}
                     >
@@ -144,8 +149,10 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
                 <div className="text-right hidden sm:block">
                   <p className="text-xs font-black text-adworks-dark uppercase tracking-tight">{profile?.full_name}</p>
-                  <p className={`text-[9px] font-bold uppercase tracking-widest ${isViewingAdmin ? 'text-orange-500' : 'text-adworks-blue'}`}>
-                    {isViewingAdmin ? (isMaster ? 'Master Admin' : 'Operador') : 'Cliente'}
+                  <p className={`text-[9px] font-bold uppercase tracking-widest ${
+                    isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-blue opacity-100' : 'text-adworks-blue'
+                  }`}>
+                    {isMasterPath ? 'Master Admin' : isOperatorPath ? 'Operador' : 'Cliente'}
                   </p>
                 </div>
                 <button
@@ -170,7 +177,9 @@ export function Layout({ children }: LayoutProps) {
          {navItems.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1 ${isActive ? 'text-adworks-blue' : 'text-gray-400'}`}>
+              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1 ${
+                isActive ? (isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-dark' : 'text-adworks-blue') : 'text-gray-400'
+              }`}>
                 <item.icon className={`w-6 h-6 transition-all ${isActive ? 'scale-110' : ''}`} />
                 <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
               </Link>
