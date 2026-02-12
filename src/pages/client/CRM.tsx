@@ -24,12 +24,12 @@ interface Lead {
 }
 
 const STAGES = [
-  { key: 'NOVO', label: 'Novo', color: 'bg-gray-100 text-gray-700' },
-  { key: 'CONTATO', label: 'Contato', color: 'bg-blue-100 text-blue-700' },
-  { key: 'QUALIFICADO', label: 'Qualificado', color: 'bg-yellow-100 text-yellow-700' },
-  { key: 'PROPOSTA', label: 'Proposta', color: 'bg-purple-100 text-purple-700' },
-  { key: 'FECHADO', label: 'Fechado', color: 'bg-green-100 text-green-700' },
-  { key: 'PERDIDO', label: 'Perdido', color: 'bg-red-100 text-red-700' },
+  { key: 'NOVO', label: 'Novo', color: 'bg-gray-400' },
+  { key: 'CONTATO', label: 'Contato', color: 'bg-adworks-blue' },
+  { key: 'QUALIFICADO', label: 'Qualificado', color: 'bg-yellow-400' },
+  { key: 'PROPOSTA', label: 'Proposta', color: 'bg-purple-400' },
+  { key: 'FECHADO', label: 'Fechado', color: 'bg-green-500' },
+  { key: 'PERDIDO', label: 'Perdido', color: 'bg-red-500' },
 ];
 
 export function CRM() {
@@ -104,310 +104,140 @@ export function CRM() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adworks-blue"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">CRM</h1>
-          <p className="text-gray-600 mt-1">Gerencie seus leads e clientes</p>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
+            CRM & Vendas
+          </h1>
+          <p className="text-gray-500 font-medium">Gerencie seus potenciais clientes no estilo Pipedrive.</p>
         </div>
         <button
           onClick={() => setShowNewLeadModal(true)}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg shadow-adworks-blue/20 flex items-center gap-2 active:scale-95"
         >
           <Plus className="w-5 h-5" />
           <span>Novo Lead</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar leads..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
+      <div className="bg-white p-4 rounded-[2rem] shadow-adw-soft border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, email ou telefone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-adworks-gray border-none rounded-xl focus:ring-2 focus:ring-adworks-blue text-adworks-dark font-medium"
+          />
+        </div>
+        <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <button
+            onClick={() => setSelectedStage(null)}
+            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              !selectedStage ? 'bg-adworks-dark text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'
+            }`}
+          >
+            Todos
+          </button>
+          {STAGES.map(stage => (
             <button
-              onClick={() => setSelectedStage(null)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                !selectedStage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              key={stage.key}
+              onClick={() => setSelectedStage(stage.key)}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${
+                selectedStage === stage.key ? 'bg-adworks-blue text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'
               }`}
             >
-              Todos
+              {stage.label}
             </button>
-            {STAGES.map(stage => (
-              <button
-                key={stage.key}
-                onClick={() => setSelectedStage(stage.key)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  selectedStage === stage.key ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {stage.label}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {STAGES.map(stage => {
+      <div className="overflow-x-auto pb-8">
+        <div className="flex gap-6 min-w-[1200px]">
+          {STAGES.map((stage) => {
             const stageLeads = getLeadsByStage(stage.key);
             return (
-              <div key={stage.key} className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">{stage.label}</h3>
-                  <span className="bg-white px-2 py-1 rounded-full text-xs font-medium text-gray-700">
+              <div key={stage.key} className="flex-1 min-w-[300px] space-y-4 bg-adworks-gray/30 p-4 rounded-[2rem] border border-transparent hover:border-gray-200 transition-colors">
+                <div className="flex items-center justify-between px-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
+                    <h3 className="font-black text-adworks-dark uppercase tracking-tighter text-sm italic">{stage.label}</h3>
+                  </div>
+                  <span className="bg-white px-3 py-1 rounded-full text-[10px] font-black text-gray-400 shadow-sm border border-gray-50">
                     {stageLeads.length}
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  {stageLeads.map(lead => (
-                    <div
-                      key={lead.id}
-                      className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData('leadId', lead.id);
-                        e.dataTransfer.setData('currentStage', lead.stage);
-                      }}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{lead.name}</h4>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
+                <div className="space-y-4">
+                  {stageLeads.length === 0 ? (
+                    <div className="py-12 text-center border-2 border-dashed border-gray-200 rounded-3xl opacity-50">
+                      <p className="text-[10px] font-black text-gray-400 uppercase">Vazio</p>
+                    </div>
+                  ) : (
+                    stageLeads.map((lead) => (
+                      <div
+                        key={lead.id}
+                        className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-adworks-blue/20 transition-all group cursor-default"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-black text-adworks-dark tracking-tight leading-tight group-hover:text-adworks-blue transition-colors">
+                            {lead.name}
+                          </h4>
+                          <button className="text-gray-300 hover:text-adworks-dark">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          {lead.email && (
+                            <div className="flex items-center text-[11px] text-gray-500 font-medium italic">
+                              <Mail className="w-3 h-3 mr-2 text-adworks-blue/50" />
+                              <span className="truncate">{lead.email}</span>
+                            </div>
+                          )}
+                          {lead.phone && (
+                            <div className="flex items-center text-[11px] text-gray-500 font-medium">
+                              <Phone className="w-3 h-3 mr-2 text-adworks-blue/50" />
+                              {lead.phone}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                           <div className="flex gap-1">
+                             {lead.tags_json?.slice(0, 2).map((tag, i) => (
+                               <span key={i} className="text-[9px] font-black bg-adworks-gray text-gray-400 px-2 py-0.5 rounded-full uppercase">
+                                 {tag}
+                               </span>
+                             ))}
+                           </div>
+                           <button 
+                            onClick={() => {
+                              const nextIdx = STAGES.findIndex(s => s.key === lead.stage) + 1;
+                              if (nextIdx < STAGES.length) updateLeadStage(lead.id, STAGES[nextIdx].key);
+                            }}
+                            className="w-8 h-8 rounded-xl bg-adworks-gray text-gray-400 hover:bg-adworks-blue hover:text-white transition-all flex items-center justify-center"
+                           >
+                             <ArrowRight className="w-4 h-4" />
+                           </button>
+                        </div>
                       </div>
-
-                      {lead.email && (
-                        <div className="flex items-center space-x-2 text-xs text-gray-600 mb-1">
-                          <Mail className="w-3 h-3" />
-                          <span className="truncate">{lead.email}</span>
-                        </div>
-                      )}
-
-                      {lead.phone && (
-                        <div className="flex items-center space-x-2 text-xs text-gray-600 mb-2">
-                          <Phone className="w-3 h-3" />
-                          <span>{lead.phone}</span>
-                        </div>
-                      )}
-
-                      {lead.source && (
-                        <div className="flex items-center space-x-1 mt-2">
-                          <Tag className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs text-gray-500">{lead.source}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {stageLeads.length === 0 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-400 text-sm"
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        const leadId = e.dataTransfer.getData('leadId');
-                        const currentStage = e.dataTransfer.getData('currentStage');
-                        if (currentStage !== stage.key) {
-                          updateLeadStage(leadId, stage.key);
-                        }
-                      }}
-                    >
-                      Arraste leads aqui
-                    </div>
+                    ))
                   )}
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Resumo</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Total de leads</span>
-              <span className="font-bold text-gray-900">{leads.length}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Novos (últimos 7 dias)</span>
-              <span className="font-bold text-blue-600">
-                {leads.filter(l => {
-                  const daysDiff = (Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60 * 24);
-                  return daysDiff <= 7;
-                }).length}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Taxa de conversão</span>
-              <span className="font-bold text-green-600">
-                {leads.length > 0 ? Math.round((getLeadsByStage('FECHADO').length / leads.length) * 100) : 0}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 col-span-2">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Atividade recente</h3>
-          <div className="space-y-3">
-            {leads.slice(0, 5).map((lead) => (
-              <div key={lead.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                <div>
-                  <p className="font-medium text-gray-900">{lead.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {new Date(lead.created_at).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  STAGES.find(s => s.key === lead.stage)?.color
-                }`}>
-                  {STAGES.find(s => s.key === lead.stage)?.label}
-                </span>
-              </div>
-            ))}
-            {leads.length === 0 && (
-              <p className="text-center text-gray-600 py-8">Nenhum lead cadastrado ainda</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {showNewLeadModal && (
-        <NewLeadModal
-          onClose={() => setShowNewLeadModal(false)}
-          onSave={loadLeads}
-          clientId={currentClientId!}
-        />
-      )}
-    </div>
-  );
-}
-
-interface NewLeadModalProps {
-  onClose: () => void;
-  onSave: () => void;
-  clientId: string;
-}
-
-function NewLeadModal({ onClose, onSave, clientId }: NewLeadModalProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    source: '',
-  });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.from('leads').insert({
-      client_id: clientId,
-      name: formData.name,
-      email: formData.email || null,
-      phone: formData.phone || null,
-      source: formData.source || null,
-      stage: 'NOVO',
-      tags_json: [],
-    });
-
-    if (!error) {
-      onSave();
-      onClose();
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Novo Lead</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Telefone
-            </label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Origem
-            </label>
-            <input
-              type="text"
-              value={formData.source}
-              onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-              placeholder="Ex: Site, indicação, redes sociais"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex items-center space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Salvando...' : 'Salvar'}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
