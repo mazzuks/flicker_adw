@@ -91,47 +91,40 @@ export function Layout({ children }: LayoutProps) {
   const themeColor = getThemeColor();
 
   return (
-    <div className="min-h-screen bg-adworks-gray">
-      {/* ⚡ TOP NAVIGATION (GPS Indicator) */}
-      <div className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-2 text-white shadow-sm ${
+    <div className="min-h-screen bg-adworks-gray flex flex-col">
+      {/* ⚡ TOP GPS Indicator (Fixed on mobile too) */}
+      <div className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 text-white shadow-sm shrink-0 ${
         isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
       }`}>
         {isMasterPath ? (
-          <><Zap className="w-3 h-3" /> Master Administration Control</>
+          <><Zap className="w-3 h-3" /> Master Admin</>
         ) : isOperatorPath ? (
-          <><ShieldCheck className="w-3 h-3 text-adworks-blue" /> Operator Workforce Domain</>
+          <><ShieldCheck className="w-3 h-3" /> Operator</>
         ) : (
-          <><Building2 className="w-3 h-3" /> Entrepreneur Portal</>
+          <><Building2 className="w-3 h-3" /> Entrepreneur</>
         )}
       </div>
 
       {isImpersonating && (
-        <div className="bg-orange-600 text-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-6 shadow-2xl z-[100] relative animate-in slide-in-from-top duration-500 border-b border-orange-500">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 animate-pulse" />
-            MODO IMPERSONAÇÃO: VOCÊ ESTÁ VENDO COMO CLIENTE
-          </div>
-          <button 
-            onClick={stopImpersonating}
-            className="bg-white text-orange-600 px-4 py-1.5 rounded-full font-black hover:bg-orange-50 transition-all shadow-sm active:scale-95"
-          >
-            VOLTAR AO MASTER
-          </button>
+        <div className="bg-orange-600 text-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-2xl z-[100] animate-in slide-in-from-top duration-500">
+          <Zap className="w-4 h-4 animate-pulse" />
+          VISÃO DO CLIENTE
+          <button onClick={stopImpersonating} className="bg-white text-orange-600 px-3 py-1 rounded-lg font-black text-[9px]">SAIR</button>
         </div>
       )}
 
-      {/* 🚀 MODERN NAVIGATION BAR (Vibe Platto) */}
-      <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50 h-24 flex items-center">
+      {/* 🚀 MODERN NAVIGATION BAR */}
+      <nav className="bg-white border-b border-gray-100 shadow-adw-soft sticky top-0 z-50 h-16 lg:h-24 flex items-center shrink-0">
         <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-12">
-              <Link to="/" className="flex items-center space-x-3 group">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110 ${
+            <div className="flex items-center gap-6 lg:gap-12">
+              <Link to="/" className="flex items-center space-x-2 group">
+                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-105 ${
                   isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-adworks-dark' : 'bg-adworks-blue'
                 } shadow-blue-500/20`}>
-                  <Building2 className="w-7 h-7 text-white" />
+                  <Building2 className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-2xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
+                <span className="text-lg lg:text-2xl font-black tracking-tighter text-adworks-dark italic uppercase">ADWORKS</span>
               </Link>
 
               <div className="hidden lg:flex items-center space-x-1 bg-adworks-gray/50 p-1.5 rounded-[1.5rem]">
@@ -148,31 +141,24 @@ export function Layout({ children }: LayoutProps) {
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest leading-none">{item.label}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-4 lg:space-x-8">
               <NotificationCenter />
-
-              <div className="flex items-center gap-5 pl-8 border-l border-gray-100">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-black text-adworks-dark uppercase tracking-tighter leading-none">{profile?.full_name}</p>
-                  <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-1 ${
-                    isMasterPath ? 'text-orange-600' : isOperatorPath ? 'text-adworks-blue' : 'text-adworks-blue'
-                  }`}>
-                    {isMasterPath ? 'Master Admin' : isOperatorPath ? 'Operador' : 'Cliente'}
-                  </p>
+              <div className="flex items-center gap-3 lg:gap-5 pl-4 lg:pl-8 border-l border-gray-100">
+                <div className="text-right hidden md:block">
+                  <p className="text-xs font-black text-adworks-dark uppercase tracking-tighter leading-none">{profile?.full_name}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="w-12 h-12 rounded-2xl bg-adworks-gray text-gray-400 hover:text-red-500 transition-all flex items-center justify-center border border-transparent hover:border-red-100 hover:shadow-inner"
-                  title="Sair"
+                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-adworks-gray text-gray-400 hover:text-red-500 transition-all flex items-center justify-center"
                 >
-                  <LogOut className="w-6 h-6" />
+                  <LogOut className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
               </div>
             </div>
@@ -180,19 +166,21 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </nav>
 
-      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-32">
+      <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-12 flex-1 overflow-x-hidden">
         {children || <Outlet />}
+        {/* Spacer for mobile bottom nav */}
+        <div className="h-24 lg:hidden" />
       </main>
 
-      {/* 📱 MOBILE NAV BOTTOM (Intelligent Filtering) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+      {/* 📱 MOBILE NAV BOTTOM */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.08)]">
          {mobileNavItems.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1.5 ${
+              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1 ${
                 isActive ? `text-${themeColor}` : 'text-gray-400'
               }`}>
-                <item.icon className={`w-6 h-6 transition-all ${isActive ? 'scale-110' : ''}`} />
+                <item.icon className={`w-5 h-5 transition-all ${isActive ? 'scale-110' : ''}`} />
                 <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
               </Link>
             )
