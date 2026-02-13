@@ -30,10 +30,9 @@ import {
   TicketsINPI, 
   MasterSettings,
   MasterDashboard,
-  MasterAnalytics
+  MasterAnalytics,
+  OperatorInbox
 } from './pages/adworks';
-
-import { Inbox as OperatorInbox } from './pages/client/Inbox';
 
 /**
  * 🏢 ARQUITETURA DE TRÊS CAIXAS (DOMÍNIOS ISOLADOS)
@@ -44,15 +43,8 @@ import { Inbox as OperatorInbox } from './pages/client/Inbox';
 
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
-  
-  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) {
-    return <Navigate to="/master" replace />;
-  }
-  
-  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') {
-    return <Navigate to="/operator" replace />;
-  }
-  
+  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) return <Navigate to="/master" replace />;
+  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') return <Navigate to="/operator" replace />;
   return <Navigate to="/client" replace />;
 }
 
@@ -116,6 +108,7 @@ function AppRoutes() {
             <Route path="team" element={<AdworksTeam />} />
             <Route path="settings" element={<MasterSettings />} />
             <Route path="analytics" element={<MasterAnalytics />} />
+            <Route path="messages" element={<OperatorInbox />} />
           </Route>
         )}
       </Route>

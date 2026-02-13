@@ -47,26 +47,30 @@ export function Layout({ children }: LayoutProps) {
   const isClientPath = location.pathname.startsWith('/client');
 
   const clientNavItems = [
-    { icon: Home, label: 'Painel', path: '/client' },
-    { icon: Inbox, label: 'Correio', path: '/client/messages' },
-    { icon: CheckSquare, label: 'Atividades', path: '/client/tasks' },
-    { icon: Users, label: 'Contatos', path: '/client/crm' },
-    { icon: FileText, label: 'Financeiro', path: '/client/finance' },
+    { icon: Home, label: 'PAINEL', path: '/client' },
+    { icon: Inbox, label: 'CORREIO', path: '/client/messages' },
+    { icon: CheckSquare, label: 'ATIVIDADES', path: '/client/tasks' },
+    { icon: Users, label: 'CONTATOS', path: '/client/crm' },
+    { icon: FileText, label: 'FINANCEIRO', path: '/client/finance' },
   ];
 
   const operatorNavItems = [
-    { icon: LayoutDashboard, label: 'Visão Geral', path: '/operator' },
-    { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks' },
-    { icon: Building2, label: 'Agentes', path: '/operator/clients' },
-    { icon: Inbox, label: 'Mensagens', path: '/operator/messages' },
+    { icon: LayoutDashboard, label: 'VISÃO GERAL', path: '/operator' },
+    { icon: CheckSquare, label: 'TRABALHO', path: '/operator/tasks' },
+    { icon: FileText, label: 'CNPJ', path: '/operator/tickets/cnpj' },
+    { icon: Briefcase, label: 'INPI', path: '/operator/tickets/inpi' },
+    { icon: Inbox, label: 'MENSAGENS', path: '/operator/messages' },
+    { icon: Building2, label: 'CLIENTES', path: '/operator/clients' },
   ];
 
   const masterNavItems = [
-    { icon: Layers, label: 'Visão Geral', path: '/master' },
-    { icon: Building2, label: 'Clientes', path: '/master/clients' },
-    { icon: Users, label: 'Equipe', path: '/master/team' },
-    { icon: BarChart3, label: 'Métricas', path: '/master/analytics' },
-    { icon: Settings, label: 'Configurações', path: '/master/settings' },
+    { icon: Layers, label: 'VISÃO GERAL', path: '/master' },
+    { icon: CheckSquare, label: 'TAREFAS', path: '/master/tasks' },
+    { icon: Building2, label: 'CLIENTES', path: '/master/clients' },
+    { icon: Users, label: 'EQUIPE', path: '/master/team' },
+    { icon: BarChart3, label: 'MÉTRICAS', path: '/master/analytics' },
+    { icon: Inbox, label: 'MENSAGENS', path: '/master/messages' },
+    { icon: Settings, label: 'CONFIGURAÇÕES', path: '/master/settings' },
   ];
 
   const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
@@ -78,6 +82,14 @@ export function Layout({ children }: LayoutProps) {
     if (isClientPath) return '/client';
     return '/';
   };
+
+  const getThemeColor = () => {
+    if (isMasterPath) return 'orange-600';
+    if (isOperatorPath) return 'adworks-dark';
+    return 'adworks-blue';
+  };
+
+  const themeColor = getThemeColor();
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-sans selection:bg-adworks-blue selection:text-white">

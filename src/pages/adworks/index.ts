@@ -8,3 +8,4 @@ export * from './TicketsINPI';
 export * from './MasterSettings';
 export * from './MasterDashboard';
 export * from './MasterAnalytics';
+export * from './OperatorInbox';
