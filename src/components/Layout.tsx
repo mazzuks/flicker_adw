@@ -72,10 +72,19 @@ export function Layout({ children }: LayoutProps) {
   const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
   const isImpersonating = isAdworks && currentClientId && isClientPath;
 
+  const getRootLink = () => {
+    if (isMasterPath) return '/master';
+    if (isOperatorPath) return '/operator';
+    if (isClientPath) return '/client';
+    return '/';
+  };
+
   return (
     <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-sans selection:bg-adworks-blue selection:text-white">
       {/* ⚡ TOP NANO BAR (GPS) */}
-      <div className="bg-[#1E293B] px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 text-white/60 shrink-0">
+      <div className={`px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 text-white shrink-0 ${
+        isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-[#1E293B]' : 'bg-adworks-blue'
+      }`}>
         <Zap className="w-3 h-3 text-adworks-blue" />
         {isMasterPath ? 'Controle de Administração Master' : isOperatorPath ? 'Domínio de Força de Trabalho' : 'Domínio do Portal do Empreendedor'}
       </div>
@@ -93,9 +102,11 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-full mx-auto w-full px-4">
           <div className="flex justify-between items-center h-full">
             <div className="flex items-center gap-8 h-full">
-              {/* Logo Area */}
-              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 bg-adworks-blue rounded-lg flex items-center justify-center shadow-lg">
+              {/* Logo Area (Now dynamic per box) */}
+              <Link to={getRootLink()} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-lg ${
+                  isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-[#1E293B] border border-white/10' : 'bg-adworks-blue'
+                }`}>
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-lg font-black text-white tracking-tighter">adworks</span>
@@ -124,7 +135,7 @@ export function Layout({ children }: LayoutProps) {
                       }`}
                     >
                       <item.icon className={`w-5 h-5 mb-1 ${isActive ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`} />
-                      <span className="text-[10px] font-bold">{item.label}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tight">{item.label}</span>
                       {isActive && <div className="absolute bottom-0 left-0 right-0 h-1 bg-adworks-blue shadow-[0_-5px_10px_rgba(0,71,255,0.5)]"></div>}
                     </Link>
                   );
@@ -141,7 +152,9 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-4 pl-4 border-l border-white/10">
                 <div className="text-right hidden sm:block">
                   <p className="text-[11px] font-black text-white leading-none">{profile?.full_name?.toUpperCase()}</p>
-                  <p className="text-[9px] font-bold text-adworks-blue uppercase tracking-widest mt-1">Conta Master</p>
+                  <p className={`text-[9px] font-bold text-adworks-blue uppercase tracking-widest mt-1`}>
+                    {isMasterPath ? 'Conta Master' : isOperatorPath ? 'Conta Operador' : 'Conta Cliente'}
+                  </p>
                 </div>
                 <div className="w-9 h-9 bg-adworks-blue/20 rounded-full border-2 border-adworks-blue flex items-center justify-center overflow-hidden">
                    <UserCircle className="w-full h-full text-adworks-blue" />
