@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { 
   Users, 
@@ -11,7 +12,9 @@ import {
   Zap,
   Filter,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  MoreVertical,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -23,166 +26,170 @@ import {
   ResponsiveContainer, 
   PieChart, 
   Pie, 
-  Cell 
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
 
-const DATA_GROWTH = [
-  { name: 'Set', won: 400, value: 2400 },
-  { name: 'Out', won: 300, value: 1398 },
-  { name: 'Nov', won: 200, value: 9800 },
-  { name: 'Dez', won: 278, value: 3908 },
-  { name: 'Jan', won: 189, value: 4800 },
-  { name: 'Fev', won: 239, value: 3800 },
+const DATA_WON = [
+  { name: 'May 2024', val: 400 },
+  { name: 'Jun 2024', val: 500 },
+  { name: 'Jul 2024', val: 450 },
+  { name: 'Aug 2024', val: 600 },
+  { name: 'Sep 2024', val: 780 },
+  { name: 'Oct 2024', val: 720 },
+  { name: 'Nov 2024', val: 850 },
+  { name: 'Dec 2024', val: 680 },
+  { name: 'Jan 2025', val: 920 },
+  { name: 'Feb 2025', val: 880 },
+  { name: 'Mar 2025', val: 980 },
+  { name: 'Apr 2025', val: 1050 },
 ];
 
-const DATA_PIPELINE = [
-  { name: 'CNPJ', value: 400, color: '#0047FF' },
-  { name: 'Marca', value: 300, color: '#8B5CF6' },
-  { name: 'Fiscal', value: 300, color: '#10B981' },
-  { name: 'CRM', value: 200, color: '#F59E0B' },
+const DATA_PROJECTION = [
+  { name: 'May 2025', val: 1100 },
+  { name: 'Jun 2025', val: 1150 },
+  { name: 'Jul 2025', val: 1200 },
+  { name: 'Aug 2025', val: 1250 },
+  { name: 'Sep 2025', val: 1300 },
+  { name: 'Oct 2025', val: 1350 },
+  { name: 'Nov 2025', val: 1400 },
+  { name: 'Dec 2025', val: 1450 },
+  { name: 'Jan 2026', val: 1500 },
+  { name: 'Feb 2026', val: 1550 },
+  { name: 'Mar 2026', val: 1600 },
+  { name: 'Apr 2026', val: 1650 },
 ];
+
+const COLORS = ['#0047FF', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
 
 export function MasterDashboard() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-      {/* 🏁 HEADER & FILTERS */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
-           <div className="flex items-center gap-3 mb-2">
-             <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase shadow-lg shadow-orange-600/20">Master Intelligence</span>
-             <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic leading-none">BI OVERVIEW</h1>
+    <div className="space-y-6 animate-in fade-in duration-1000 pb-20">
+      {/* 🏁 PIPEDRIVE KPI HEADER */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Sales</p>
+              <h3 className="text-2xl font-black text-[#2D3E50]">5.2M</h3>
            </div>
-           <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">Análise de performance e crescimento global.</p>
+           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Win Rate</p>
+              <h3 className="text-2xl font-black text-[#2D3E50]">16.92%</h3>
+           </div>
         </div>
-
-        <div className="flex items-center gap-3 bg-white p-2 rounded-[1.5rem] shadow-adw-soft border border-gray-100">
-           <div className="flex items-center gap-2 px-4 py-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-              <Calendar className="w-4 h-4" />
-              Últimos 12 Meses
-              <ChevronDown className="w-4 h-4 ml-2" />
+        <div className="grid grid-cols-2 gap-4">
+           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Close Rate</p>
+              <h3 className="text-2xl font-black text-[#2D3E50]">14.47%</h3>
+           </div>
+           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Avg Days</p>
+              <h3 className="text-2xl font-black text-[#2D3E50]">60.70</h3>
+           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+           <div className="bg-[#0047FF] p-5 rounded-xl shadow-lg shadow-blue-500/20 text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Pipeline</p>
+              <h3 className="text-2xl font-black italic">77.8M</h3>
+           </div>
+           <div className="bg-[#8B5CF6] p-5 rounded-xl shadow-lg shadow-purple-500/20 text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Open Deals</p>
+              <h3 className="text-2xl font-black italic">1.6K</h3>
+           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+           <div className="bg-[#10B981] p-5 rounded-xl shadow-lg shadow-green-500/20 text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Weighted</p>
+              <h3 className="text-2xl font-black italic">35.6M</h3>
+           </div>
+           <div className="bg-[#2D3E50] p-5 rounded-xl shadow-lg text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Avg Age</p>
+              <h3 className="text-2xl font-black italic">201.6</h3>
            </div>
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8">
-        {/* 🚀 MAIN CONTENT */}
-        <div className="flex-1 space-y-8">
-          
-          {/* 1. TOP KPI GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-adworks-blue p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-all"></div>
-               <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-2">Total Sales (MRR)</p>
-               <h3 className="text-4xl font-black tracking-tighter italic">R$ 5.2M</h3>
-               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-blue-100 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/5">
-                  <TrendingUp className="w-3 h-3" /> +16.92%
-               </div>
-            </div>
-
-            <div className="bg-[#8B5CF6] p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-all"></div>
-               <p className="text-[10px] font-black text-purple-200 uppercase tracking-widest mb-2">Active Companies</p>
-               <h3 className="text-4xl font-black tracking-tighter italic">1.6K</h3>
-               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-purple-100 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/5">
-                  <Users className="w-3 h-3" /> 14.47% win rate
-               </div>
-            </div>
-
-            <div className="bg-[#10B981] p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-all"></div>
-               <p className="text-[10px] font-black text-green-100 uppercase tracking-widest mb-2">Weighted Value</p>
-               <h3 className="text-4xl font-black tracking-tighter italic">35.6M</h3>
-               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-green-50 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/5">
-                  <Target className="w-3 h-3" /> High Confidence
-               </div>
-            </div>
-
-            <div className="bg-adworks-dark p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-adworks-blue/20 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-all"></div>
-               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Avg Days to Close</p>
-               <h3 className="text-4xl font-black tracking-tighter italic text-adworks-blue">60.7d</h3>
-               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-gray-400 bg-white/5 w-fit px-3 py-1 rounded-full border border-white/5">
-                  <Clock className="w-3 h-3" /> Efficiency Up
-               </div>
-            </div>
-          </div>
-
-          {/* 2. MAIN CHARTS */}
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-adw-soft border border-gray-100">
-             <div className="flex items-center justify-between mb-10">
-                <div>
-                   <h2 className="text-xl font-black text-adworks-dark uppercase italic tracking-tighter">Won Deals Performance</h2>
-                   <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Growth Tracking - Last 12 Months</p>
-                </div>
-                <div className="flex items-center gap-4">
-                   <div className="flex items-center gap-2 text-[9px] font-black text-gray-400 uppercase"><div className="w-2 h-2 rounded-full bg-adworks-blue"></div> Value</div>
-                   <div className="flex items-center gap-2 text-[9px] font-black text-gray-400 uppercase"><div className="w-2 h-2 rounded-full bg-cyan-400"></div> Count</div>
+      {/* 🚀 MAIN DATA GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* LEFT CHARTS (8 COLS) */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+             <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
+                <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg">Won deals (last 12 months)</h3>
+                <div className="flex gap-4 text-[9px] font-black text-gray-400">
+                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-adworks-blue"></div> CLOSED VALUE</span>
+                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-cyan-400"></div> WON DEALS</span>
                 </div>
              </div>
-             <div className="h-[350px] w-full">
+             <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={DATA_GROWTH}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 'bold'}} dy={10} />
-                    <YAxis hide />
-                    <Tooltip contentStyle={{borderRadius: '1.5rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}} />
-                    <Line type="monotone" dataKey="value" stroke="#0047FF" strokeWidth={4} dot={{ r: 4, fill: '#0047FF', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="won" stroke="#22D3EE" strokeWidth={4} dot={{ r: 4, fill: '#22D3EE', strokeWidth: 2, stroke: '#fff' }} />
-                  </LineChart>
+                   <AreaChart data={DATA_WON}>
+                      <defs>
+                        <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#0047FF" stopOpacity={0.1}/>
+                          <stop offset="95%" stopColor="#0047FF" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" hide />
+                      <YAxis hide />
+                      <Tooltip />
+                      <Area type="monotone" dataKey="val" stroke="#0047FF" strokeWidth={3} fillOpacity={1} fill="url(#colorVal)" />
+                   </AreaChart>
+                </ResponsiveContainer>
+             </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+             <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg mb-8">Deals projection (future 12 months)</h3>
+             <div className="h-[180px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                   <LineChart data={DATA_PROJECTION}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" hide />
+                      <YAxis hide />
+                      <Tooltip />
+                      <Line type="stepAfter" dataKey="val" stroke="#2D3E50" strokeWidth={2} dot={false} />
+                   </LineChart>
                 </ResponsiveContainer>
              </div>
           </div>
         </div>
 
-        {/* 🔍 SIDEBAR ANALYTICS */}
-        <div className="w-full xl:w-[400px] space-y-8">
-           <div className="bg-white rounded-[2.5rem] p-10 shadow-adw-soft border border-gray-100">
-              <h3 className="text-sm font-black text-adworks-dark uppercase tracking-[0.2em] mb-8 italic">Sales Pipeline</h3>
-              <div className="h-[250px] w-full flex items-center justify-center relative">
+        {/* RIGHT ANALYTICS (4 COLS) */}
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <h3 className="font-black text-[#2D3E50] uppercase italic text-sm mb-6">Sales pipeline</h3>
+              <div className="h-[220px] w-full flex items-center justify-center">
                  <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
-                        data={DATA_PIPELINE}
-                        innerRadius={70}
-                        outerRadius={100}
-                        paddingAngle={8}
-                        dataKey="value"
-                      >
-                        {DATA_PIPELINE.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
+                       <Pie data={[{v:400},{v:300},{v:200},{v:100}]} innerRadius={60} outerRadius={85} paddingAngle={5} dataKey="v">
+                          {DATA_WON.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                       </Pie>
                     </PieChart>
                  </ResponsiveContainer>
-                 <div className="absolute flex flex-col items-center">
-                    <p className="text-xs font-black text-gray-400 uppercase">Total</p>
-                    <p className="text-3xl font-black text-adworks-dark tracking-tighter">1.2k</p>
-                 </div>
               </div>
-              <div className="mt-8 space-y-3">
-                 {DATA_PIPELINE.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 bg-adworks-gray/50 rounded-2xl border border-transparent hover:border-gray-100 transition-all cursor-pointer">
-                       <div className="flex items-center gap-3">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{item.name}</span>
-                       </div>
-                       <span className="text-xs font-black text-adworks-dark">33%</span>
-                    </div>
-                 ))}
+              <div className="space-y-2 mt-4 text-[10px] font-bold text-gray-500 uppercase">
+                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Lead In</span><span className="text-adworks-dark">26.8%</span></div>
+                 <div className="flex justify-between p-2"><span>Proposal</span><span className="text-adworks-dark">14.8%</span></div>
+                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Negotiation</span><span className="text-adworks-dark">9.8%</span></div>
               </div>
            </div>
 
-           <div className="bg-adworks-dark rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-600/20 rounded-full -ml-16 -mb-16 blur-2xl"></div>
-              <h3 className="text-lg font-black mb-6 italic uppercase tracking-tight">Need Help?</h3>
-              <p className="text-gray-400 text-xs font-medium leading-relaxed mb-8 opacity-80">"Os dados de conversão de Marcas INPI cresceram 25% após a nova automação do sistema."</p>
-              <button className="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
-                 View Full Report
-              </button>
+           <div className="bg-[#2D3E50] rounded-2xl p-8 text-white shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                 <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><TrendingUp className="w-6 h-6 text-adworks-blue" /></div>
+                 <h3 className="font-black italic uppercase tracking-tight">AI Insights</h3>
+              </div>
+              <p className="text-xs text-white/60 leading-relaxed italic mb-6">"Baseado no histórico recente, você deve fechar 12 novos contratos nos próximos 15 dias."</p>
+              <button className="w-full py-3 bg-adworks-blue rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all">Download Detailed BI</button>
            </div>
         </div>
+
       </div>
     </div>
   );
