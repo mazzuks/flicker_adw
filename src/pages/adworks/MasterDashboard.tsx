@@ -44,9 +44,11 @@ const DATA_WON_WEEKLY = [
   { name: 'W5', val: 250 }, { name: 'W6', val: 400 }, { name: 'W7', val: 320 }, { name: 'W8', val: 450 },
 ];
 
+// ⏰ DADOS DIÁRIOS (8H AS 19H)
 const DATA_WON_DAILY = [
-  { name: '01', val: 20 }, { name: '02', val: 45 }, { name: '03', val: 30 }, { name: '04', val: 65 },
-  { name: '05', val: 50 }, { name: '06', val: 80 }, { name: '07', val: 40 }, { name: '08', val: 95 },
+  { name: '08h', val: 12 }, { name: '09h', val: 25 }, { name: '10h', val: 40 }, { name: '11h', val: 35 },
+  { name: '12h', val: 20 }, { name: '13h', val: 30 }, { name: '14h', val: 55 }, { name: '15h', val: 70 },
+  { name: '16h', val: 65 }, { name: '17h', val: 85 }, { name: '18h', val: 45 }, { name: '19h', val: 30 },
 ];
 
 const DATA_PROJECTION = [
