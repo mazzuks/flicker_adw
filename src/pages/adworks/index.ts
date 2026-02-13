@@ -7,3 +7,4 @@ export * from './TicketsFiscal';
 export * from './TicketsINPI';
 export * from './MasterSettings';
 export * from './MasterDashboard';
+export * from './MasterAnalytics';

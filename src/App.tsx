@@ -29,7 +29,8 @@ import {
   TicketsFiscal, 
   TicketsINPI, 
   MasterSettings,
-  MasterDashboard
+  MasterDashboard,
+  MasterAnalytics
 } from './pages/adworks';
 
 import { Inbox as OperatorInbox } from './pages/client/Inbox';
@@ -114,7 +115,7 @@ function AppRoutes() {
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />
             <Route path="settings" element={<MasterSettings />} />
-            <Route path="analytics" element={<div className="p-20 text-center font-black opacity-20 text-adworks-dark uppercase italic tracking-tighter">Master Analytics Area (Fase 2)</div>} />
+            <Route path="analytics" element={<MasterAnalytics />} />
           </Route>
         )}
       </Route>
