@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { 
   CheckSquare, 
@@ -10,7 +11,8 @@ import {
   Filter,
   Search,
   CheckCircle2,
-  XCircle
+  XCircle,
+  FileText
 } from 'lucide-react';
 
 interface OperatorTask {
@@ -25,6 +27,7 @@ interface OperatorTask {
 }
 
 export function AdworksTasks() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<OperatorTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -36,14 +39,14 @@ export function AdworksTasks() {
   const loadOperatorTasks = async () => {
     setLoading(true);
     
-    // 1. Buscar Tickets que precisam de ação (Status NEW ou READY)
+    // 1. Buscar Tickets que precisam de ação
     const { data: tickets } = await supabase
       .from('tickets')
       .select('*, client:clients(name)')
-      .in('status', ['NEW', 'READY', 'IN_PROGRESS'])
+      .in('status', ['NEW', 'READY', 'IN_PROGRESS', 'WAITING_CLIENT'])
       .order('priority', { ascending: false });
 
-    // 2. Buscar Documentos que aguardam validação (Status RECEIVED)
+    // 2. Buscar Documentos que aguardam validação
     const { data: docs } = await supabase
       .from('documents')
       .select('*, client:clients(name)')
@@ -81,6 +84,30 @@ export function AdworksTasks() {
     setLoading(false);
   };
 
+  const handleAttendTask = (task: OperatorTask) => {
+    const isOperator = window.location.pathname.startsWith('/operator');
+    const basePath = isOperator ? '/operator' : '/master';
+
+    // Roteamento inteligente baseado no tipo da tarefa
+    switch (task.type) {
+      case 'TICKET_CNPJ':
+        navigate(`${basePath}/tickets/cnpj`);
+        break;
+      case 'TICKET_INPI':
+        navigate(`${basePath}/tickets/inpi`);
+        break;
+      case 'TICKET_FISCAL':
+        navigate(`${basePath}/tickets/fiscal`);
+        break;
+      case 'DOCUMENT_VALIDATION':
+        // Por enquanto leva para a lista de clientes para auditoria
+        navigate(`${basePath}/clients`);
+        break;
+      default:
+        console.log('Tarefa sem destino mapeado');
+    }
+  };
+
   const getPriorityStyle = (p: string) => {
     switch (p) {
       case 'URGENT': return 'bg-red-50 text-red-600 border-red-100';
@@ -98,6 +125,10 @@ export function AdworksTasks() {
     );
   }
 
+  const filteredTasks = filter === 'urgent' 
+    ? tasks.filter(t => t.priority === 'URGENT' || t.priority === 'HIGH')
+    : tasks;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -114,13 +145,13 @@ export function AdworksTasks() {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="bg-white rounded-[2.5rem] p-20 text-center border border-dashed border-gray-200 opacity-50">
              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
              <p className="text-adworks-dark font-black uppercase tracking-widest text-sm italic">Nenhuma pendência na fila</p>
           </div>
         ) : (
-          tasks.map((task) => (
+          filteredTasks.map((task) => (
             <div key={task.id} className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-start gap-6">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${getPriorityStyle(task.priority)}`}>
@@ -145,7 +176,10 @@ export function AdworksTasks() {
                     <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Entrada</p>
                     <p className="text-xs font-bold text-adworks-dark">{new Date(task.created_at).toLocaleDateString('pt-BR')}</p>
                  </div>
-                 <button className="bg-adworks-gray text-adworks-dark hover:bg-adworks-blue hover:text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 group-hover:shadow-md">
+                 <button 
+                  onClick={() => handleAttendTask(task)}
+                  className="bg-adworks-gray text-adworks-dark hover:bg-adworks-blue hover:text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 group-hover:shadow-md active:scale-95"
+                 >
                    <span>Atender</span>
                    <ArrowRight className="w-4 h-4" />
                  </button>
