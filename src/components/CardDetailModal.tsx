@@ -13,7 +13,11 @@ import {
   Trash2,
   ChevronRight,
   MoreVertical,
-  History
+  History,
+  FileText,
+  AlignLeft,
+  Check,
+  Zap
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
