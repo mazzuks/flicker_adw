@@ -60,6 +60,7 @@ const COLORS = ['#0047FF', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
 
 export function MasterDashboard() {
   const [timeFilter, setTimeFilter] = useState<'day' | 'week' | 'month' | '3months'>('month');
+  const [projFilter, setProjFilter] = useState<'short' | 'mid' | 'long'>('long');
 
   const getActiveData = () => {
     switch (timeFilter) {
@@ -67,6 +68,14 @@ export function MasterDashboard() {
       case 'week': return DATA_WON_WEEKLY;
       case '3months': return DATA_WON_MONTHLY.slice(-3);
       default: return DATA_WON_MONTHLY;
+    }
+  };
+
+  const getProjectionData = () => {
+    switch (projFilter) {
+      case 'short': return DATA_PROJECTION.slice(0, 3);
+      case 'mid': return DATA_PROJECTION.slice(0, 6);
+      default: return DATA_PROJECTION;
     }
   };
 
@@ -128,7 +137,6 @@ export function MasterDashboard() {
                    <p className="text-gray-400 text-[9px] font-black uppercase tracking-[0.2em] mt-2">Performance Analytics Board</p>
                 </div>
                 
-                {/* ⏱️ TIME FILTERS (Pipedrive Style) */}
                 <div className="flex bg-[#F1F5F9] p-1 rounded-xl">
                    {[
                      { id: 'day', label: 'Dia' },
@@ -190,16 +198,58 @@ export function MasterDashboard() {
              </div>
           </div>
 
+          {/* 📊 SECOND CHART: PROJECTIONS (Detailed) */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-             <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg mb-8">Projeção de Negócios (próximos 12 meses)</h3>
-             <div className="h-[180px] w-full">
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-gray-50 pb-6 gap-4">
+                <div>
+                   <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg leading-none">Projeção de Negócios</h3>
+                   <p className="text-gray-400 text-[9px] font-black uppercase tracking-[0.2em] mt-2">Next 12 Months Forecast</p>
+                </div>
+                
+                <div className="flex bg-[#F1F5F9] p-1 rounded-xl">
+                   {[
+                     { id: 'short', label: '3 Meses' },
+                     { id: 'mid', label: '6 Meses' },
+                     { id: 'long', label: '12 Meses' }
+                   ].map((f) => (
+                     <button
+                        key={f.id}
+                        onClick={() => setProjFilter(f.id as any)}
+                        className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                          projFilter === f.id ? 'bg-white text-[#2D3E50] shadow-sm' : 'text-gray-400 hover:text-adworks-dark'
+                        }`}
+                     >
+                       {f.label}
+                     </button>
+                   ))}
+                </div>
+             </div>
+             <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                   <LineChart data={DATA_PROJECTION}>
+                   <LineChart data={getProjectionData()}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" hide />
-                      <YAxis hide />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 'bold'}}
+                        dy={10}
+                      />
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 'bold'}}
+                        tickFormatter={(value) => `${value >= 1000 ? value/1000 + 'k' : value}`}
+                      />
                       <Tooltip />
-                      <Line type="stepAfter" dataKey="val" stroke="#2D3E50" strokeWidth={2} dot={false} />
+                      <Line 
+                        type="stepAfter" 
+                        dataKey="val" 
+                        stroke="#2D3E50" 
+                        strokeWidth={3} 
+                        dot={{ r: 3, fill: '#2D3E50', strokeWidth: 2, stroke: '#fff' }} 
+                        activeDot={{ r: 6 }}
+                      />
                    </LineChart>
                 </ResponsiveContainer>
              </div>
