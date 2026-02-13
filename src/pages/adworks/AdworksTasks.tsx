@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CardDetailModal } from '../../components/CardDetailModal';
+import { NewTicketModal } from '../../components/NewTicketModal';
 
 interface OperatorTask {
   id: string;
@@ -41,7 +42,9 @@ export function AdworksTasks() {
   const [tasks, setTasks] = useState<OperatorTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<OperatorTask | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
+  const [targetInitialStatus, setTargetInitialStatus] = useState('NEW');
 
   useEffect(() => {
     loadOperatorTasks();
@@ -102,9 +105,16 @@ export function AdworksTasks() {
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col space-y-6 overflow-hidden">
       <CardDetailModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isDetailModalOpen} 
+        onClose={() => setIsDetailModalOpen(false)} 
         task={selectedTask} 
+      />
+
+      <NewTicketModal 
+        isOpen={isNewTicketModalOpen}
+        onClose={() => setIsNewTicketModalOpen(false)}
+        onSuccess={loadOperatorTasks}
+        initialStatus={targetInitialStatus}
       />
 
       <div className="flex items-center justify-between shrink-0">
@@ -144,7 +154,7 @@ export function AdworksTasks() {
                             {...provided.dragHandleProps}
                             onClick={() => {
                               setSelectedTask(task);
-                              setIsModalOpen(true);
+                              setIsDetailModalOpen(true);
                             }}
                             className={`bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-200 transition-all group hover:shadow-xl hover:border-adworks-blue/20 ${snapshot.isDragging ? 'rotate-3 scale-105 shadow-2xl z-50 border-adworks-blue' : ''}`}
                           >
@@ -169,7 +179,7 @@ export function AdworksTasks() {
                             <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
                                <div className="flex -space-x-1">
                                   <div className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[8px] font-black text-slate-400">MG</div>
-                               </div>
+                                </div>
                                <div className="flex items-center gap-2">
                                   {task.sla_due_at && (
                                     <div className="flex items-center gap-1 text-[9px] font-black text-orange-500 uppercase tracking-tighter bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
@@ -191,7 +201,13 @@ export function AdworksTasks() {
                 )}
               </Droppable>
               
-              <button className="mt-4 w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-adworks-blue hover:text-adworks-blue hover:bg-white transition-all">
+              <button 
+                onClick={() => {
+                  setTargetInitialStatus(column.id);
+                  setIsNewTicketModalOpen(true);
+                }}
+                className="mt-4 w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-adworks-blue hover:text-adworks-blue hover:bg-white transition-all active:scale-95"
+              >
                 + Novo Processo
               </button>
             </div>
