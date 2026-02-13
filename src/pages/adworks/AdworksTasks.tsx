@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { 
-  CheckSquare, 
   Clock, 
   AlertTriangle, 
-  User, 
   Building2, 
-  ArrowRight, 
-  Filter,
   Search,
   CheckCircle2,
-  XCircle,
-  FileText
+  FileText,
+  Briefcase,
+  MoreHorizontal,
+  User,
+  Zap,
+  Calendar
 } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface OperatorTask {
   id: string;
@@ -26,11 +26,16 @@ interface OperatorTask {
   sla_due_at: string | null;
 }
 
+const COLUMNS = [
+  { id: 'NEW', title: 'Backlog / Novos', color: 'bg-slate-500' },
+  { id: 'IN_PROGRESS', title: 'Em Andamento', color: 'bg-adworks-blue' },
+  { id: 'WAITING_CLIENT', title: 'Aguardando Cliente', color: 'bg-orange-500' },
+  { id: 'DONE', title: 'Concluídos', color: 'bg-green-500' },
+];
+
 export function AdworksTasks() {
-  const navigate = useNavigate();
   const [tasks, setTasks] = useState<OperatorTask[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     loadOperatorTasks();
@@ -38,82 +43,48 @@ export function AdworksTasks() {
 
   const loadOperatorTasks = async () => {
     setLoading(true);
-    
-    // 1. Buscar Tickets que precisam de ação
     const { data: tickets } = await supabase
       .from('tickets')
       .select('*, client:clients(name)')
-      .in('status', ['NEW', 'READY', 'IN_PROGRESS', 'WAITING_CLIENT'])
       .order('priority', { ascending: false });
 
-    // 2. Buscar Documentos que aguardam validação
-    const { data: docs } = await supabase
-      .from('documents')
-      .select('*, client:clients(name)')
-      .eq('status', 'RECEIVED');
-
-    const formattedTasks: OperatorTask[] = [];
-
-    tickets?.forEach(t => {
-      formattedTasks.push({
-        id: t.id,
-        type: t.type,
-        title: `Processar ${t.type.replace('TICKET_', '')}`,
-        client_name: t.client?.name || 'N/A',
-        priority: t.priority,
-        status: t.status,
-        created_at: t.created_at,
-        sla_due_at: t.sla_due_at
-      });
-    });
-
-    docs?.forEach(d => {
-      formattedTasks.push({
-        id: d.id,
-        type: 'DOCUMENT_VALIDATION',
-        title: `Validar: ${d.category}`,
-        client_name: d.client?.name || 'N/A',
-        priority: 'NORMAL',
-        status: 'RECEIVED',
-        created_at: d.created_at,
-        sla_due_at: null
-      });
-    });
+    const formattedTasks: OperatorTask[] = (tickets || []).map(t => ({
+      id: t.id,
+      type: t.type,
+      title: t.type === 'TICKET_CNPJ' ? 'Abertura CNPJ' : t.type === 'TICKET_INPI' ? 'Marca INPI' : 'Fiscal',
+      client_name: t.client?.name || 'Cliente Desconhecido',
+      priority: t.priority,
+      status: t.status,
+      created_at: t.created_at,
+      sla_due_at: t.sla_due_at
+    }));
 
     setTasks(formattedTasks);
     setLoading(false);
   };
 
-  const handleAttendTask = (task: OperatorTask) => {
-    const isOperator = window.location.pathname.startsWith('/operator');
-    const basePath = isOperator ? '/operator' : '/master';
+  const onDragEnd = async (result: any) => {
+    const { destination, source, draggableId } = result;
+    if (!destination || destination.droppableId === source.droppableId) return;
 
-    // Roteamento inteligente baseado no tipo da tarefa
-    switch (task.type) {
-      case 'TICKET_CNPJ':
-        navigate(`${basePath}/tickets/cnpj`);
-        break;
-      case 'TICKET_INPI':
-        navigate(`${basePath}/tickets/inpi`);
-        break;
-      case 'TICKET_FISCAL':
-        navigate(`${basePath}/tickets/fiscal`);
-        break;
-      case 'DOCUMENT_VALIDATION':
-        // Por enquanto leva para a lista de clientes para auditoria
-        navigate(`${basePath}/clients`);
-        break;
-      default:
-        console.log('Tarefa sem destino mapeado');
-    }
+    const newStatus = destination.droppableId;
+    
+    // Update local state
+    setTasks(prev => prev.map(t => t.id === draggableId ? { ...t, status: newStatus } : t));
+
+    // Update DB
+    await supabase
+      .from('tickets')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('id', draggableId);
   };
 
   const getPriorityStyle = (p: string) => {
     switch (p) {
-      case 'URGENT': return 'bg-red-50 text-red-600 border-red-100';
-      case 'HIGH': return 'bg-orange-50 text-orange-600 border-orange-100';
-      case 'NORMAL': return 'bg-blue-50 text-adworks-blue border-blue-100';
-      default: return 'bg-gray-50 text-gray-400 border-gray-100';
+      case 'URGENT': return 'bg-red-500';
+      case 'HIGH': return 'bg-orange-400';
+      case 'NORMAL': return 'bg-blue-400';
+      default: return 'bg-slate-300';
     }
   };
 
@@ -125,69 +96,95 @@ export function AdworksTasks() {
     );
   }
 
-  const filteredTasks = filter === 'urgent' 
-    ? tasks.filter(t => t.priority === 'URGENT' || t.priority === 'HIGH')
-    : tasks;
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="h-[calc(100vh-140px)] flex flex-col space-y-6 overflow-hidden">
+      <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
-            Fila de Trabalho
-          </h1>
-          <p className="text-gray-500 font-medium">Ações pendentes da equipe Adworks.</p>
-        </div>
-        <div className="flex bg-white p-1 rounded-2xl border border-gray-100 shadow-sm">
-           <button onClick={() => setFilter('all')} className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === 'all' ? 'bg-adworks-dark text-white shadow-lg' : 'text-gray-400'}`}>Todos</button>
-           <button onClick={() => setFilter('urgent')} className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === 'urgent' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400'}`}>Urgente</button>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic leading-none">Fila de Trabalho</h1>
+          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Gerenciamento visual de processos (estilo Trello).</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {filteredTasks.length === 0 ? (
-          <div className="bg-white rounded-[2.5rem] p-20 text-center border border-dashed border-gray-200 opacity-50">
-             <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-             <p className="text-adworks-dark font-black uppercase tracking-widest text-sm italic">Nenhuma pendência na fila</p>
-          </div>
-        ) : (
-          filteredTasks.map((task) => (
-            <div key={task.id} className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-start gap-6">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${getPriorityStyle(task.priority)}`}>
-                  {task.priority === 'URGENT' ? <AlertTriangle className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex-1 flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
+          {COLUMNS.map((column) => (
+            <div key={column.id} className="w-[320px] shrink-0 flex flex-col bg-[#EBEEF0] rounded-[2rem] p-4 border border-transparent hover:border-slate-300 transition-colors shadow-inner">
+              <div className="flex items-center justify-between px-4 py-3 mb-4">
+                <div className="flex items-center gap-2">
+                   <div className={`w-2 h-2 rounded-full ${column.color}`}></div>
+                   <h3 className="font-black text-adworks-dark uppercase tracking-tighter text-sm italic">{column.title}</h3>
                 </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-black text-adworks-dark uppercase italic tracking-tight text-lg">{task.title}</h3>
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter border ${getPriorityStyle(task.priority)}`}>
-                      {task.priority}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Building2 className="w-3.5 h-3.5 text-gray-300" />
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{task.client_name}</p>
-                  </div>
-                </div>
+                <span className="bg-white/50 px-2.5 py-1 rounded-lg text-[10px] font-black text-gray-500 border border-white">
+                  {tasks.filter(t => t.status === column.id).length}
+                </span>
               </div>
 
-              <div className="flex items-center gap-6">
-                 <div className="text-right hidden md:block">
-                    <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Entrada</p>
-                    <p className="text-xs font-bold text-adworks-dark">{new Date(task.created_at).toLocaleDateString('pt-BR')}</p>
-                 </div>
-                 <button 
-                  onClick={() => handleAttendTask(task)}
-                  className="bg-adworks-gray text-adworks-dark hover:bg-adworks-blue hover:text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 group-hover:shadow-md active:scale-95"
-                 >
-                   <span>Atender</span>
-                   <ArrowRight className="w-4 h-4" />
-                 </button>
-              </div>
+              <Droppable droppableId={column.id}>
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="flex-1 overflow-y-auto space-y-3 px-1"
+                  >
+                    {tasks.filter(t => t.status === column.id).map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-200 transition-all group hover:shadow-xl hover:border-adworks-blue/20 ${snapshot.isDragging ? 'rotate-3 scale-105 shadow-2xl z-50 border-adworks-blue' : ''}`}
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                               <div className={`text-[8px] font-black px-2 py-0.5 rounded-full text-white uppercase tracking-widest ${getPriorityStyle(task.priority)}`}>
+                                  {task.priority}
+                               </div>
+                               <button className="text-gray-300 hover:text-adworks-dark transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
+                            </div>
+
+                            <h4 className="font-black text-adworks-dark tracking-tight leading-tight mb-2 group-hover:text-adworks-blue transition-colors text-sm uppercase italic">
+                              {task.title}
+                            </h4>
+
+                            <div className="space-y-2">
+                               <div className="flex items-center gap-2">
+                                  <Building2 className="w-3 h-3 text-gray-300" />
+                                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter truncate">{task.client_name}</p>
+                               </div>
+                            </div>
+
+                            <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                               <div className="flex -space-x-1">
+                                  <div className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[8px] font-black text-slate-400">MG</div>
+                               </div>
+                               <div className="flex items-center gap-2">
+                                  {task.sla_due_at && (
+                                    <div className="flex items-center gap-1 text-[9px] font-black text-orange-500 uppercase tracking-tighter bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
+                                       <Clock className="w-3 h-3" />
+                                       SLA
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1 text-[9px] font-black text-gray-300 uppercase">
+                                     <FileText className="w-3 h-3" />
+                                  </div>
+                               </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+              
+              <button className="mt-4 w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-adworks-blue hover:text-adworks-blue hover:bg-white transition-all">
+                + Novo Processo
+              </button>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      </DragDropContext>
     </div>
   );
 }
