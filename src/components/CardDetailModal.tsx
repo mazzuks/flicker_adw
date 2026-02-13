@@ -54,7 +54,7 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
       <div className="bg-[#F4F5F7] rounded-[2.5rem] w-full max-w-5xl h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-white/20">
         
         {/* HEADER AREA */}
-        <div className="p-8 lg:p-10 bg-white border-b border-gray-200 flex items-start justify-between relative overflow-hidden">
+        <div className="p-8 lg:p-10 bg-white border-b border-gray-200 flex items-start justify-between relative overflow-hidden text-[#2D3E50]">
            {/* Visual Cover Accent */}
            <div className="absolute top-0 left-0 right-0 h-2 bg-adworks-blue"></div>
            
@@ -173,7 +173,7 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
              <div className="space-y-3 pt-8 border-t border-gray-200">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Ações</p>
                 <ActionButton icon={ChevronRight} label="Mover" />
-                <ActionButton icon={Copy} label="Copiar" />
+                <ActionButton icon={History} label="Copiar" />
                 <ActionButton icon={Zap} label="Automação" />
                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all font-black text-[10px] uppercase tracking-widest">
                    <Trash2 className="w-4 h-4" /> Arquivar
@@ -193,28 +193,4 @@ function ActionButton({ icon: Icon, label }: { icon: any, label: string }) {
        <span className="text-[10px] font-black text-gray-500 group-hover:text-adworks-dark uppercase tracking-widest">{label}</span>
     </button>
   );
-}
-
-function FileText(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-  )
-}
-
-function AlignLeft(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
-  )
-}
-
-function Check(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  )
-}
-
-function Copy(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-  )
 }
