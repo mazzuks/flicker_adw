@@ -101,7 +101,7 @@ export function AdworksTasks() {
       <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic leading-none">Fila de Trabalho</h1>
-          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Gerenciamento visual de processos (estilo Trello).</p>
+          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Gerenciamento dinâmico de processos operacionais.</p>
         </div>
       </div>
 
