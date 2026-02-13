@@ -122,6 +122,8 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
 
   if (!isOpen || !task) return null;
 
+  const userInitial = profile?.full_name?.charAt(0) || user?.email?.charAt(0).toUpperCase() || 'U';
+
   return (
     <div className="fixed inset-0 bg-adworks-dark/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4 lg:p-10 animate-in fade-in duration-300">
       <div className="bg-[#F4F5F7] rounded-[2.5rem] w-full max-w-5xl h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-white/20">
@@ -226,7 +228,7 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
                </div>
                <div className="flex gap-4">
                   <div className="w-10 h-10 bg-adworks-blue rounded-xl flex items-center justify-center text-white font-black text-xs shadow-lg">
-                    {profile?.full_name?.charAt(0) || 'U'}
+                    {userInitial}
                   </div>
                   <div className="flex-1 space-y-3">
                      <textarea 
