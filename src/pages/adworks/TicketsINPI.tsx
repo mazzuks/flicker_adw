@@ -277,9 +277,10 @@ export function TicketsINPI() {
                       <select 
                         value={ticket.status}
                         onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
-                        className={`text-[10px] font-black uppercase px-4 py-2 rounded-xl border-none shadow-sm outline-none cursor-pointer ${getStatusColor(ticket.status)}`}
+                        className={`text-[10px] font-black uppercase px-4 py-2 rounded-xl border-none shadow-sm outline-none cursor-pointer appearance-none ${getStatusColor(ticket.status)}`}
                       >
                         <option value="NEW">Novo Briefing</option>
+                        <option value="WAITING_CLIENT">Aguard. Cliente</option>
                         <option value="READY">Pronto para Protocolo</option>
                         <option value="SUBMITTED">Protocolado</option>
                         <option value="IN_PROGRESS">Análise INPI</option>
