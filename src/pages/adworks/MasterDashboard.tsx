@@ -32,33 +32,33 @@ import {
 } from 'recharts';
 
 const DATA_WON = [
-  { name: 'May 2024', val: 400 },
+  { name: 'Mai 2024', val: 400 },
   { name: 'Jun 2024', val: 500 },
   { name: 'Jul 2024', val: 450 },
-  { name: 'Aug 2024', val: 600 },
-  { name: 'Sep 2024', val: 780 },
-  { name: 'Oct 2024', val: 720 },
+  { name: 'Ago 2024', val: 600 },
+  { name: 'Set 2024', val: 780 },
+  { name: 'Out 2024', val: 720 },
   { name: 'Nov 2024', val: 850 },
-  { name: 'Dec 2024', val: 680 },
+  { name: 'Dez 2024', val: 680 },
   { name: 'Jan 2025', val: 920 },
-  { name: 'Feb 2025', val: 880 },
+  { name: 'Fev 2025', val: 880 },
   { name: 'Mar 2025', val: 980 },
-  { name: 'Apr 2025', val: 1050 },
+  { name: 'Abr 2025', val: 1050 },
 ];
 
 const DATA_PROJECTION = [
-  { name: 'May 2025', val: 1100 },
+  { name: 'Mai 2025', val: 1100 },
   { name: 'Jun 2025', val: 1150 },
   { name: 'Jul 2025', val: 1200 },
-  { name: 'Aug 2025', val: 1250 },
-  { name: 'Sep 2025', val: 1300 },
-  { name: 'Oct 2025', val: 1350 },
+  { name: 'Ago 2025', val: 1250 },
+  { name: 'Set 2025', val: 1300 },
+  { name: 'Out 2025', val: 1350 },
   { name: 'Nov 2025', val: 1400 },
-  { name: 'Dec 2025', val: 1450 },
+  { name: 'Dez 2025', val: 1450 },
   { name: 'Jan 2026', val: 1500 },
-  { name: 'Feb 2026', val: 1550 },
+  { name: 'Fev 2026', val: 1550 },
   { name: 'Mar 2026', val: 1600 },
-  { name: 'Apr 2026', val: 1650 },
+  { name: 'Abr 2026', val: 1650 },
 ];
 
 const COLORS = ['#0047FF', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
@@ -72,21 +72,21 @@ export function MasterDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="grid grid-cols-2 gap-4">
            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Sales</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Vendas Totais</p>
               <h3 className="text-2xl font-black text-[#2D3E50]">5.2M</h3>
            </div>
            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Win Rate</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Taxa de Vitória</p>
               <h3 className="text-2xl font-black text-[#2D3E50]">16.92%</h3>
            </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Close Rate</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Taxa de Fechamento</p>
               <h3 className="text-2xl font-black text-[#2D3E50]">14.47%</h3>
            </div>
            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Avg Days</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Média de Dias</p>
               <h3 className="text-2xl font-black text-[#2D3E50]">60.70</h3>
            </div>
         </div>
@@ -96,18 +96,18 @@ export function MasterDashboard() {
               <h3 className="text-2xl font-black italic">77.8M</h3>
            </div>
            <div className="bg-[#8B5CF6] p-5 rounded-xl shadow-lg shadow-purple-500/20 text-white">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Open Deals</p>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Negócios Abertos</p>
               <h3 className="text-2xl font-black italic">1.6K</h3>
            </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
            <div className="bg-[#10B981] p-5 rounded-xl shadow-lg shadow-green-500/20 text-white">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Weighted</p>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Valor Ponderado</p>
               <h3 className="text-2xl font-black italic">35.6M</h3>
            </div>
            <div className="bg-[#2D3E50] p-5 rounded-xl shadow-lg text-white">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Avg Age</p>
-              <h3 className="text-2xl font-black italic">201.6</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Ticket Médio</p>
+              <h3 className="text-2xl font-black italic">R$ 3.250</h3>
            </div>
         </div>
       </div>
@@ -119,10 +119,10 @@ export function MasterDashboard() {
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
              <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
-                <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg">Won deals (last 12 months)</h3>
+                <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg">Negócios Ganhos (últimos 12 meses)</h3>
                 <div className="flex gap-4 text-[9px] font-black text-gray-400">
-                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-adworks-blue"></div> CLOSED VALUE</span>
-                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-cyan-400"></div> WON DEALS</span>
+                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-adworks-blue"></div> VALOR FECHADO</span>
+                   <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-cyan-400"></div> NEGÓCIOS GANHOS</span>
                 </div>
              </div>
              <div className="h-[280px] w-full">
@@ -145,7 +145,7 @@ export function MasterDashboard() {
           </div>
 
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-             <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg mb-8">Deals projection (future 12 months)</h3>
+             <h3 className="font-black text-[#2D3E50] uppercase italic tracking-tighter text-lg mb-8">Projeção de Negócios (próximos 12 meses)</h3>
              <div className="h-[180px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                    <LineChart data={DATA_PROJECTION}>
@@ -163,7 +163,7 @@ export function MasterDashboard() {
         {/* RIGHT ANALYTICS (4 COLS) */}
         <div className="lg:col-span-4 space-y-6">
            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-              <h3 className="font-black text-[#2D3E50] uppercase italic text-sm mb-6">Sales pipeline</h3>
+              <h3 className="font-black text-[#2D3E50] uppercase italic text-sm mb-6">Pipeline de Vendas</h3>
               <div className="h-[220px] w-full flex items-center justify-center">
                  <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -174,19 +174,42 @@ export function MasterDashboard() {
                  </ResponsiveContainer>
               </div>
               <div className="space-y-2 mt-4 text-[10px] font-bold text-gray-500 uppercase">
-                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Lead In</span><span className="text-adworks-dark">26.8%</span></div>
-                 <div className="flex justify-between p-2"><span>Proposal</span><span className="text-adworks-dark">14.8%</span></div>
-                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Negotiation</span><span className="text-adworks-dark">9.8%</span></div>
+                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Leads de Entrada</span><span className="text-adworks-dark">26.8%</span></div>
+                 <div className="flex justify-between p-2"><span>Proposta Enviada</span><span className="text-adworks-dark">14.8%</span></div>
+                 <div className="flex justify-between p-2 bg-gray-50 rounded-lg"><span>Negociação</span><span className="text-adworks-dark">9.8%</span></div>
               </div>
            </div>
 
            <div className="bg-[#2D3E50] rounded-2xl p-8 text-white shadow-xl">
               <div className="flex items-center gap-3 mb-6">
-                 <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><TrendingUp className="w-6 h-6 text-adworks-blue" /></div>
-                 <h3 className="font-black italic uppercase tracking-tight">AI Insights</h3>
+                 <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center border border-green-500/30">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                 </div>
+                 <h3 className="font-black italic uppercase tracking-tight">Equipe Online</h3>
               </div>
-              <p className="text-xs text-white/60 leading-relaxed italic mb-6">"Baseado no histórico recente, você deve fechar 12 novos contratos nos próximos 15 dias."</p>
-              <button className="w-full py-3 bg-adworks-blue rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all">Download Detailed BI</button>
+              <div className="space-y-4 mb-8">
+                 {[
+                   { name: 'Matheus Grao', role: 'Operador', status: 'Ativo' },
+                   { name: 'Dan Mazzucatto', role: 'Master', status: 'Ativo' },
+                   { name: 'Sah Assistant', role: 'AI Engine', status: 'Ativo' }
+                 ].map((op, i) => (
+                    <div key={i} className="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-all">
+                       <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center text-[10px] font-black border border-white/10">
+                             {op.name.charAt(0)}
+                          </div>
+                          <div>
+                             <p className="text-[11px] font-black leading-none">{op.name}</p>
+                             <p className="text-[9px] text-white/40 uppercase font-bold mt-0.5">{op.role}</p>
+                          </div>
+                       </div>
+                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                    </div>
+                 ))}
+              </div>
+              <button className="w-full py-3 bg-adworks-blue rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-blue-500/20">
+                 Gerenciar Equipe
+              </button>
            </div>
         </div>
 

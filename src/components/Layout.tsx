@@ -47,26 +47,26 @@ export function Layout({ children }: LayoutProps) {
   const isClientPath = location.pathname.startsWith('/client');
 
   const clientNavItems = [
-    { icon: Home, label: 'Negócios', path: '/client' },
+    { icon: Home, label: 'Painel', path: '/client' },
     { icon: Inbox, label: 'Correio', path: '/client/messages' },
     { icon: CheckSquare, label: 'Atividades', path: '/client/tasks' },
     { icon: Users, label: 'Contatos', path: '/client/crm' },
     { icon: FileText, label: 'Financeiro', path: '/client/finance' },
   ];
 
-  const adworksNavItems = [
-    { icon: LayoutDashboard, label: 'Overview', path: '/operator' },
-    { icon: CheckSquare, label: 'Deals', path: '/operator/tasks' },
-    { icon: Building2, label: 'Agents', path: '/operator/clients' },
-    { icon: Inbox, label: 'Messaging', path: '/operator/messages' },
+  const operatorNavItems = [
+    { icon: LayoutDashboard, label: 'Visão Geral', path: '/operator' },
+    { icon: CheckSquare, label: 'Trabalho', path: '/operator/tasks' },
+    { icon: Building2, label: 'Agentes', path: '/operator/clients' },
+    { icon: Inbox, label: 'Mensagens', path: '/operator/messages' },
   ];
 
   const masterNavItems = [
-    { icon: Layers, label: 'Overview', path: '/master' },
-    { icon: Building2, label: 'Clients', path: '/master/clients' },
-    { icon: Users, label: 'Team', path: '/master/team' },
-    { icon: BarChart3, label: 'Analytics', path: '/master/analytics' },
-    { icon: Settings, label: 'Setup Dashboard', path: '/master/settings' },
+    { icon: Layers, label: 'Visão Geral', path: '/master' },
+    { icon: Building2, label: 'Clientes', path: '/master/clients' },
+    { icon: Users, label: 'Equipe', path: '/master/team' },
+    { icon: BarChart3, label: 'Métricas', path: '/master/analytics' },
+    { icon: Settings, label: 'Configurações', path: '/master/settings' },
   ];
 
   const navItems = isMasterPath ? masterNavItems : (isOperatorPath ? operatorNavItems : clientNavItems);
@@ -77,7 +77,7 @@ export function Layout({ children }: LayoutProps) {
       {/* ⚡ TOP NANO BAR (GPS) */}
       <div className="bg-[#1E293B] px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 text-white/60 shrink-0">
         <Zap className="w-3 h-3 text-adworks-blue" />
-        {isMasterPath ? 'Master Administration Control' : isOperatorPath ? 'Operator Workforce Domain' : 'Entrepreneur Portal Domain'}
+        {isMasterPath ? 'Controle de Administração Master' : isOperatorPath ? 'Domínio de Força de Trabalho' : 'Domínio do Portal do Empreendedor'}
       </div>
 
       {isImpersonating && (
@@ -141,7 +141,7 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-4 pl-4 border-l border-white/10">
                 <div className="text-right hidden sm:block">
                   <p className="text-[11px] font-black text-white leading-none">{profile?.full_name?.toUpperCase()}</p>
-                  <p className="text-[9px] font-bold text-adworks-blue uppercase tracking-widest mt-1">Master Account</p>
+                  <p className="text-[9px] font-bold text-adworks-blue uppercase tracking-widest mt-1">Conta Master</p>
                 </div>
                 <div className="w-9 h-9 bg-adworks-blue/20 rounded-full border-2 border-adworks-blue flex items-center justify-center overflow-hidden">
                    <UserCircle className="w-full h-full text-adworks-blue" />
