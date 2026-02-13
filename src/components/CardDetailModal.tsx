@@ -17,7 +17,8 @@ import {
   FileText,
   AlignLeft,
   Check,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -25,29 +26,83 @@ interface CardModalProps {
   isOpen: boolean;
   onClose: () => void;
   task: any;
+  onUpdate?: () => void;
 }
 
-export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
+export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalProps) {
   const [activeTab, setActiveTab] = useState<'content' | 'activity'>('content');
   const [newComment, setNewComment] = useState('');
-  const [checklist, setChecklist] = useState<{id: string, text: string, done: boolean}[]>([]);
+  const [checklist, setChecklist] = useState<{id: string, text: string, is_done: boolean}[]>([]);
   const [newCheckItem, setNewCheckItem] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [description, setDescription] = useState('');
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
 
-  if (!isOpen || !task) return null;
+  useEffect(() => {
+    if (isOpen && task) {
+      loadCardData();
+    }
+  }, [isOpen, task]);
 
-  const addCheckItem = () => {
-    if (!newCheckItem.trim()) return;
-    setChecklist([...checklist, { id: Math.random().toString(), text: newCheckItem, done: false }]);
-    setNewCheckItem('');
+  const loadCardData = async () => {
+    setLoading(true);
+    // Carregar Descrição
+    setDescription(task.data_json?.description || '');
+    
+    // Carregar Checklist
+    const { data: items } = await supabase
+      .from('ticket_checklist_items')
+      .select('*, ticket_checklists!inner(ticket_id)')
+      .eq('ticket_checklists.ticket_id', task.id);
+    
+    if (items) setChecklist(items);
+    setLoading(false);
   };
 
-  const toggleCheckItem = (id: string) => {
-    setChecklist(checklist.map(item => item.id === id ? { ...item, done: !item.done } : item));
+  const addCheckItem = async () => {
+    if (!newCheckItem.trim()) return;
+    
+    // 1. Garantir que existe um checklist pai
+    let { data: parent } = await supabase.from('ticket_checklists').select('id').eq('ticket_id', task.id).maybeSingle();
+    
+    if (!parent) {
+      const { data: newParent } = await supabase.from('ticket_checklists').insert({ ticket_id: task.id }).select().single();
+      parent = newParent;
+    }
+
+    if (parent) {
+      const { error } = await supabase.from('ticket_checklist_items').insert({
+        checklist_id: parent.id,
+        text: newCheckItem,
+        is_done: false
+      });
+      if (!error) {
+        setNewCheckItem('');
+        loadCardData();
+      }
+    }
+  };
+
+  const toggleCheckItem = async (id: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from('ticket_checklist_items')
+      .update({ is_done: !currentStatus })
+      .eq('id', id);
+    if (!error) loadCardData();
+  };
+
+  const saveDescription = async () => {
+    const newDataJson = { ...task.data_json, description };
+    await supabase.from('tickets').update({ data_json: newDataJson }).eq('id', task.id);
+    setIsEditingDesc(false);
+    if (onUpdate) onUpdate();
   };
 
   const progress = checklist.length > 0 
-    ? Math.round((checklist.filter(i => i.done).length / checklist.length) * 100) 
+    ? Math.round((checklist.filter(i => i.is_done).length / checklist.length) * 100) 
     : 0;
+
+  if (!isOpen || !task) return null;
 
   return (
     <div className="fixed inset-0 bg-adworks-dark/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4 lg:p-10 animate-in fade-in duration-300">
@@ -55,7 +110,6 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
         
         {/* HEADER AREA */}
         <div className="p-8 lg:p-10 bg-white border-b border-gray-200 flex items-start justify-between relative overflow-hidden text-[#2D3E50]">
-           {/* Visual Cover Accent */}
            <div className="absolute top-0 left-0 right-0 h-2 bg-adworks-blue"></div>
            
            <div className="flex gap-6 items-start">
@@ -87,9 +141,26 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
                   <AlignLeft className="w-4 h-4" />
                   Descrição
                </div>
-               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm min-h-[120px] text-sm text-gray-600 font-medium leading-relaxed group cursor-pointer hover:border-adworks-blue/30 transition-all">
-                  Clique para adicionar uma descrição detalhada em Markdown...
-               </div>
+               {isEditingDesc ? (
+                 <div className="space-y-3">
+                    <textarea 
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      className="w-full bg-white border-2 border-adworks-blue/20 rounded-2xl p-6 text-sm text-gray-600 font-medium leading-relaxed outline-none min-h-[150px]"
+                    />
+                    <div className="flex gap-2">
+                       <button onClick={saveDescription} className="bg-adworks-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase">Salvar</button>
+                       <button onClick={() => setIsEditingDesc(false)} className="text-gray-400 px-4 py-2 font-black text-[10px] uppercase">Cancelar</button>
+                    </div>
+                 </div>
+               ) : (
+                 <div 
+                  onClick={() => setIsEditingDesc(true)}
+                  className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm min-h-[120px] text-sm text-gray-600 font-medium leading-relaxed group cursor-pointer hover:border-adworks-blue/30 transition-all"
+                 >
+                    {description || 'Clique para adicionar uma descrição detalhada...'}
+                 </div>
+               )}
             </div>
 
             {/* Checklist */}
@@ -111,12 +182,12 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
                   {checklist.map((item) => (
                     <div key={item.id} className="flex items-center gap-4 group">
                        <button 
-                        onClick={() => toggleCheckItem(item.id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${item.done ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-gray-200'}`}
+                        onClick={() => toggleCheckItem(item.id, item.is_done)}
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${item.is_done ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-gray-200'}`}
                        >
-                          {item.done && <Check className="w-3.5 h-3.5 stroke-[4px]" />}
+                          {item.is_done && <Check className="w-3.5 h-3.5 stroke-[4px]" />}
                        </button>
-                       <span className={`text-sm font-medium transition-all ${item.done ? 'text-gray-400 line-through' : 'text-adworks-dark'}`}>{item.text}</span>
+                       <span className={`text-sm font-medium transition-all ${item.is_done ? 'text-gray-400 line-through' : 'text-adworks-dark'}`}>{item.text}</span>
                     </div>
                   ))}
                   <div className="flex gap-3 mt-4">
@@ -124,10 +195,11 @@ export function CardDetailModal({ isOpen, onClose, task }: CardModalProps) {
                       type="text" 
                       value={newCheckItem}
                       onChange={e => setNewCheckItem(e.target.value)}
+                      onKeyPress={e => e.key === 'Enter' && addCheckItem()}
                       placeholder="Adicionar um item..." 
-                      className="flex-1 bg-white border-none rounded-xl px-4 py-2 text-xs font-bold shadow-inner focus:ring-1 focus:ring-adworks-blue outline-none" 
+                      className="flex-1 bg-white border-none rounded-xl px-4 py-3 text-xs font-bold shadow-inner focus:ring-1 focus:ring-adworks-blue outline-none" 
                      />
-                     <button onClick={addCheckItem} className="bg-adworks-dark text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Add</button>
+                     <button onClick={addCheckItem} className="bg-adworks-dark text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95">Adicionar</button>
                   </div>
                </div>
             </div>
