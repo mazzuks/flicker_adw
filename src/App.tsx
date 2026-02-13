@@ -28,7 +28,8 @@ import {
   TicketsCNPJ, 
   TicketsFiscal, 
   TicketsINPI, 
-  MasterSettings 
+  MasterSettings,
+  MasterDashboard
 } from './pages/adworks';
 
 import { Inbox as OperatorInbox } from './pages/client/Inbox';
@@ -108,7 +109,7 @@ function AppRoutes() {
         {/* 🛡️ CAIXINHA DO MASTER (/master) */}
         {isMaster && (
           <Route path="master">
-            <Route index element={<AdworksDashboard />} />
+            <Route index element={<MasterDashboard />} /> 
             <Route path="tasks" element={<AdworksTasks />} />
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />
