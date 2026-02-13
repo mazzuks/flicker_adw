@@ -24,6 +24,7 @@ import {
   Copy
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../lib/auth';
 
 interface CardModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ interface CardModalProps {
 }
 
 export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalProps) {
+  const { profile, user } = useAuth();
   const [checklist, setChecklist] = useState<{id: string, text: string, is_done: boolean}[]>([]);
   const [newCheckItem, setNewCheckItem] = useState('');
   const [loading, setLoading] = useState(false);
@@ -256,7 +258,7 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
                       <div className="space-y-2">
                         {team.map(m => (
                           <button key={m.id} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-[10px] font-bold text-adworks-dark border border-gray-100 flex items-center gap-2">
-                             <div className="w-5 h-5 bg-adworks-blue/10 rounded-full flex items-center justify-center text-[8px] text-adworks-blue">{m.full_name.charAt(0)}</div>
+                             <div className="w-5 h-5 bg-adworks-blue/10 rounded-full flex items-center justify-center text-[8px] text-adworks-blue">{m.full_name?.charAt(0)}</div>
                              {m.full_name}
                           </button>
                         ))}
