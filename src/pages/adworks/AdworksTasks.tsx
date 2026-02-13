@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { 
+  CheckSquare, 
   Clock, 
   AlertTriangle, 
+  User, 
   Building2, 
+  ArrowRight, 
+  Filter,
   Search,
   CheckCircle2,
+  XCircle,
   FileText,
-  Briefcase,
-  MoreHorizontal,
-  User,
-  Zap,
-  Calendar
+  MoreHorizontal
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { CardDetailModal } from '../../components/CardDetailModal';
 
 interface OperatorTask {
   id: string;
@@ -34,8 +37,11 @@ const COLUMNS = [
 ];
 
 export function AdworksTasks() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<OperatorTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<OperatorTask | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadOperatorTasks();
@@ -68,11 +74,8 @@ export function AdworksTasks() {
     if (!destination || destination.droppableId === source.droppableId) return;
 
     const newStatus = destination.droppableId;
-    
-    // Update local state
     setTasks(prev => prev.map(t => t.id === draggableId ? { ...t, status: newStatus } : t));
 
-    // Update DB
     await supabase
       .from('tickets')
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -98,6 +101,12 @@ export function AdworksTasks() {
 
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col space-y-6 overflow-hidden">
+      <CardDetailModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        task={selectedTask} 
+      />
+
       <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic leading-none">Fila de Trabalho</h1>
@@ -133,6 +142,10 @@ export function AdworksTasks() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            onClick={() => {
+                              setSelectedTask(task);
+                              setIsModalOpen(true);
+                            }}
                             className={`bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-200 transition-all group hover:shadow-xl hover:border-adworks-blue/20 ${snapshot.isDragging ? 'rotate-3 scale-105 shadow-2xl z-50 border-adworks-blue' : ''}`}
                           >
                             <div className="flex items-start justify-between mb-4">
