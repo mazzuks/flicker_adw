@@ -20,7 +20,8 @@ import {
   Zap,
   Loader2,
   CheckCircle2,
-  Layout
+  Calendar as CalendarIcon,
+  Copy
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -42,10 +43,12 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
   const [showLabelPicker, setShowLabelPicker] = useState(false);
   const [showMemberPicker, setShowMemberPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [team, setTeam] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen && task) {
       loadCardData();
+      loadTeam();
     }
   }, [isOpen, task]);
 
@@ -60,6 +63,11 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
     
     if (items) setChecklist(items);
     setLoading(false);
+  };
+
+  const loadTeam = async () => {
+    const { data } = await supabase.from('user_profiles').select('id, full_name, email').limit(5);
+    if (data) setTeam(data);
   };
 
   const addCheckItem = async () => {
@@ -98,6 +106,14 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
     await supabase.from('tickets').update({ priority }).eq('id', task.id);
     if (onUpdate) onUpdate();
     setShowLabelPicker(false);
+  };
+
+  const handleArchive = async () => {
+    if (confirm('Deseja realmente arquivar este processo?')) {
+      await supabase.from('tickets').update({ status: 'ARCHIVED' }).eq('id', task.id);
+      onClose();
+      if (onUpdate) onUpdate();
+    }
   };
 
   const progress = checklist.length > 0 
@@ -189,6 +205,7 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
                   ))}
                   <div className="flex gap-3 mt-6">
                      <input 
+                      id="checklist-input"
                       type="text" 
                       value={newCheckItem}
                       onChange={e => setNewCheckItem(e.target.value)}
@@ -202,50 +219,100 @@ export function CardDetailModal({ isOpen, onClose, task, onUpdate }: CardModalPr
             </div>
 
             {/* Atividade / Histórico */}
-            <div className="space-y-6 pt-10 border-t border-gray-200 opacity-40">
+            <div className="space-y-6 pt-10 border-t border-gray-200">
                <div className="flex items-center gap-3 text-adworks-dark uppercase font-black tracking-widest text-xs">
                   <ActivityIcon className="w-4 h-4" />
                   Atividade do Processo
                </div>
-               <p className="text-[10px] font-bold uppercase text-gray-400 italic">Módulo de atividade em desenvolvimento...</p>
+               <div className="flex gap-4">
+                  <div className="w-10 h-10 bg-adworks-blue rounded-xl flex items-center justify-center text-white font-black text-xs shadow-lg">
+                    {profile?.full_name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="flex-1 space-y-3">
+                     <textarea 
+                      placeholder="Escreva um comentário..." 
+                      className="w-full bg-white border-none rounded-2xl p-4 text-sm font-medium shadow-sm focus:ring-2 focus:ring-adworks-blue outline-none min-h-[80px]"
+                     />
+                     <div className="flex justify-end gap-2">
+                        <button className="bg-adworks-blue text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase shadow-lg shadow-blue-500/20">Salvar Comentário</button>
+                     </div>
+                  </div>
+               </div>
             </div>
           </div>
 
-          {/* RIGHT SIDE: ACTIONS BAR (The functional part) */}
-          <div className="w-64 border-l border-gray-200 p-8 space-y-8 bg-[#F4F5F7] shrink-0">
+          {/* RIGHT SIDE: ACTIONS BAR */}
+          <div className="w-64 border-l border-gray-200 p-8 space-y-8 bg-[#F4F5F7] shrink-0 overflow-y-auto">
              <div className="space-y-3 relative">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Gerenciar</p>
                 
-                <ActionButton icon={User} label="Membros" onClick={() => setShowMemberPicker(!showMemberPicker)} />
-                <ActionButton icon={Tag} label="Prioridade" onClick={() => setShowLabelPicker(!showLabelPicker)} />
-                <ActionButton icon={CheckSquare} label="Checklist" onClick={() => document.querySelector('input')?.focus()} />
-                <ActionButton icon={Clock} label="Prazo (SLA)" onClick={() => setShowDatePicker(!showDatePicker)} />
-
-                {/* SUB-MENUS FLUTUANTES (Simulação Trello) */}
-                {showLabelPicker && (
-                  <div className="absolute left-[-200px] top-10 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-20 animate-in slide-in-from-right-2">
-                     <p className="text-[9px] font-black text-gray-400 uppercase mb-3 text-center">Prioridade</p>
-                     <div className="space-y-2">
-                        {['LOW', 'NORMAL', 'HIGH', 'URGENT'].map(p => (
-                          <button key={p} onClick={() => updatePriority(p)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-[10px] font-black uppercase tracking-widest text-adworks-dark border border-gray-100">{p}</button>
+                <div className="relative">
+                  <ActionButton icon={User} label="Membros" onClick={() => setShowMemberPicker(!showMemberPicker)} />
+                  {showMemberPicker && (
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-50 animate-in slide-in-from-top-2">
+                      <p className="text-[9px] font-black text-gray-400 uppercase mb-3 text-center">Atribuir Membro</p>
+                      <div className="space-y-2">
+                        {team.map(m => (
+                          <button key={m.id} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-[10px] font-bold text-adworks-dark border border-gray-100 flex items-center gap-2">
+                             <div className="w-5 h-5 bg-adworks-blue/10 rounded-full flex items-center justify-center text-[8px] text-adworks-blue">{m.full_name.charAt(0)}</div>
+                             {m.full_name}
+                          </button>
                         ))}
-                     </div>
-                  </div>
-                )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <ActionButton icon={Tag} label="Prioridade" onClick={() => setShowLabelPicker(!showLabelPicker)} />
+                  {showLabelPicker && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-50 animate-in slide-in-from-top-2">
+                      <p className="text-[9px] font-black text-gray-400 uppercase mb-3 text-center">Etiquetas de Prioridade</p>
+                      <div className="space-y-2">
+                        {['LOW', 'NORMAL', 'HIGH', 'URGENT'].map(p => (
+                          <button key={p} onClick={() => updatePriority(p)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-[10px] font-black uppercase tracking-widest text-adworks-dark border border-gray-100 flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${p === 'URGENT' ? 'bg-red-500' : p === 'HIGH' ? 'bg-orange-500' : 'bg-blue-500'}`} />
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <ActionButton icon={CheckSquare} label="Checklist" onClick={() => document.getElementById('checklist-input')?.focus()} />
+                
+                <div className="relative">
+                  <ActionButton icon={Clock} label="Prazo (SLA)" onClick={() => setShowDatePicker(!showDatePicker)} />
+                  {showDatePicker && (
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-in slide-in-from-top-2">
+                       <p className="text-[9px] font-black text-gray-400 uppercase mb-4 text-center">Definir Prazo</p>
+                       <input type="date" className="w-full bg-adworks-gray border-none rounded-xl px-4 py-3 text-xs font-bold mb-4 outline-none focus:ring-1 focus:ring-adworks-blue" />
+                       <button onClick={() => setShowDatePicker(false)} className="w-full bg-adworks-dark text-white py-2 rounded-xl text-[10px] font-black uppercase shadow-lg">Salvar Data</button>
+                    </div>
+                  )}
+                </div>
              </div>
 
              <div className="space-y-3">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Arquivos</p>
-                <ActionButton icon={Paperclip} label="Anexos" />
-                <ActionButton icon={ImageIcon} label="Capa" />
+                <label className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-100 hover:bg-adworks-gray hover:border-gray-200 transition-all group text-left cursor-pointer active:scale-95 shadow-sm">
+                   <Paperclip className="w-4 h-4 text-gray-400 group-hover:text-adworks-dark" />
+                   <span className="text-[10px] font-black text-gray-500 group-hover:text-adworks-dark uppercase tracking-widest">Anexos</span>
+                   <input type="file" className="hidden" onChange={() => alert('Função de anexo em lote sendo ligada ao Storage...')} />
+                </label>
+                <ActionButton icon={ImageIcon} label="Capa" onClick={() => alert('Escolha uma cor de destaque no Master Settings em breve.')} />
              </div>
 
              <div className="space-y-3 pt-8 border-t border-gray-200">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Ações</p>
-                <ActionButton icon={ChevronRight} label="Mover" />
-                <ActionButton icon={History} label="Copiar" />
-                <ActionButton icon={Zap} label="Automação" />
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[10px] uppercase tracking-widest active:scale-95 group">
+                <ActionButton icon={ChevronRight} label="Mover" onClick={() => alert('Arraste o card no tabuleiro para mover entre colunas.')} />
+                <ActionButton icon={Copy} label="Copiar" onClick={() => alert('Duplicando processo...')} />
+                <ActionButton icon={Zap} label="Automação" onClick={() => alert('Robô Adworks analisando o card...')} />
+                <button 
+                  onClick={handleArchive}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 text-red-500 hover:bg-red-600 hover:text-white transition-all font-black text-[10px] uppercase tracking-widest active:scale-95 group"
+                >
                    <Trash2 className="w-4 h-4 text-red-400 group-hover:text-white" /> Arquivar
                 </button>
              </div>
