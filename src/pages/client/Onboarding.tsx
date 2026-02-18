@@ -146,13 +146,27 @@ export function Onboarding() {
     if (currentStepIndex < STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
-      await supabase
-        .from('onboarding_steps')
-        .update({ status: 'SUBMITTED' })
-        .eq('client_id', currentClientId)
-        .eq('step_key', currentStep.key);
+      setLoading(true);
+      try {
+        await supabase
+          .from('onboarding_steps')
+          .update({ status: 'SUBMITTED' })
+          .eq('client_id', currentClientId)
+          .eq('step_key', currentStep.key);
 
-      alert('Onboarding concluído! Nossa equipe irá revisar suas informações.');
+        // 🤖 DISPARAR AUTOMAÇÃO DE DOSSIÊ
+        await supabase.functions.invoke('onboarding-automation', {
+          body: { clientId: currentClientId }
+        });
+
+        alert('🚀 Onboarding concluído! Nossa equipe já gerou o seu dossiê e iniciou a abertura do seu CNPJ.');
+        navigate('/client');
+      } catch (e) {
+        console.error(e);
+        alert('Erro ao finalizar onboarding.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
