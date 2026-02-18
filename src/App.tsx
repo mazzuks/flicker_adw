@@ -41,6 +41,8 @@ import {
  * 3. /client   -> Painel da Empresa (Clientes)
  */
 
+import { SiteBuilder } from './pages/client/site/SiteBuilder';
+
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
   if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) return <Navigate to="/master" replace />;
@@ -82,6 +84,7 @@ function AppRoutes() {
           <Route path="messages" element={<ClientInbox />} />
           <Route path="crm" element={<ClientCRM />} />
           <Route path="finance" element={<ClientFinance />} />
+          <Route path="site" element={<SiteBuilder />} />
           <Route path="account" element={<ClientAccount />} />
           <Route path="team" element={<ClientTeam />} />
         </Route>
