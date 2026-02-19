@@ -57,9 +57,6 @@ export function Overview() {
       {/* HEADER SECTION */}
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">OVERVIEW</h1>
-        <span className="text-[10px] font-bold text-blue-400 bg-blue-50 px-1.5 py-0.5 rounded tracking-widest">
-          @YEACTIVES
-        </span>
       </div>
 
       {/* 1. KPI TOP ROW - FIDELITY RECONSTRUCTION */}
