@@ -34,7 +34,7 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [ ] **Módulo de Mensagens (Inbox)**:
     - Lista: `src/pages/app/Inbox.tsx`
     - Chat: `src/pages/app/InboxThread.tsx`
-- [ ] **Lista de Empresas**: Tabela detalhada com filtros.
+- [x] **Lista de Empresas**: Tabela detalhada com filtros.
     - Arquivo: `src/pages/app/Companies.tsx`
 - [ ] **Gestão de Documentos**: Upload real para o Storage do Supabase.
 
