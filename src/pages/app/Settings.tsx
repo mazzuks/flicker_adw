@@ -14,17 +14,18 @@ export function Settings() {
     setLoading(true);
     setMsg(null);
     try {
-      // 🚀 CORREÇÃO: Chamando o RPC sem argumentos para bater com a assinatura SQL
+      // 🚀 CHAVE DA SOLUÇÃO: Chamada limpa sem nenhum parâmetro
       const { data, error } = await supabase.rpc('seed_dev_data');
 
       if (error) {
-        setMsg({ type: 'error', text: `Erro RPC: ${error.message}` });
+        console.error('RPC Error Detail:', error);
+        setMsg({ type: 'error', text: `Erro: ${error.message}` });
       } else {
-        setMsg({ type: 'success', text: '✅ Dados criados com sucesso!' });
+        setMsg({ type: 'success', text: '✅ Sistema populado com 20 empresas!' });
         await queryClient.invalidateQueries();
       }
     } catch (e: any) {
-      setMsg({ type: 'error', text: `Erro inesperado: ${e.message}` });
+      setMsg({ type: 'error', text: `Erro fatal: ${e.message}` });
     } finally {
       setLoading(false);
     }
@@ -34,45 +35,45 @@ export function Settings() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
       <h1 className="text-2xl font-bold text-slate-900">Configurações</h1>
 
-      <Card className="border-dashed border-blue-200 bg-blue-50/30 p-8 rounded-2xl">
+      <Card className="border-dashed border-blue-200 bg-blue-50/30 p-8 rounded-2xl shadow-sm">
         <div className="flex items-center gap-4 mb-6">
           <div className="p-3 bg-blue-600 text-white rounded-xl shadow-lg">
             <Database className="w-6 h-6" />
           </div>
           <div>
             <h3 className="font-bold text-slate-900 uppercase tracking-tight text-sm">
-              Developer Tools
+              Ferramentas de Desenvolvedor
             </h3>
-            <p className="text-xs text-slate-500 font-medium">Ferramentas de ambiente.</p>
+            <p className="text-xs text-slate-500 font-medium">Reset e população de dados.</p>
           </div>
         </div>
 
-        <div className="space-y-4 text-sm text-slate-600 leading-relaxed mb-8">
-          <p>
-            Clique abaixo para popular o banco de dados. Isso criará empresas e processos reais para
-            validar a UI do Command Center e do Kanban.
-          </p>
-        </div>
+        <p className="text-sm text-slate-600 leading-relaxed mb-8">
+          Atenção: Use o botão abaixo apenas se o seu sistema estiver vazio. Ele criará
+          automaticamente 20 empresas de teste distribuídas pelo pipeline.
+        </p>
 
         <Button
           onClick={runSeed}
           isLoading={loading}
           variant="secondary"
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto bg-slate-900 text-white hover:bg-blue-600"
         >
-          EXECUTAR SEED DE DADOS
+          EXECUTAR SEED DE DADOS (v4)
         </Button>
 
         {msg && (
           <div
-            className={`mt-4 flex items-center gap-2 text-xs font-bold ${
-              msg.type === 'success' ? 'text-blue-600 animate-bounce' : 'text-red-600'
+            className={`mt-6 p-4 rounded-xl border flex items-center gap-3 text-xs font-bold animate-in zoom-in ${
+              msg.type === 'success'
+                ? 'bg-green-50 text-green-600 border-green-100'
+                : 'bg-red-50 text-red-600 border-red-100'
             }`}
           >
             {msg.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
             )}
             {msg.text}
           </div>
