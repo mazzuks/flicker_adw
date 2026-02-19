@@ -19,8 +19,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 /**
- * 🏛️ ADWORKS DECISION PANEL (Final v5)
- * Restoring original aesthetic with improved readability.
+ * 🏛️ ADWORKS DECISION PANEL (Final v6)
+ * Precise reconstruction of "Performance por Responsável" based on file_67.
  */
 
 export function Overview() {
@@ -134,21 +134,41 @@ export function Overview() {
                   </div>
                 </div>
               ))}
-              {criticalDeals.length === 0 && (
-                <p className="p-10 text-center text-slate-400 text-xs italic font-medium">
-                  Nenhum processo atrasado. Operação em dia! ✨
-                </p>
-              )}
             </div>
           </Card>
 
-          {/* 3. PERFORMANCE / ATIVIDADE */}
+          {/* 3. ATIVIDADE RECENTE */}
           <Card className="border border-slate-200 shadow-sm" noPadding>
             <CardHeader title="Atividade Recente" subtitle="Timeline Global de Operação" />
-            <div className="p-10 text-center opacity-60">
-              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest italic">
-                Aguardando novos eventos...
-              </p>
+            <div className="p-4 divide-y divide-slate-50">
+              {[
+                { text: 'Processo #18 movido para LEAD', time: '4 minutos atrás', icon: Zap },
+                {
+                  text: 'Nova empresa cadastrada: Empresa Seed 20',
+                  time: '25 minutos atrás',
+                  icon: Building2,
+                },
+                {
+                  text: 'SLA estourado: Empresa Seed 16',
+                  time: '50 minutos atrás',
+                  icon: AlertTriangle,
+                },
+              ].map((act, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-4 px-2 hover:bg-slate-50 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <act.icon className="w-4 h-4 text-slate-400" />
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+                      {act.text}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase italic">
+                    {act.time}
+                  </span>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -183,47 +203,63 @@ export function Overview() {
             </div>
           </Card>
 
-          {/* PERFORMANCE POR RESPONSÁVEL (AESTHETIC RESTORED) */}
-          <Card className="bg-white border border-slate-200 shadow-sm group">
+          {/* PERFORMANCE POR RESPONSÁVEL (PIPEDRIVE RECONSTRUCTION) */}
+          <Card className="border border-slate-200 shadow-sm" noPadding>
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-blue-600 text-xs uppercase tracking-[0.3em] italic">
-                Performance / Time
+              <h3 className="font-bold text-slate-900 text-[11px] uppercase tracking-widest italic">
+                Performance por Responsável
               </h3>
             </div>
-            <div className="p-6 space-y-8">
+            <div className="divide-y divide-slate-100">
               {[
-                { name: 'Matheus', deals: 12, overdue: 4, sla: '1.2d' },
-                { name: 'Dan', deals: 5, overdue: 0, sla: '0.8d' },
-                { name: 'Sah AI', deals: 2, overdue: 0, sla: '0.1d' },
+                {
+                  name: 'Dan',
+                  active: 20,
+                  overdue: 10,
+                  sla: '-0.7d',
+                  img: 'https://i.pravatar.cc/150?u=dan',
+                },
+                {
+                  name: 'Matheus',
+                  active: 10,
+                  overdue: 10,
+                  sla: '0.7d',
+                  img: 'https://i.pravatar.cc/150?u=math',
+                },
+                {
+                  name: 'Sah AI',
+                  active: 50,
+                  overdue: 10,
+                  sla: '-0.7d',
+                  img: 'https://i.pravatar.cc/150?u=sah',
+                },
               ].map((m, i) => (
-                <div
+                <button
                   key={i}
-                  className="flex items-center justify-between border-b border-slate-50 pb-6 last:border-0 last:pb-0"
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-all group active:scale-[0.98]"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-sm shadow-lg shadow-blue-200 border border-blue-400/20">
-                      {m.name.charAt(0)}
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-[13px] font-bold tracking-tight text-slate-800 leading-none">
-                        {m.name}
-                      </p>
-                      <div className="px-2.5 py-1 bg-blue-50 border border-blue-100 rounded text-[10px] font-bold text-blue-600 uppercase tracking-widest inline-block leading-none">
-                        {m.deals} DEALS ATIVOS
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={m.img}
+                      className="w-8 h-8 rounded-full border border-slate-200 shadow-sm grayscale group-hover:grayscale-0 transition-all"
+                    />
+                    <span className="text-[13px] font-bold text-slate-700 tracking-tight">
+                      {m.name}
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <p
-                      className={`text-xs font-bold uppercase tracking-widest ${m.overdue > 0 ? 'text-red-500' : 'text-emerald-500'}`}
-                    >
-                      {m.overdue} Atrasos
-                    </p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase mt-2 tracking-widest">
-                      Média {m.sla}
-                    </p>
+                  <div className="flex items-center gap-6">
+                    <span className="text-[12px] font-bold text-slate-900 w-6 text-right">
+                      {m.active}
+                    </span>
+                    <span className="text-[12px] font-bold text-red-500 w-6 text-right">
+                      {m.overdue}
+                    </span>
+                    <span className="text-[12px] font-bold text-slate-400 w-12 text-right">
+                      {m.sla}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </Card>
