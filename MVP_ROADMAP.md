@@ -36,7 +36,8 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
     - Arquivo: `src/pages/app/Inbox.tsx`
 - [x] **Lista de Empresas**: Tabela detalhada com filtros.
     - Arquivo: `src/pages/app/Companies.tsx`
-- [ ] **Gestão de Documentos**: Upload real para o Storage do Supabase.
+- [x] **Gestão de Documentos**: Estrutura de Storage (buckets e RLS) + Tabela de docs.
+- [ ] **Integração Front-end Storage**: Implementar upload e visualização no Drawer.
 
 ---
 
