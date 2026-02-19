@@ -1,36 +1,57 @@
 import { create } from 'zustand';
 
+interface PipelineFilters {
+  search: string;
+  owner: string;
+  priority: string;
+  slaStatus: string;
+}
+
 interface UIState {
-  selectedCompanyId: string | null;
+  // Navigation
   sidebarCollapsed: boolean;
-  viewMode: 'MY_QUEUE' | 'MASTER';
-  pipelineFilters: {
-    search: string;
-    assigned: string;
-    priority: string;
-    sla: string;
-    stage: string;
-  };
-  setSelectedCompanyId: (id: string | null) => void;
+
+  // Pipeline/Kanban
+  selectedDealId: string | null;
+  isDrawerOpen: boolean;
+  activeDrawerTab: 'overview' | 'comments' | 'activities' | 'files' | 'tasks';
+  filters: PipelineFilters;
+
+  // Actions
   toggleSidebar: () => void;
-  setViewMode: (mode: 'MY_QUEUE' | 'MASTER') => void;
-  setPipelineFilters: (filters: Partial<UIState['pipelineFilters']>) => void;
+  openDeal: (id: string, tab?: UIState['activeDrawerTab']) => void;
+  closeDrawer: () => void;
+  setTab: (tab: UIState['activeDrawerTab']) => void;
+  setFilters: (filters: Partial<PipelineFilters>) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  selectedCompanyId: null,
   sidebarCollapsed: false,
-  viewMode: 'MASTER',
-  pipelineFilters: {
+  selectedDealId: null,
+  isDrawerOpen: false,
+  activeDrawerTab: 'overview',
+  filters: {
     search: '',
-    assigned: 'all',
+    owner: 'all',
     priority: 'all',
-    sla: 'all',
-    stage: 'all',
+    slaStatus: 'all',
   },
-  setSelectedCompanyId: (id) => set({ selectedCompanyId: id }),
+
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-  setViewMode: (mode) => set({ viewMode: mode }),
-  setPipelineFilters: (filters) =>
-    set((state) => ({ pipelineFilters: { ...state.pipelineFilters, ...filters } })),
+
+  openDeal: (id, tab = 'overview') =>
+    set({
+      selectedDealId: id,
+      isDrawerOpen: true,
+      activeDrawerTab: tab,
+    }),
+
+  closeDrawer: () => set({ isDrawerOpen: false, selectedDealId: null }),
+
+  setTab: (tab) => set({ activeDrawerTab: tab }),
+
+  setFilters: (newFilters) =>
+    set((state) => ({
+      filters: { ...state.filters, ...newFilters },
+    })),
 }));

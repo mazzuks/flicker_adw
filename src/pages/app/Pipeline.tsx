@@ -1,143 +1,101 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Building2,
-  Globe,
-  Mail,
-  Layout as LayoutIcon,
-  Award,
-  FileText,
-  Clock,
-  Plus,
   Search,
   Filter,
-  MoreHorizontal,
+  Plus,
   MessageSquare,
+  Paperclip,
+  History,
+  Clock,
+  ArrowRight,
+  MoreHorizontal,
+  ChevronRight,
   AlertCircle,
+  CheckCircle2,
+  User,
+  DollarSign,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { supabase } from '../../lib/supabase';
-import { Badge } from '../../components/ui/Badge';
+import { useUIStore } from '../../store/useUIStore';
 
-/**
- * 🏛️ CORE PIPELINE KANBAN (Refoundation 2.0)
- * Fixed 9 stages from Lead to Completed
- */
-
+// --- MOCK DATA (aligned with Refoundation Schema) ---
 const STAGES = [
-  { id: 'lead', label: 'Lead', icon: Search },
-  { id: 'contracted', label: 'Contratado', icon: CheckCircle2 },
-  { id: 'cnpj', label: 'CNPJ', icon: Building2 },
-  { id: 'domain', label: 'Domínio', icon: Globe },
-  { id: 'email', label: 'E-mail', icon: Mail },
-  { id: 'site', label: 'Site', icon: LayoutIcon },
-  { id: 'brand', label: 'Marca', icon: Award },
-  { id: 'accounting', label: 'Contábil', icon: FileText },
-  { id: 'completed', label: 'Concluído', icon: CheckCircle2 },
+  { id: '1', name: 'Lead', count: 5, value: '25.000' },
+  { id: '2', name: 'Contratado', count: 3, value: '15.000' },
+  { id: '3', name: 'CNPJ', count: 8, value: '42.000' },
+  { id: '4', name: 'Domínio', count: 2, value: '4.000' },
 ];
 
-function CheckCircle2(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
+const DEALS = [
+  {
+    id: 'd1',
+    title: 'Restaurante Sabor & Arte',
+    stageId: '3',
+    value: 'R$ 2.450',
+    owner: 'Matheus',
+    sla: '2d',
+    slaStatus: 'warning',
+    priority: 'HIGH',
+    blocked: true,
+  },
+  {
+    id: 'd2',
+    title: 'Clínica Sorriso',
+    stageId: '1',
+    value: 'R$ 1.800',
+    owner: 'Dan',
+    sla: 'ok',
+    slaStatus: 'ok',
+    priority: 'NORMAL',
+    blocked: false,
+  },
+];
 
 export default function Pipeline() {
-  const [processes, setProcesses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchProcesses();
-  }, []);
-
-  const fetchProcesses = async () => {
-    setLoading(true);
-    // Em produção: fetch real. Aqui usamos mock estruturado conforme migration 2.0
-    const mock = [
-      {
-        id: '1',
-        name: 'Restaurante Sabor & Arte',
-        stage: 'cnpj',
-        priority: 'URGENT',
-        value: 'R$ 2.450',
-        operator: 'Matheus',
-        sla: '12d',
-      },
-      {
-        id: '2',
-        name: 'Clínica Sorriso',
-        stage: 'lead',
-        priority: 'NORMAL',
-        value: 'R$ 1.800',
-        operator: 'Dan',
-        sla: '2d',
-      },
-    ];
-    setTimeout(() => {
-      setProcesses(mock);
-      setLoading(false);
-    }, 500);
-  };
-
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const { draggableId, destination } = result;
-    setProcesses((prev) =>
-      prev.map((p) => (p.id === draggableId ? { ...p, stage: destination.droppableId } : p))
-    );
-    // TODO: persist to DB
-  };
-
-  if (loading)
-    return (
-      <div className="p-8 animate-pulse text-slate-400 font-bold tracking-widest">
-        LOADING ENGINE...
-      </div>
-    );
+  const { openDeal, filters, setFilters } = useUIStore();
 
   return (
-    <div className="h-full flex flex-col space-y-6">
-      <div className="flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-bold text-slate-900 uppercase tracking-tight">
-          Strategic Pipeline
-        </h1>
-        <div className="flex gap-2">
-          <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg">
-            + NOVO PROCESSO
+    <div className="h-full flex flex-col space-y-6 overflow-hidden bg-[#F7F8FA] p-8 -m-8">
+      {/* 🏛️ TOPBAR */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Strategic Pipeline</h1>
+          <p className="text-slate-500 text-xs font-medium">
+            Gestão operacional de processos ativos.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+            <input
+              type="text"
+              placeholder="Buscar (Ctrl+K)"
+              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-600 outline-none w-64 shadow-sm"
+            />
+          </div>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Novo Processo
           </button>
         </div>
-      </div>
+      </header>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
+      {/* 🌪️ KANBAN BOARD */}
+      <DragDropContext onDragEnd={() => {}}>
+        <div className="flex-1 flex gap-4 overflow-x-auto pb-10 scrollbar-hide">
           {STAGES.map((stage) => (
-            <div
-              key={stage.id}
-              className="w-[280px] shrink-0 flex flex-col bg-slate-100/50 rounded-xl p-3 border border-slate-200/50"
-            >
-              <div className="flex items-center justify-between px-2 mb-4 border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-2">
-                  <stage.icon className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">
-                    {stage.label}
+            <div key={stage.id} className="w-[340px] shrink-0 flex flex-col">
+              {/* Column Header */}
+              <div className="p-4 bg-white border border-slate-200 rounded-t-xl border-b-0 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <h3 className="font-bold text-slate-900 text-sm">{stage.name}</h3>
+                  <span className="bg-slate-100 text-slate-500 text-[10px] font-black px-2 py-0.5 rounded-full">
+                    {stage.count}
                   </span>
                 </div>
-                <span className="text-[10px] font-black text-slate-400">
-                  {processes.filter((p) => p.stage === stage.id).length}
-                </span>
+                <MoreHorizontal className="w-4 h-4 text-slate-300" />
               </div>
 
               <Droppable droppableId={stage.id}>
@@ -145,68 +103,110 @@ export default function Pipeline() {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="flex-1 space-y-3 min-h-[100px]"
+                    className="flex-1 bg-slate-200/30 rounded-b-xl border border-slate-200 p-3 space-y-3 overflow-y-auto custom-scrollbar shadow-inner"
                   >
-                    {processes
-                      .filter((p) => p.stage === stage.id)
-                      .map((process, index) => (
-                        <Draggable key={process.id} draggableId={process.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-xl border-blue-600' : 'hover:border-blue-400'}`}
-                            >
-                              <div className="flex justify-between items-start mb-3">
-                                <Badge
-                                  variant={process.priority === 'URGENT' ? 'danger' : 'neutral'}
-                                >
-                                  {process.priority}
-                                </Badge>
-                                <MoreHorizontal className="w-4 h-4 text-slate-300" />
-                              </div>
-                              <h4 className="font-bold text-slate-900 text-sm leading-tight mb-4">
-                                {process.name}
-                              </h4>
+                    {DEALS.filter((d) => d.stageId === stage.id).map((deal, index) => (
+                      <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            onClick={() => openDeal(deal.id)}
+                            className={`bg-white p-5 rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md cursor-pointer group active:scale-95 ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-2xl border-blue-600 z-50' : ''} ${deal.blocked ? 'border-l-4 border-l-red-500 bg-red-50/20' : 'border-l-4 border-l-blue-600'}`}
+                          >
+                            <div className="flex justify-between items-start mb-3">
+                              <span
+                                className={`text-[10px] font-black uppercase tracking-tighter ${deal.blocked ? 'text-red-600 animate-pulse' : 'text-slate-400'}`}
+                              >
+                                {deal.blocked ? '⚠️ BLOCKED' : 'ON TRACK'}
+                              </span>
+                              <BadgeStatus
+                                variant={deal.slaStatus}
+                              >{`SLA ${deal.sla}`}</BadgeStatus>
+                            </div>
 
-                              <div className="space-y-2 border-t border-slate-50 pt-3">
-                                <div className="flex justify-between text-[9px] font-bold uppercase text-slate-400">
-                                  <span>Valor</span>
-                                  <span className="text-slate-900">{process.value}</span>
-                                </div>
-                                <div className="flex justify-between text-[9px] font-bold uppercase text-slate-400">
-                                  <span>SLA</span>
-                                  <span className="text-blue-600">{process.sla}</span>
-                                </div>
-                              </div>
+                            <h4 className="text-[15px] font-bold text-slate-900 leading-tight mb-4 group-hover:text-blue-600 transition-colors uppercase">
+                              {deal.title}
+                            </h4>
 
-                              <div className="mt-4 flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[8px] font-black text-slate-500 border border-slate-200">
-                                    {process.operator.charAt(0)}
+                            <div className="grid grid-cols-2 gap-4 mb-5 border-y border-slate-50 py-3">
+                              <div className="space-y-0.5">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                  Valor
+                                </p>
+                                <p className="text-xs font-bold text-slate-900 italic">
+                                  {deal.value}
+                                </p>
+                              </div>
+                              <div className="space-y-0.5 border-l border-slate-100 pl-4">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                  Responsável
+                                </p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <div className="w-4 h-4 bg-slate-100 rounded-full flex items-center justify-center text-[8px] font-black text-blue-600 border border-blue-100">
+                                    {deal.owner.charAt(0)}
                                   </div>
-                                  <span className="text-[8px] font-bold text-slate-500 uppercase">
-                                    {process.operator}
+                                  <span className="text-[10px] font-bold text-slate-600">
+                                    {deal.owner}
                                   </span>
-                                </div>
-                                <div className="flex gap-2 opacity-20">
-                                  <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                                  <FileText className="w-3.5 h-3.5 text-slate-400" />
                                 </div>
                               </div>
                             </div>
-                          )}
-                        </Draggable>
-                      ))}
+
+                            {/* Bottom Icons */}
+                            <div className="flex items-center justify-between pt-2">
+                              <div className="flex gap-3 text-slate-300">
+                                <div className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                                  <MessageSquare className="w-3.5 h-3.5" />
+                                  <span className="text-[9px] font-black">2</span>
+                                </div>
+                                <div className="flex items-center gap-1 hover:text-slate-900 transition-colors">
+                                  <History className="w-3.5 h-3.5" />
+                                  <span className="text-[9px] font-black">12</span>
+                                </div>
+                                <div className="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                  <Paperclip className="w-3.5 h-3.5" />
+                                </div>
+                              </div>
+                              <button className="w-7 h-7 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
+                                <ArrowRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
                     {provided.placeholder}
                   </div>
                 )}
               </Droppable>
+
+              <div className="p-2 border border-slate-200 border-t-0 rounded-b-xl bg-white/30">
+                <button className="w-full py-2 bg-white rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 hover:shadow-md transition-all">
+                  + Add Deal
+                </button>
+              </div>
             </div>
           ))}
         </div>
       </DragDropContext>
     </div>
+  );
+}
+
+// Support components
+function BadgeStatus({ variant, children }: any) {
+  const styles = {
+    ok: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    warning: 'bg-amber-50 text-amber-600 border-amber-100',
+    breached: 'bg-red-50 text-red-600 border-red-100',
+  };
+  return (
+    <span
+      className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${(styles as any)[variant]}`}
+    >
+      {children}
+    </span>
   );
 }
