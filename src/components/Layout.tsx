@@ -20,7 +20,8 @@ import {
   Layers,
   Search,
   Bell,
-  UserCircle
+  UserCircle,
+  Globe
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -159,7 +160,7 @@ export function Layout({ children }: LayoutProps) {
             {/* User Profile Area (Top Right) */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                 <button className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-all"><NotificationCenter /></button>
+                 <div className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-all"><NotificationCenter /></div>
               </div>
 
               <div className="flex items-center gap-4 pl-4 border-l border-white/10">
