@@ -2,8 +2,8 @@ import React from 'react';
 import { useKpis, useDealsBoard } from '../../lib/queries';
 import { Card, KpiCard } from '../../components/ui/DashboardUI';
 import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { Button } from '../../components/ui/Button';
 import {
   AlertTriangle,
   ArrowRight,
@@ -17,11 +17,6 @@ import {
   Info,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-/**
- * 🏛️ ADWORKS DECISION PANEL (Final v3)
- * Follows file_60 specs & file_59 visual reference
- */
 
 export function Overview() {
   const { data: kpis, isLoading: loadingKpis } = useKpis();
@@ -112,14 +107,14 @@ export function Overview() {
                       <p className="font-bold text-sm text-slate-900 uppercase tracking-tight">
                         {deal.company_name}
                       </p>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                         Etapa: {deal.stage_key}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
                     <div
-                      className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md border ${deal.sla_status === 'breached' ? 'text-red-600 border-red-100 bg-red-50' : 'text-amber-600 border-amber-100 bg-amber-50'}`}
+                      className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-md border ${deal.sla_status === 'breached' ? 'text-red-600 border-red-100 bg-red-50' : 'text-amber-600 border-amber-100 bg-amber-50'}`}
                     >
                       {deal.sla_status === 'breached' ? 'Atrasado' : 'Vence 24h'}
                     </div>
@@ -127,7 +122,7 @@ export function Overview() {
                       size="sm"
                       variant="primary"
                       onClick={() => navigate('/app/pipeline')}
-                      className="opacity-0 group-hover:opacity-100 px-4"
+                      className="px-6 py-2 h-auto text-[11px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all"
                     >
                       Abrir Processo
                     </Button>
@@ -146,7 +141,7 @@ export function Overview() {
           <Card className="border border-slate-200">
             <CardHeader title="Atividade Recente" subtitle="Timeline Global de Operação" />
             <div className="space-y-6 opacity-40 italic">
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 font-medium">
                 Timeline real conectada ao events_audit em breve...
               </p>
             </div>
@@ -163,18 +158,18 @@ export function Overview() {
               </h3>
               <BarChart3 className="w-4 h-4 text-slate-300" />
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-5">
               {funnelStats.map((s, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                  <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest leading-none">
                     <span className="text-slate-500">{s.name}</span>
                     <span className="text-slate-900">
                       {s.count} • {s.pct}%
                     </span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/30">
                     <div
-                      className="bg-blue-600 h-full shadow-[0_0_8px_rgba(30,91,255,0.4)]"
+                      className="bg-blue-600 h-full shadow-[0_0_8px_rgba(30,91,255,0.4)] transition-all duration-1000"
                       style={{ width: `${s.pct}%` }}
                     />
                   </div>
@@ -190,7 +185,7 @@ export function Overview() {
               <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-white/40 italic">
                 Performance por Responsável
               </h3>
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {[
                   { name: 'Matheus', deals: 12, overdue: 4, sla: '1.2d' },
                   { name: 'Dan', deals: 5, overdue: 0, sla: '0.8d' },
@@ -200,24 +195,28 @@ export function Overview() {
                     key={i}
                     className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0 group/row"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-[10px] shadow-lg group-hover/row:scale-110 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xs shadow-lg group-hover/row:scale-110 transition-all border border-blue-400/20">
                         {m.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-bold tracking-tight">{m.name}</p>
-                        <p className="text-[9px] text-white/30 uppercase tracking-widest">
-                          {m.deals} Deals Ativos
+                        <p className="text-[14px] font-bold tracking-tight text-white leading-none">
+                          {m.name}
                         </p>
+                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-blue-500/10 border border-blue-400/20 rounded text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                          {m.deals} DEALS ATIVOS
+                        </span>
                       </div>
                     </div>
                     <div className="text-right">
                       <p
-                        className={`text-[10px] font-black ${m.overdue > 0 ? 'text-red-400' : 'text-emerald-400'}`}
+                        className={`text-xs font-bold uppercase tracking-tighter ${m.overdue > 0 ? 'text-red-400' : 'text-emerald-400'}`}
                       >
                         {m.overdue} Atrasos
                       </p>
-                      <p className="text-[9px] text-white/20 uppercase mt-1">SLA {m.sla}</p>
+                      <p className="text-[10px] font-medium text-white/20 uppercase mt-1 tracking-widest">
+                        Média {m.sla}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -238,7 +237,7 @@ function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
           {title}
         </h3>
         {subtitle && (
-          <p className="text-[9px] text-slate-400 font-bold uppercase mt-1">{subtitle}</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{subtitle}</p>
         )}
       </div>
       <History className="w-4 h-4 text-slate-300" />
