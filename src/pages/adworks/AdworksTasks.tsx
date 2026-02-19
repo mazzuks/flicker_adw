@@ -21,6 +21,7 @@ import {
   MessageSquare,
   History,
   Zap,
+  Plus,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CardDetailModal } from '../../components/CardDetailModal';
