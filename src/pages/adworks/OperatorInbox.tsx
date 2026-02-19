@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
-import { Send, Paperclip, FileText, User, Clock, MessageSquare, ChevronRight, Search, Building2, ExternalLink } from 'lucide-react';
+import { 
+  Send, 
+  Paperclip, 
+  FileText, 
+  User, 
+  Clock, 
+  MessageSquare, 
+  ChevronRight, 
+  Search, 
+  Building2, 
+  ExternalLink,
+  MoreVertical,
+  Shield
+} from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -105,21 +118,21 @@ export function OperatorInbox() {
   }
 
   return (
-    <div className="max-w-full h-[calc(100vh-180px)] flex flex-col space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-[1600px] mx-auto h-[calc(100vh-180px)] flex flex-col space-y-6 animate-in fade-in duration-500">
+      <div className="flex items-end justify-between border-b border-adworks-border pb-6">
         <div>
-          <h1 className="text-4xl font-black text-[#2D3E50] tracking-tighter uppercase italic leading-none">Inbox Global</h1>
-          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Central de atendimento Adworks.</p>
+          <h1 className="text-2xl font-bold text-adworks-dark tracking-tight">Correio Global</h1>
+          <p className="text-adworks-muted text-sm mt-1">Central de atendimento Adworks (Nível Operacional).</p>
         </div>
       </div>
 
-      <div className="flex-1 bg-white rounded-[2.5rem] shadow-adw-soft border border-gray-100 overflow-hidden flex">
+      <div className="flex-1 bg-adworks-surface rounded-adw-lg shadow-adw-card border border-adworks-border overflow-hidden flex">
         {/* Sidebar: All Client Tickets */}
-        <div className="w-full md:w-96 border-r border-gray-100 flex flex-col bg-[#F8FAFC]">
-          <div className="p-6 border-b border-gray-100">
+        <div className="w-full md:w-80 lg:w-96 border-r border-adworks-border flex flex-col bg-adworks-gray">
+          <div className="p-5 border-b border-adworks-border bg-adworks-surface/50">
              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="text" placeholder="Filtrar por cliente..." className="w-full pl-9 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold focus:ring-1 focus:ring-adworks-blue outline-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-adworks-muted" />
+                <input type="text" placeholder="Filtrar por cliente..." className="w-full pl-9 pr-4 py-2 bg-adworks-surface border border-adworks-border rounded-lg text-xs font-medium focus:ring-1 focus:ring-adworks-blue outline-none transition-all" />
              </div>
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -127,61 +140,68 @@ export function OperatorInbox() {
               <button
                 key={t.id}
                 onClick={() => setSelectedTicketId(t.id)}
-                className={`w-full p-6 text-left border-b border-gray-50 transition-all flex items-center justify-between group ${
-                  selectedTicketId === t.id ? 'bg-white shadow-lg z-10' : 'hover:bg-gray-50'
+                className={`w-full p-6 text-left border-b border-adworks-border transition-all flex items-center justify-between group relative ${
+                  selectedTicketId === t.id ? 'bg-adworks-surface shadow-sm' : 'hover:bg-adworks-accent/30'
                 }`}
               >
+                {selectedTicketId === t.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-adworks-blue" />}
                 <div className="flex items-center gap-4">
-                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-                     selectedTicketId === t.id ? 'bg-adworks-blue text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-400 border border-gray-100'
+                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                     selectedTicketId === t.id ? 'bg-adworks-blue text-white' : 'bg-adworks-accent text-adworks-muted'
                    }`}>
-                      <Building2 className="w-6 h-6" />
+                      <Building2 className="w-5 h-5" />
                    </div>
-                   <div>
-                      <p className="font-black text-[#2D3E50] text-sm uppercase italic leading-tight group-hover:text-adworks-blue">{t.client?.fantasy_name || t.client?.name}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t.type.replace('TICKET_', '')}</p>
+                   <div className="min-w-0">
+                      <p className={`font-bold text-sm truncate ${selectedTicketId === t.id ? 'text-adworks-blue' : 'text-adworks-dark'}`}>{t.client?.fantasy_name || t.client?.name}</p>
+                      <p className="text-[9px] font-black text-adworks-muted uppercase tracking-widest mt-0.5">{t.type.replace('TICKET_', '')}</p>
                    </div>
                 </div>
-                <ChevronRight className={`w-4 h-4 ${selectedTicketId === t.id ? 'text-adworks-blue translate-x-1' : 'text-gray-200'} transition-all`} />
+                <ChevronRight className={`w-4 h-4 ${selectedTicketId === t.id ? 'text-adworks-blue' : 'text-adworks-border'}`} />
               </button>
             ))}
           </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-white relative">
+        <div className="flex-1 flex flex-col bg-adworks-surface relative">
           {selectedTicket ? (
             <>
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+              <div className="p-6 border-b border-adworks-border flex items-center justify-between bg-adworks-surface/80 backdrop-blur-md sticky top-0 z-10">
                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-adworks-blue shadow-sm">
-                       <User className="w-6 h-6" />
+                    <div className="w-10 h-10 bg-adworks-accent rounded-xl flex items-center justify-center text-adworks-blue border border-adworks-border shadow-sm">
+                       <User className="w-5 h-5" />
                     </div>
                     <div>
-                       <h3 className="font-black text-[#2D3E50] text-base uppercase tracking-tighter italic">{selectedTicket.client?.fantasy_name || selectedTicket.client?.name}</h3>
-                       <div className="flex items-center gap-2 mt-0.5">
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Canal: Portal do Cliente</p>
+                       <h3 className="font-bold text-adworks-dark text-base tracking-tight leading-none">{selectedTicket.client?.fantasy_name || selectedTicket.client?.name}</h3>
+                       <div className="flex items-center gap-2 mt-1.5 opacity-60">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          <p className="text-[9px] font-black text-adworks-dark uppercase tracking-widest">Atendimento Ativo</p>
                        </div>
                     </div>
                  </div>
-                 <button className="bg-adworks-gray p-3 rounded-xl text-gray-400 hover:text-adworks-blue transition-all"><ExternalLink className="w-5 h-5" /></button>
+                 <div className="flex items-center gap-2">
+                    <button className="p-2.5 rounded-lg bg-adworks-accent text-adworks-muted hover:text-adworks-blue transition-all border border-adworks-border"><MoreVertical className="w-4 h-4" /></button>
+                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-6">
+              <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-[#F8FAFC]/50 custom-scrollbar">
                 {messages.map((msg) => {
                   const isMe = msg.author_user_id === user?.id;
                   const isInternal = msg.visibility === 'INTERNAL';
                   return (
                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] p-5 rounded-[2rem] text-sm font-medium shadow-sm relative ${
-                        isInternal ? 'bg-amber-50 border border-amber-100 text-amber-900' :
-                        isMe ? 'bg-adworks-blue text-white rounded-tr-none' : 'bg-adworks-gray text-[#2D3E50] rounded-tl-none'
+                      <div className={`max-w-[70%] p-5 rounded-2xl text-sm font-medium shadow-sm relative ${
+                        isInternal ? 'bg-amber-50 border border-amber-200 text-amber-900 rounded-bl-none' :
+                        isMe ? 'bg-adworks-blue text-white rounded-br-none shadow-blue-500/10' : 'bg-adworks-surface border border-adworks-border text-adworks-dark rounded-bl-none'
                       }`}>
-                        {isInternal && <span className="absolute -top-3 left-4 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Nota Interna 🔒</span>}
+                        {isInternal && (
+                           <div className="flex items-center gap-1.5 text-[8px] font-black uppercase text-amber-600 mb-2 border-b border-amber-200/50 pb-1.5 tracking-widest">
+                              <Shield className="w-2.5 h-2.5" /> Nota Interna
+                           </div>
+                        )}
                         {msg.message}
-                        <div className={`text-[9px] mt-3 font-black uppercase tracking-widest ${isMe ? 'text-white/60 text-right' : 'text-gray-400'}`}>
-                          {msg.author?.full_name?.split(' ')[0]} • {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        <div className={`text-[9px] mt-3 font-bold uppercase tracking-tighter ${isMe ? 'text-white/50' : 'text-adworks-muted'}`}>
+                          {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
                     </div>
@@ -189,40 +209,39 @@ export function OperatorInbox() {
                 })}
               </div>
 
-              <div className="p-8 border-t border-gray-100 bg-[#F8FAFC]">
+              <div className="p-6 lg:p-8 border-t border-adworks-border bg-adworks-surface">
                 <div className="flex flex-col gap-4">
-                  <div className="flex gap-2 mb-2">
-                     <button className="text-[9px] font-black uppercase tracking-widest bg-adworks-blue/10 text-adworks-blue px-4 py-1.5 rounded-full border border-adworks-blue/20">Responder Cliente</button>
-                     <button className="text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-400 px-4 py-1.5 rounded-full hover:bg-amber-50 hover:text-amber-600 transition-all">Nota Interna</button>
+                  <div className="flex gap-2">
+                     <button onClick={() => {}} className="text-[9px] font-black uppercase tracking-widest bg-adworks-accent text-adworks-blue px-4 py-1.5 rounded-lg border border-adworks-border hover:bg-adworks-blue hover:text-white transition-all">Cliente</button>
+                     <button onClick={() => sendMessage('INTERNAL')} className="text-[9px] font-black uppercase tracking-widest bg-adworks-gray text-adworks-muted px-4 py-1.5 rounded-lg border border-adworks-border hover:bg-amber-50 hover:text-amber-600 hover:border-amber-100 transition-all">Interno</button>
                   </div>
-                  <div className="relative flex items-center gap-4">
-                    <button className="w-12 h-12 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-300 hover:text-adworks-blue transition-all shadow-sm">
+                  <div className="relative flex items-center gap-3">
+                    <button className="w-12 h-12 rounded-xl bg-adworks-accent border border-adworks-border text-adworks-muted hover:text-adworks-blue transition-all shadow-sm flex items-center justify-center">
                       <Paperclip className="w-5 h-5" />
                     </button>
                     <input
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                      placeholder="Responda ao cliente aqui..."
-                      className="flex-1 px-6 py-4 bg-white border border-gray-100 rounded-[1.5rem] focus:ring-2 focus:ring-adworks-blue outline-none font-bold text-sm text-[#2D3E50] shadow-inner"
+                      onKeyPress={(e) => e.key === 'Enter' && sendMessage('CLIENT')}
+                      placeholder="Sua resposta rápida..."
+                      className="flex-1 px-5 py-3.5 bg-adworks-accent/50 border border-adworks-border rounded-xl focus:ring-1 focus:ring-adworks-blue outline-none font-medium text-sm text-adworks-dark shadow-inner"
                     />
                     <button
                       onClick={() => sendMessage('CLIENT')}
                       disabled={sending || !newMessage.trim()}
-                      className="w-16 h-14 bg-adworks-blue text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 hover:brightness-110 transition-all active:scale-90"
+                      className="w-14 h-12 bg-adworks-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <Send className="w-6 h-6" />
+                      <Send className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-20 text-center opacity-30">
+            <div className="flex-1 flex flex-col items-center justify-center p-20 text-center opacity-20 italic font-black text-adworks-dark uppercase tracking-[0.3em]">
                <MessageSquare className="w-20 h-20 mb-6" />
-               <h3 className="text-xl font-black italic uppercase tracking-tighter">Selecione um Atendimento</h3>
-               <p className="text-xs font-bold uppercase tracking-widest mt-2">Fila Global de Suporte</p>
+               Selecione uma conversa
             </div>
           )}
         </div>

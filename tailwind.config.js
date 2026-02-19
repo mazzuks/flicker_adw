@@ -6,28 +6,27 @@ export default {
       colors: {
         adworks: {
           blue: '#0047FF',
-          dark: '#0A0A0B',
-          gray: '#F1F5F9', // Neutro moderno
-          accent: '#00D1FF',
+          dark: '#0F172A',
+          gray: '#F8FAFC',
+          muted: '#64748B',
+          border: '#E2E8F0',
           surface: '#FFFFFF',
-          card: '#FFFFFF'
+          accent: '#F1F5F9'
         },
-        chart: {
-          blue: '#0047FF',
-          purple: '#8B5CF6',
-          cyan: '#22D3EE',
-          green: '#10B981',
-          orange: '#F59E0B'
+        status: {
+          success: { bg: '#F0FDF4', text: '#166534', border: '#DCFCE7' },
+          warning: { bg: '#FFFBEB', text: '#92400E', border: '#FEF3C7' },
+          error: { bg: '#FEF2F2', text: '#991B1B', border: '#FEE2E2' },
+          info: { bg: '#EFF6FF', text: '#1E40AF', border: '#DBEAFE' }
         }
       },
       borderRadius: {
-        'adw': '1rem',
-        'adw-lg': '1.5rem',
-        'adw-xl': '2.5rem',
+        'adw': '12px',
+        'adw-lg': '14px',
       },
       boxShadow: {
-        'adw-soft': '0 10px 40px -10px rgba(0, 71, 255, 0.08)',
-        'adw-inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+        'adw-flat': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'adw-card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
