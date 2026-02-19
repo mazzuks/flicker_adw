@@ -45,8 +45,8 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 ---
 
 ## 💸 3. Integrações & Operações
-- [ ] **Fluxo de Pagamento**: Integração de Webhooks (PagBank/Mercado Pago).
-    - Front-end: `src/pages/app/Payments.tsx`
+- [x] **Fluxo de Pagamento**: Estrutura de Invoices, Webhooks e Ativação Automática de Tenant.
+    - Arquivo: `src/pages/app/Payments.tsx`
 - [x] **SOP Registro de Domínio**: Fluxo guiado para Registro.br.
     - Arquivo: `src/pages/app/IntegrationsSOP.tsx`
 - [x] **SOP Registro de Marca**: Fluxo guiado para INPI.
@@ -56,7 +56,7 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 
 ## 🛠️ Notas Técnicas & Localização
 - **Supabase Project:** `nskecgwpdprzrowwawwb`
-- **Queries Principais:** Todas as views começam with `v_`.
+- **Queries Principais:** Todas as views começam com `v_`.
 - **Estilo:** Baseado em `tokens.json` e Inter Font.
 - **Economic Mode:** Limite de 2M tokens/dia ativo.
 
