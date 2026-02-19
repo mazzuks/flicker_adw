@@ -37,6 +37,8 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [x] **Lista de Empresas**: Tabela detalhada com filtros.
     - Arquivo: `src/pages/app/Companies.tsx`
 - [x] **Gestão de Documentos**: Estrutura de Storage (buckets e RLS) + Tabela de docs.
+- [x] **Smoke Test**: Sistema de diagnóstico de integridade do banco de dados.
+    - Arquivos: `src/services/smokeTest.ts`, `src/pages/app/Settings.tsx`
 - [ ] **Integração Front-end Storage**: Implementar upload e visualização no Drawer.
 
 ---
