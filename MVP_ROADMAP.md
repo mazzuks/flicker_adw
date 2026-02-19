@@ -31,9 +31,9 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [x] **Drawer do Deal (MVP)**: Detalhamento lateral com abas.
     - Checklist, Docs, Mensagens e Auditoria.
     - Arquivo: `src/components/DealDrawer.tsx`
-- [ ] **Módulo de Mensagens (Inbox)**:
-    - Lista: `src/pages/app/Inbox.tsx`
-    - Chat: `src/pages/app/InboxThread.tsx`
+- [x] **Módulo de Mensagens (Inbox)**:
+    - Central de atendimento com histórico completo e notas internas.
+    - Arquivo: `src/pages/app/Inbox.tsx`
 - [x] **Lista de Empresas**: Tabela detalhada com filtros.
     - Arquivo: `src/pages/app/Companies.tsx`
 - [ ] **Gestão de Documentos**: Upload real para o Storage do Supabase.
