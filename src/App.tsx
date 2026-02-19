@@ -4,14 +4,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
 import Pipeline from './pages/app/Pipeline';
-
-// Placeholder Pages
-const Overview = () => (
-  <div className="text-xl font-bold uppercase tracking-tighter">Decision Board</div>
-);
-const Companies = () => (
-  <div className="text-xl font-bold uppercase tracking-tighter">Company Directory</div>
-);
+import { Overview } from './pages/app/Overview';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -25,7 +18,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/app/pipeline" replace />} />
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/app/overview" replace />} />
 
       <Route
         path="/app"
@@ -37,15 +30,28 @@ function AppRoutes() {
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/app/pipeline" replace />} />
+        <Route index element={<Navigate to="/app/overview" replace />} />
         <Route path="overview" element={<Overview />} />
         <Route path="pipeline" element={<Pipeline />} />
-        <Route path="companies" element={<Companies />} />
-        <Route path="inbox" element={<div>Inbox Area</div>} />
-        <Route path="settings" element={<div>Settings Area</div>} />
+        <Route
+          path="companies"
+          element={
+            <div className="text-xl font-bold uppercase tracking-tighter">Company Directory</div>
+          }
+        />
+        <Route
+          path="inbox"
+          element={<div className="text-xl font-bold uppercase tracking-tighter">Inbox Area</div>}
+        />
+        <Route
+          path="settings"
+          element={
+            <div className="text-xl font-bold uppercase tracking-tighter">Settings Area</div>
+          }
+        />
       </Route>
 
-      <Route path="*" element={<Navigate to="/app/pipeline" replace />} />
+      <Route path="*" element={<Navigate to="/app/overview" replace />} />
     </Routes>
   );
 }
