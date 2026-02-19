@@ -1,0 +1,6 @@
+Princípios:
+- IA não cria layout livre
+- Site é declarativo (JSON)
+- Ações críticas exigem humano
+- Tokens nunca no frontend
+- Sistema aprende, IA executa

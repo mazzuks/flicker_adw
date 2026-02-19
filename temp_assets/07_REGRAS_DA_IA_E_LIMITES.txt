@@ -1,0 +1,9 @@
+IA pode:
+- Preencher conteúdo
+- Ajustar tom
+- Escolher templates
+
+IA não pode:
+- Comprar domínio
+- Executar pagamentos
+- Criar layout livre

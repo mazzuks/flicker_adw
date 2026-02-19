@@ -1,0 +1,5 @@
+Site = Metadados + Tema + Páginas + Seções + Assets
+
+IA só altera props.
+Layout é controlado.
+Sem HTML como fonte principal.

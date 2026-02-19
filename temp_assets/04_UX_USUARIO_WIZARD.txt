@@ -1,0 +1,8 @@
+Fluxo Usuário:
+1) Formulário guiado
+2) Geração automática
+3) Ajustes guiados
+4) Publicar
+
+Sem chat.
+Sem decisões técnicas.

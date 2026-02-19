@@ -54,6 +54,16 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 
 ---
 
+## 🪄 4. Templeteria (Site Builder IA)
+- [x] **Infraestrutura de Site**: Migration de tabelas e schema declarativo.
+    - Arquivo: `supabase/migrations/20260219_templeteria_schema.sql`
+- [x] **Wizard de Criação (UX)**: Formulário de 12 etapas com motor de progresso.
+    - Arquivo: `src/pages/app/TempleteriaWizard.tsx`
+- [ ] **Motor de Renderização**: Componente que transforma JSON em seções visuais.
+- [ ] **Integração Edge Function**: Chamada para OpenAI gerar o primeiro draft.
+
+---
+
 ## 🛠️ Notas Técnicas & Localização
 - **Supabase Project:** `nskecgwpdprzrowwawwb`
 - **Queries Principais:** Todas as views começam com `v_`.

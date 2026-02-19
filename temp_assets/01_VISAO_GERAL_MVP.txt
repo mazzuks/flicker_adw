@@ -1,0 +1,13 @@
+Projeto: Templeteria Adworks
+
+Objetivo:
+Criar sites simples rapidamente para usuários leigos usando IA como motor de autopreenchimento.
+IA não conversa com usuário final.
+Operador humano revisa e aprova.
+
+MVP inclui:
+- Wizard de criação
+- Motor declarativo (JSON)
+- Publicação
+- Painel operador
+- Painel master admin de tokens

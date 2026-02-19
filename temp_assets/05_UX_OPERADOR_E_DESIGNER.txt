@@ -1,0 +1,5 @@
+Operador:
+- Revisa sites
+- Aprova publicação
+- Resolve domínio/email
+Designer humano só em casos complexos.
