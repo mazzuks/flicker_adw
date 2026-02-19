@@ -59,8 +59,12 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
     - Arquivo: `supabase/migrations/20260219_templeteria_schema.sql`
 - [x] **Wizard de Criação (UX)**: Formulário de 12 etapas com motor de progresso.
     - Arquivo: `src/pages/app/TempleteriaWizard.tsx`
-- [ ] **Motor de Renderização**: Componente que transforma JSON em seções visuais.
+- [x] **Motor de Renderização**: Componente que transforma JSON em seções visuais.
+    - Arquivo: `src/components/templeteria/SiteRenderer.tsx`
+- [x] **Refino de Projeto (Editor)**: Interface de designer para ajustes finos e aprovação.
+    - Arquivo: `src/pages/app/TempleteriaRefiner.tsx`
 - [ ] **Integração Edge Function**: Chamada para OpenAI gerar o primeiro draft.
+    - Arquivo: `src/services/templeteriaEngine.ts` (Client pronto)
 
 ---
 
