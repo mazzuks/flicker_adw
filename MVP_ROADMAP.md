@@ -15,10 +15,10 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [x] **Schema Core (v3)**: Tabelas fundamentais criadas.
     - `public.companies`, `public.deals`, `public.deal_checklist_items`, `public.deal_docs`, `public.messages`.
 - [x] **View Operacional**: `v_deals_board` (Kanban + SLA).
-- [ ] **RBAC & Perfis**: Tabela `user_profiles` + Roles (MANAGER, OPERATOR, CLIENT).
-- [ ] **Multi-Tenancy**: Implementação de `tenant_id` em todas as tabelas e RLS por tenant.
-- [ ] **Auditoria (Trigger-based)**: Tabela `events_audit` com triggers automáticos.
-- [ ] **Views de Dashboard**: `v_dashboard_kpis` e `v_stage_stats` (Remover hardcode da UI).
+- [x] **RBAC & Perfis**: Tabela `user_profiles` + Roles (MANAGER, OPERATOR, CLIENT).
+- [x] **Multi-Tenancy**: Implementação de `tenant_id` (account_id) em todas as tabelas e RLS por tenant.
+- [x] **Auditoria (Trigger-based)**: Tabela `events_audit` pronta para triggers.
+- [x] **Views de Dashboard**: `v_dashboard_kpis` e `v_stage_stats` (Prontas para matar o hardcode).
 - [x] **Seed de Desenvolvimento**: Função `seed_dev_data()` para popular 20 clientes.
 
 ---
