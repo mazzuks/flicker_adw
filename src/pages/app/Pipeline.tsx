@@ -24,6 +24,7 @@ import { useDealsBoard, useMoveDeal } from '../../lib/queries';
 import { Badge } from '../../components/ui/Badge';
 import { useUIStore } from '../../store/useUIStore';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { DealDrawer } from '../../components/DealDrawer';
 
 const STAGES = [
   { id: 'LEAD', label: 'Lead', icon: Search },
@@ -193,90 +194,13 @@ export default function Pipeline() {
         </div>
       </DragDropContext>
 
-      {/* 🌪️ DEAL DRAWER (Trello-like) */}
-      {isDrawerOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[200]"
-            onClick={closeDrawer}
-          />
-          <div className="fixed top-0 right-0 bottom-0 w-full max-w-2xl bg-white shadow-2xl z-[210] animate-in slide-in-from-right duration-300 border-l border-slate-200">
-            <div className="h-16 border-b border-slate-100 flex items-center justify-between px-8 bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <h2 className="font-bold text-slate-900 uppercase tracking-tight">
-                  {currentDeal?.company_name}
-                </h2>
-              </div>
-              <button onClick={closeDrawer} className="p-2 text-slate-400 hover:text-slate-900">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex border-b border-slate-100 bg-white sticky top-0 px-8 gap-6">
-              {[
-                { id: 'overview', label: 'Resumo', icon: LayoutIcon },
-                { id: 'tasks', label: 'Checklist', icon: CheckCircle2 },
-                { id: 'files', label: 'Docs', icon: Paperclip },
-                { id: 'comments', label: 'Chat', icon: MessageSquare },
-                { id: 'activities', label: 'Histórico', icon: History },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setTab(tab.id as any)}
-                  className={`py-4 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all flex items-center gap-2 ${activeDrawerTab === tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
-                >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-10 bg-slate-50/30">
-              {activeDrawerTab === 'overview' && (
-                <div className="space-y-8">
-                  <Card className="border-l-4 border-l-blue-600">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      Etapa Atual
-                    </p>
-                    <h3 className="text-xl font-bold text-slate-900">{currentDeal?.stage_key}</h3>
-                  </Card>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card>
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Valor</p>
-                      <p className="text-lg font-bold">R$ {currentDeal?.value_cents / 100}</p>
-                    </Card>
-                    <Card>
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
-                        Status SLA
-                      </p>
-                      <Badge variant={currentDeal?.sla_status}>
-                        {currentDeal?.sla_status?.toUpperCase()}
-                      </Badge>
-                    </Card>
-                  </div>
-                </div>
-              )}
-
-              {activeDrawerTab !== 'overview' && (
-                <EmptyState
-                  title={`Módulo de ${activeDrawerTab} em integração`}
-                  description={`Os dados reais da aba ${activeDrawerTab} serão conectados na próxima fatia de backend.`}
-                  icon={
-                    activeDrawerTab === 'comments'
-                      ? MessageSquare
-                      : activeDrawerTab === 'files'
-                        ? Paperclip
-                        : History
-                  }
-                />
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {/* 🌪️ DEAL DRAWER (Central Executiva) */}
+      <DealDrawer
+        isOpen={isDrawerOpen}
+        dealId={selectedDealId}
+        onClose={closeDrawer}
+        dealData={currentDeal}
+      />
     </div>
   );
 }
