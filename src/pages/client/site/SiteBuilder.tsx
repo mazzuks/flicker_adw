@@ -19,7 +19,11 @@ import {
   ChevronLeft,
   ChevronRight,
   History,
-  Code
+  Code,
+  Search,
+  AlignLeft,
+  Check,
+  CheckCircle2
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../../../lib/supabase';
