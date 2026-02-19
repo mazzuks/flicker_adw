@@ -12,6 +12,7 @@ import {
   Clock,
   Info,
   ShieldAlert,
+  Users,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
