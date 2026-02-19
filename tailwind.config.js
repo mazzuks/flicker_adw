@@ -4,36 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        adworks: {
-          bg: '#F6F7FB',
-          surface: '#FFFFFF',
-          dark: '#0B1220',
-          muted: '#5B667A',
-          border: '#E6E9F2',
-          blue: '#1E5BFF',
-          blueTint: '#EEF3FF',
-        },
-        status: {
-          success: '#16A34A',
-          successTint: '#EAF7EF',
-          warning: '#F59E0B',
-          warningTint: '#FFF4E5',
-          danger: '#EF4444',
-          dangerTint: '#FFECEC',
-          info: '#0EA5E9',
-          infoTint: '#E8F6FE',
-        }
+        border: '#e2e8f0',
+        background: '#ffffff',
+        foreground: '#000000',
+        primary: '#0047FF',
+        muted: '#64748b',
+        danger: '#ef4444',
+        warning: '#f59e0b',
+        success: '#22c55e',
       },
       borderRadius: {
-        'adw': '10px',
-        'adw-lg': '14px',
+        none: '0',
+        sm: '2px',
+        DEFAULT: '4px',
+        md: '6px',
+        lg: '8px',
       },
-      boxShadow: {
-        'adw-card': '0 6px 18px rgba(16, 24, 40, 0.08)',
-      },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      }
     },
   },
   plugins: [],
