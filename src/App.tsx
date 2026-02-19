@@ -1,39 +1,47 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth';
 import { PrivateRoute } from './components/PrivateRoute';
-import { Layout } from './components/Layout';
+import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
 
-function RootRedirect() {
-  const { isAdworks } = useAuth();
-  return isAdworks ? <Navigate to="/admin/pipeline" replace /> : <Navigate to="/app" replace />;
-}
+// Placeholder Pages
+const Overview = () => <div className="text-xl font-bold">Overview Board</div>;
+const Pipeline = () => <div className="text-xl font-bold italic">Strategic Pipeline (Kanban)</div>;
+const Companies = () => <div className="text-xl font-bold">Company Directory</div>;
 
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center font-bold animate-pulse">
+        BOOTING SYSTEM...
+      </div>
+    );
 
   return (
     <Routes>
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/app/pipeline" replace />} />
+
       <Route
-        path="/"
+        path="/app"
         element={
           <PrivateRoute>
-            <Layout>
-              <div>Empty Slate</div>
-            </Layout>
+            <AppShell>
+              <Outlet />
+            </AppShell>
           </PrivateRoute>
         }
       >
-        <Route index element={<RootRedirect />} />
-        <Route path="admin/pipeline" element={<div>Pipeline View Placeholder</div>} />
-        <Route path="admin/clients" element={<div>Companies List Placeholder</div>} />
-        <Route path="admin/messages" element={<div>Messaging Placeholder</div>} />
-        <Route path="app" element={<div>Client Progress Placeholder</div>} />
+        <Route index element={<Navigate to="/app/pipeline" replace />} />
+        <Route path="overview" element={<Overview />} />
+        <Route path="pipeline" element={<Pipeline />} />
+        <Route path="companies" element={<Companies />} />
+        <Route path="inbox" element={<div>Inbox Area</div>} />
+        <Route path="settings" element={<div>Settings Area</div>} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+
+      <Route path="*" element={<Navigate to="/app/pipeline" replace />} />
     </Routes>
   );
 }
