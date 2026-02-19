@@ -20,6 +20,7 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [x] **Auditoria (Trigger-based)**: Tabela `events_audit` pronta para triggers.
 - [x] **Views de Dashboard**: `v_dashboard_kpis` e `v_stage_stats` (Prontas para matar o hardcode).
 - [x] **Seed de Desenvolvimento**: Função `seed_dev_data()` para popular 20 clientes.
+- [x] **Gestão de Documentos**: Estrutura de Storage (buckets e RLS) + Tabela de docs.
 
 ---
 
@@ -31,15 +32,15 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 - [x] **Drawer do Deal (MVP)**: Detalhamento lateral com abas.
     - Checklist, Docs, Mensagens e Auditoria.
     - Arquivo: `src/components/DealDrawer.tsx`
+- [x] **Integração Front-end Storage**: Upload e visualização real de arquivos no Drawer.
+    - Arquivo: `src/services/storageService.ts`
 - [x] **Módulo de Mensagens (Inbox)**:
     - Central de atendimento com histórico completo e notas internas.
     - Arquivo: `src/pages/app/Inbox.tsx`
 - [x] **Lista de Empresas**: Tabela detalhada com filtros.
     - Arquivo: `src/pages/app/Companies.tsx`
-- [x] **Gestão de Documentos**: Estrutura de Storage (buckets e RLS) + Tabela de docs.
 - [x] **Smoke Test**: Sistema de diagnóstico de integridade do banco de dados.
     - Arquivos: `src/services/smokeTest.ts`, `src/pages/app/Settings.tsx`
-- [ ] **Integração Front-end Storage**: Implementar upload e visualização no Drawer.
 
 ---
 
@@ -55,7 +56,7 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 
 ## 🛠️ Notas Técnicas & Localização
 - **Supabase Project:** `nskecgwpdprzrowwawwb`
-- **Queries Principais:** Todas as views começam com `v_`.
+- **Queries Principais:** Todas as views começam with `v_`.
 - **Estilo:** Baseado em `tokens.json` e Inter Font.
 - **Economic Mode:** Limite de 2M tokens/dia ativo.
 
