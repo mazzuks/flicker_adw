@@ -10,7 +10,9 @@ export function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <header className="h-12 border-b border-border flex items-center px-4 justify-between shrink-0">
         <div className="flex items-center gap-6">
-          <Link to="/" className="font-bold tracking-tight">ADWORKS</Link>
+          <Link to="/" className="font-bold tracking-tight">
+            ADWORKS
+          </Link>
           <nav className="flex gap-4 text-xs font-medium">
             {isAdworks ? (
               <>
@@ -26,16 +28,17 @@ export function Layout({ children }: { children: ReactNode }) {
             )}
           </nav>
         </div>
-        <button 
-          onClick={async () => { await signOut(); navigate('/login'); }}
+        <button
+          onClick={async () => {
+            await signOut();
+            navigate('/login');
+          }}
           className="text-xs border px-2 py-1 rounded"
         >
           LOGOUT
         </button>
       </header>
-      <main className="flex-1 overflow-auto p-4">
-        {children}
-      </main>
+      <main className="flex-1 overflow-auto p-4">{children}</main>
     </div>
   );
 }

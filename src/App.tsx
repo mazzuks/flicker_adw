@@ -17,7 +17,16 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
-      <Route path="/" element={<PrivateRoute><Layout><div>Empty Slate</div></Layout></PrivateRoute>}>
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <div>Empty Slate</div>
+            </Layout>
+          </PrivateRoute>
+        }
+      >
         <Route index element={<RootRedirect />} />
         <Route path="admin/pipeline" element={<div>Pipeline View Placeholder</div>} />
         <Route path="admin/clients" element={<div>Companies List Placeholder</div>} />
