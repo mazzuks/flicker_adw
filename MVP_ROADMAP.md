@@ -43,6 +43,7 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 
 ## 💸 3. Integrações & Operações
 - [ ] **Fluxo de Pagamento**: Integração de Webhooks (PagBank/Mercado Pago).
+    - Front-end: `src/pages/app/Payments.tsx`
 - [ ] **SOP Registro de Domínio**: Fluxo guiado para Registro.br.
 - [ ] **SOP Registro de Marca**: Fluxo guiado para INPI.
 
