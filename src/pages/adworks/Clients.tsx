@@ -18,6 +18,7 @@ import {
   Download,
   Trash2,
   MoreHorizontal,
+  Plus,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
