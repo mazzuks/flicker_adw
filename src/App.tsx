@@ -3,19 +3,23 @@ import { AuthProvider, useAuth } from './lib/auth';
 import { PrivateRoute } from './components/PrivateRoute';
 import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
+import Pipeline from './pages/app/Pipeline';
 
 // Placeholder Pages
-const Overview = () => <div className="text-xl font-bold">Overview Board</div>;
-const Pipeline = () => <div className="text-xl font-bold italic">Strategic Pipeline (Kanban)</div>;
-const Companies = () => <div className="text-xl font-bold">Company Directory</div>;
+const Overview = () => (
+  <div className="text-xl font-bold uppercase tracking-tighter">Decision Board</div>
+);
+const Companies = () => (
+  <div className="text-xl font-bold uppercase tracking-tighter">Company Directory</div>
+);
 
 function AppRoutes() {
   const { user, loading } = useAuth();
 
   if (loading)
     return (
-      <div className="flex h-screen items-center justify-center font-bold animate-pulse">
-        BOOTING SYSTEM...
+      <div className="flex h-screen items-center justify-center font-black animate-pulse bg-slate-50 text-slate-300 tracking-[0.5em]">
+        INITIALIZING...
       </div>
     );
 
