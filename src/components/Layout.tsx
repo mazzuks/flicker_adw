@@ -47,17 +47,20 @@ export function Layout({ children }: LayoutProps) {
   const isOperatorPath = location.pathname.startsWith('/operator');
   const isClientPath = location.pathname.startsWith('/client');
 
+  // 👤 CAIXINHA DO CLIENTE (Visão do que ele tem, sem edição)
   const clientNavItems = [
     { icon: Home, label: 'PAINEL', path: '/client' },
-    { icon: Globe, label: 'MEU SITE', path: '/client/site' },
+    { icon: Globe, label: 'SITE ATIVO', path: '/client/site' },
     { icon: Inbox, label: 'CORREIO', path: '/client/messages' },
     { icon: CheckSquare, label: 'ATIVIDADES', path: '/client/tasks' },
     { icon: Users, label: 'CONTATOS', path: '/client/crm' },
     { icon: FileText, label: 'FINANCEIRO', path: '/client/finance' },
   ];
 
+  // 🎧 CAIXINHA DO OPERADOR (Acesso ao Builder aqui!)
   const operatorNavItems = [
     { icon: LayoutDashboard, label: 'VISÃO GERAL', path: '/operator' },
+    { icon: Globe, label: 'SITE BUILDER', path: '/operator/site' },
     { icon: CheckSquare, label: 'TRABALHO', path: '/operator/tasks' },
     { icon: FileText, label: 'CNPJ', path: '/operator/tickets/cnpj' },
     { icon: Briefcase, label: 'INPI', path: '/operator/tickets/inpi' },
@@ -65,9 +68,10 @@ export function Layout({ children }: LayoutProps) {
     { icon: Building2, label: 'CLIENTES', path: '/operator/clients' },
   ];
 
+  // 🛡️ CAIXINHA DO MASTER (Acesso total)
   const masterNavItems = [
     { icon: Layers, label: 'VISÃO GERAL', path: '/master' },
-    { icon: CheckSquare, label: 'TAREFAS', path: '/master/tasks' },
+    { icon: Globe, label: 'SITE BUILDER', path: '/master/site' },
     { icon: Building2, label: 'CLIENTES', path: '/master/clients' },
     { icon: Users, label: 'EQUIPE', path: '/master/team' },
     { icon: BarChart3, label: 'MÉTRICAS', path: '/master/analytics' },
@@ -95,7 +99,6 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-sans selection:bg-adworks-blue selection:text-white">
-      {/* ⚡ TOP NANO BAR (GPS) */}
       <div className={`px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 text-white shrink-0 ${
         isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-[#1E293B]' : 'bg-adworks-blue'
       }`}>
@@ -111,12 +114,10 @@ export function Layout({ children }: LayoutProps) {
         </div>
       )}
 
-      {/* 🚀 HIGH-FIDELITY NAVBAR (Inspired by Pipedrive Print) */}
       <nav className="bg-[#2D3E50] border-b border-white/5 sticky top-0 z-50 h-[64px] flex items-center shrink-0 shadow-lg">
         <div className="max-w-full mx-auto w-full px-4">
           <div className="flex justify-between items-center h-full">
             <div className="flex items-center gap-8 h-full">
-              {/* Logo Area (Now dynamic per box) */}
               <Link to={getRootLink()} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-lg ${
                   isMasterPath ? 'bg-orange-600' : isOperatorPath ? 'bg-[#1E293B] border border-white/10' : 'bg-adworks-blue'
@@ -126,17 +127,6 @@ export function Layout({ children }: LayoutProps) {
                 <span className="text-lg font-black text-white tracking-tighter">adworks</span>
               </Link>
 
-              {/* Pipedrive Style Search Bar */}
-              <div className="hidden xl:flex items-center relative group">
-                <Search className="absolute left-3 w-4 h-4 text-white/30 group-focus-within:text-white/60 transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Pesquisar..." 
-                  className="bg-white/10 border-none rounded-md pl-10 pr-4 py-1.5 text-xs text-white placeholder-white/30 focus:ring-1 focus:ring-white/20 w-64 transition-all"
-                />
-              </div>
-
-              {/* Menu Items (Top Row Style) */}
               <div className="hidden lg:flex items-center h-full">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
@@ -157,7 +147,6 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
 
-            {/* User Profile Area (Top Right) */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                  <div className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-all"><NotificationCenter /></div>
@@ -173,38 +162,16 @@ export function Layout({ children }: LayoutProps) {
                 <div className="w-9 h-9 bg-adworks-blue/20 rounded-full border-2 border-adworks-blue flex items-center justify-center overflow-hidden">
                    <UserCircle className="w-full h-full text-adworks-blue" />
                 </div>
-                <button
-                  onClick={handleSignOut}
-                  className="w-8 h-8 text-white/40 hover:text-red-400 transition-all flex items-center justify-center"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                <button onClick={handleSignOut} className="w-8 h-8 text-white/40 hover:text-red-400 transition-all flex items-center justify-center"><LogOut className="w-4 h-4" /></button>
               </div>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* 📈 MAIN BOARD CONTENT */}
       <main className="max-w-[1600px] mx-auto w-full px-4 lg:px-8 py-8 flex-1 overflow-x-hidden">
         {children || <Outlet />}
       </main>
-
-      {/* MOBILE NAV BOTTOM (Dark Style) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#2D3E50] border-t border-white/5 px-6 py-3 flex justify-around items-center z-50 shadow-2xl">
-         {navItems.slice(0, 5).map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path} className={`flex flex-col items-center gap-1 ${
-                isActive ? 'text-white' : 'text-white/40'
-              }`}>
-                <item.icon className="w-5 h-5" />
-                <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
-                {isActive && <div className="w-1 h-1 bg-adworks-blue rounded-full mt-1"></div>}
-              </Link>
-            )
-         })}
-      </div>
     </div>
   );
 }

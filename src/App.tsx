@@ -34,14 +34,14 @@ import {
   OperatorInbox
 } from './pages/adworks';
 
+import { SiteBuilder } from './pages/client/site/SiteBuilder';
+
 /**
  * 🏢 ARQUITETURA DE TRÊS CAIXAS (DOMÍNIOS ISOLADOS)
  * 1. /master   -> Gestão Total (Admins)
  * 2. /operator -> Fila de Trabalho (Equipe)
  * 3. /client   -> Painel da Empresa (Clientes)
  */
-
-import { SiteBuilder } from './pages/client/site/SiteBuilder';
 
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
@@ -84,9 +84,9 @@ function AppRoutes() {
           <Route path="messages" element={<ClientInbox />} />
           <Route path="crm" element={<ClientCRM />} />
           <Route path="finance" element={<ClientFinance />} />
-          <Route path="site" element={<SiteBuilder />} />
           <Route path="account" element={<ClientAccount />} />
           <Route path="team" element={<ClientTeam />} />
+          <Route path="site" element={<div className="p-20 text-center font-black italic opacity-20 uppercase tracking-tighter">Site View Mode em breve</div>} />
         </Route>
 
         {/* 🎧 CAIXINHA DO OPERADOR (/operator) */}
@@ -99,6 +99,7 @@ function AppRoutes() {
             <Route path="tickets/fiscal" element={<TicketsFiscal />} />
             <Route path="clients" element={<ClientsList />} />
             <Route path="messages" element={<OperatorInbox />} />
+            <Route path="site" element={<SiteBuilder />} />
           </Route>
         )}
 
@@ -112,6 +113,7 @@ function AppRoutes() {
             <Route path="settings" element={<MasterSettings />} />
             <Route path="analytics" element={<MasterAnalytics />} />
             <Route path="messages" element={<OperatorInbox />} />
+            <Route path="site" element={<SiteBuilder />} />
           </Route>
         )}
       </Route>
