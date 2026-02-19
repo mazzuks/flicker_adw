@@ -48,6 +48,7 @@ export function Layout({ children }: LayoutProps) {
 
   const clientNavItems = [
     { icon: Home, label: 'PAINEL', path: '/client' },
+    { icon: Globe, label: 'MEU SITE', path: '/client/site' },
     { icon: Inbox, label: 'CORREIO', path: '/client/messages' },
     { icon: CheckSquare, label: 'ATIVIDADES', path: '/client/tasks' },
     { icon: Users, label: 'CONTATOS', path: '/client/crm' },
