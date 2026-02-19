@@ -13,6 +13,19 @@ export function useKpis() {
       const activeDeals = data.length;
       const overdueCount = data.filter((d) => d.sla_status === 'breached').length;
 
+      // --- SLA AVG REAL CALCULATION ---
+      const now = new Date();
+      const slaDeals = data.filter((d) => d.sla_due_at);
+      let avgDays = 0;
+
+      if (slaDeals.length > 0) {
+        const totalDiffMs = slaDeals.reduce((acc, d) => {
+          const due = new Date(d.sla_due_at);
+          return acc + (due.getTime() - now.getTime());
+        }, 0);
+        avgDays = totalDiffMs / (1000 * 60 * 60 * 24) / slaDeals.length;
+      }
+
       return {
         totalPipeline: (totalPipeline / 100).toLocaleString('pt-BR', {
           style: 'currency',
@@ -20,7 +33,7 @@ export function useKpis() {
         }),
         activeDeals,
         overdueCount,
-        slaAvg: '12.4d', // Mock logic for average
+        slaAvg: `${avgDays.toFixed(1)}d`,
       };
     },
   });

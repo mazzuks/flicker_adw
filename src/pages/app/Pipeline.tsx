@@ -108,12 +108,11 @@ export default function Pipeline() {
                               onClick={() => openDeal(deal.id)}
                               className={`bg-white p-5 rounded-2xl shadow-sm border border-slate-200 transition-all hover:shadow-xl hover:border-blue-400 ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-2xl z-50 border-blue-600' : ''} ${deal.sla_status === 'breached' ? 'border-l-4 border-l-red-500 bg-red-50/10' : 'border-l-4 border-l-blue-600'}`}
                             >
-                              {/* 2) PIPELINE CARD LEGIBILITY PATCH */}
                               <div className="flex justify-between items-start mb-4">
                                 <span
                                   className={`text-[12px] font-semibold flex items-center gap-1.5 ${deal.sla_status === 'breached' ? 'text-red-600' : deal.sla_status === 'warning' ? 'text-amber-600' : 'text-emerald-600'}`}
                                 >
-                                  <Clock className="w-3.5 h-3.5" />
+                                  <Clock className="w-4 h-4" />
                                   {deal.sla_status === 'breached'
                                     ? 'Atrasado 1d'
                                     : deal.sla_status === 'warning'
@@ -138,7 +137,6 @@ export default function Pipeline() {
                                   R$ {(deal.value_cents / 100).toLocaleString('pt-BR')}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  {/* 3) ÍCONES CLICÁVEIS PATCH */}
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -147,7 +145,7 @@ export default function Pipeline() {
                                     className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-blue-600 transition-all gap-1"
                                     title="Mensagens"
                                   >
-                                    <MessageSquare className="w-4.5 h-4.5" />
+                                    <MessageSquare className="w-[18px] h-[18px]" />
                                     <span className="text-[12px]">2</span>
                                   </button>
                                   <button
@@ -158,7 +156,7 @@ export default function Pipeline() {
                                     className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-emerald-600 transition-all gap-1"
                                     title="Documentos"
                                   >
-                                    <Paperclip className="w-4.5 h-4.5" />
+                                    <Paperclip className="w-[18px] h-[18px]" />
                                     <span className="text-[12px]">{deal.docs_count}</span>
                                   </button>
                                   <button
@@ -169,7 +167,7 @@ export default function Pipeline() {
                                     className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-amber-600 transition-all gap-1"
                                     title="Checklist"
                                   >
-                                    <CheckCircle2 className="w-4.5 h-4.5" />
+                                    <CheckCircle2 className="w-[18px] h-[18px]" />
                                     <span className="text-[12px]">
                                       {deal.checklist_done}/{deal.checklist_total}
                                     </span>
@@ -184,6 +182,12 @@ export default function Pipeline() {
                   </div>
                 )}
               </Droppable>
+
+              <div className="p-2 border border-slate-200 border-t-0 rounded-b-xl bg-white/30">
+                <button className="w-full py-2 bg-white rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 hover:shadow-md transition-all">
+                  + Add Deal
+                </button>
+              </div>
             </div>
           ))}
         </div>
