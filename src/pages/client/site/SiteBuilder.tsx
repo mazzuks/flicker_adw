@@ -77,6 +77,15 @@ export function SiteBuilder() {
       {/* 🛠️ TOP BAR (Figma Style) */}
       <div className="h-14 bg-[#1E293B] border-b border-white/5 flex items-center justify-between px-4 shrink-0 z-[100]">
         <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-white/40 hover:text-white transition-all pr-4 border-r border-white/10 group"
+            title="Voltar ao Painel"
+          >
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Painel</span>
+          </button>
+
           <div className="flex items-center gap-2 text-white border-r border-white/10 pr-4 mr-2">
              <div className="w-8 h-8 bg-adworks-blue rounded-lg flex items-center justify-center shadow-lg"><Globe className="w-4 h-4" /></div>
              <span className="text-[11px] font-black uppercase tracking-widest italic">adworks build</span>
