@@ -28,8 +28,9 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
     - Arquivo: `src/pages/app/Overview.tsx`
 - [x] **Strategic Pipeline**: Kanban de 9 colunas funcional.
     - Arquivo: `src/pages/app/Pipeline.tsx`
-- [ ] **Drawer do Deal (MVP)**: Detalhamento lateral com abas.
+- [x] **Drawer do Deal (MVP)**: Detalhamento lateral com abas.
     - Checklist, Docs, Mensagens e Auditoria.
+    - Arquivo: `src/components/DealDrawer.tsx`
 - [ ] **Módulo de Mensagens (Inbox)**:
     - Lista: `src/pages/app/Inbox.tsx`
     - Chat: `src/pages/app/InboxThread.tsx`
