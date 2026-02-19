@@ -19,8 +19,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 /**
- * 🏛️ ADWORKS DECISION PANEL (Final v4)
- * Fixing contrast and visibility based on file_64/65
+ * 🏛️ ADWORKS DECISION PANEL (Final v5)
+ * Restoring original aesthetic with improved readability.
  */
 
 export function Overview() {
@@ -91,7 +91,7 @@ export function Overview() {
         <div className="lg:col-span-7 space-y-6">
           <Card noPadding className="border border-slate-200 shadow-sm">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">
+              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
                 Ações Imediatas (SLA)
               </h3>
               <Badge variant="danger">Atenção</Badge>
@@ -146,7 +146,7 @@ export function Overview() {
           <Card className="border border-slate-200 shadow-sm" noPadding>
             <CardHeader title="Atividade Recente" subtitle="Timeline Global de Operação" />
             <div className="p-10 text-center opacity-60">
-              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest italic">
                 Aguardando novos eventos...
               </p>
             </div>
@@ -158,7 +158,7 @@ export function Overview() {
           {/* RESUMO DO FUNIL */}
           <Card className="border border-slate-200 shadow-sm" noPadding>
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">
+              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
                 Resumo do Funil
               </h3>
               <BarChart3 className="w-4 h-4 text-slate-300" />
@@ -183,49 +183,48 @@ export function Overview() {
             </div>
           </Card>
 
-          {/* PERFORMANCE POR RESPONSÁVEL (HI-CONTRAST) */}
-          <Card className="bg-slate-900 text-white shadow-xl relative overflow-hidden group border border-slate-800">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full -mr-16 -mt-16 blur-2xl" />
-            <div className="relative z-10 p-2">
-              <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-blue-400 italic">
+          {/* PERFORMANCE POR RESPONSÁVEL (AESTHETIC RESTORED) */}
+          <Card className="bg-white border border-slate-200 shadow-sm group">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <h3 className="font-bold text-blue-600 text-xs uppercase tracking-[0.3em] italic">
                 Performance / Time
               </h3>
-              <div className="space-y-6">
-                {[
-                  { name: 'Matheus', deals: 12, overdue: 4, sla: '1.2d' },
-                  { name: 'Dan', deals: 5, overdue: 0, sla: '0.8d' },
-                  { name: 'Sah AI', deals: 2, overdue: 0, sla: '0.1d' },
-                ].map((m, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between border-b border-white/5 pb-5 last:border-0 last:pb-0"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-11 h-11 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm shadow-lg border border-blue-400/30">
-                        {m.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-[15px] font-black tracking-tight text-white leading-none uppercase">
-                          {m.name}
-                        </p>
-                        <span className="inline-block mt-2 px-2.5 py-1 bg-blue-500/20 border border-blue-400/30 rounded text-[10px] font-black text-blue-300 uppercase tracking-widest">
-                          {m.deals} DEALS ATIVOS
-                        </span>
-                      </div>
+            </div>
+            <div className="p-6 space-y-8">
+              {[
+                { name: 'Matheus', deals: 12, overdue: 4, sla: '1.2d' },
+                { name: 'Dan', deals: 5, overdue: 0, sla: '0.8d' },
+                { name: 'Sah AI', deals: 2, overdue: 0, sla: '0.1d' },
+              ].map((m, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b border-slate-50 pb-6 last:border-0 last:pb-0"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-sm shadow-lg shadow-blue-200 border border-blue-400/20">
+                      {m.name.charAt(0)}
                     </div>
-                    <div className="text-right">
-                      <p
-                        className={`text-xs font-black uppercase tracking-widest ${m.overdue > 0 ? 'text-red-400' : 'text-emerald-400'}`}
-                      >
-                        {m.overdue} Atrasos
+                    <div className="space-y-2">
+                      <p className="text-[13px] font-bold tracking-tight text-slate-800 leading-none">
+                        {m.name}
                       </p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase mt-1.5 tracking-tighter">
-                        Média {m.sla}
-                      </p>
+                      <div className="px-2.5 py-1 bg-blue-50 border border-blue-100 rounded text-[10px] font-bold text-blue-600 uppercase tracking-widest inline-block leading-none">
+                        {m.deals} DEALS ATIVOS
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <p
+                      className={`text-xs font-bold uppercase tracking-widest ${m.overdue > 0 ? 'text-red-500' : 'text-emerald-500'}`}
+                    >
+                      {m.overdue} Atrasos
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase mt-2 tracking-widest">
+                      Média {m.sla}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -238,9 +237,11 @@ function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
       <div>
-        <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">{title}</h3>
+        <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
+          {title}
+        </h3>
         {subtitle && (
-          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{subtitle}</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic">{subtitle}</p>
         )}
       </div>
       <History className="w-4 h-4 text-slate-300" />
