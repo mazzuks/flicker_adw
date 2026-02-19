@@ -2,6 +2,7 @@ import React from 'react';
 import { useKpis, useDealsBoard } from '../../lib/queries';
 import { Card, KpiCard } from '../../components/ui/DashboardUI';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import {
   AlertTriangle,
