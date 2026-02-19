@@ -25,6 +25,8 @@ import {
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { CardDetailModal } from '../../components/CardDetailModal';
 import { NewTicketModal } from '../../components/NewTicketModal';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
 
 interface OperatorTask {
   id: string;
