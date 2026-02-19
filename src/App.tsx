@@ -6,15 +6,9 @@ import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
 import Pipeline from './pages/app/Pipeline';
 import { Overview } from './pages/app/Overview';
+import { Settings } from './pages/app/Settings';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -57,12 +51,7 @@ function AppRoutes() {
             <div className="p-10 text-xl font-black uppercase italic opacity-20">Inbox Area</div>
           }
         />
-        <Route
-          path="settings"
-          element={
-            <div className="p-10 text-xl font-black uppercase italic opacity-20">Settings Area</div>
-          }
-        />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/app/overview" replace />} />
