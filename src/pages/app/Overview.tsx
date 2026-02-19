@@ -18,6 +18,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * 🏛️ ADWORKS DECISION PANEL (Final v4)
+ * Fixing contrast and visibility based on file_64/65
+ */
+
 export function Overview() {
   const { data: kpis, isLoading: loadingKpis } = useKpis();
   const { data: deals, isLoading: loadingDeals } = useDealsBoard();
@@ -86,7 +91,7 @@ export function Overview() {
         <div className="lg:col-span-7 space-y-6">
           <Card noPadding className="border border-slate-200 shadow-sm">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
+              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">
                 Ações Imediatas (SLA)
               </h3>
               <Badge variant="danger">Atenção</Badge>
@@ -114,7 +119,7 @@ export function Overview() {
                   </div>
                   <div className="flex items-center gap-6">
                     <div
-                      className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-md border ${deal.sla_status === 'breached' ? 'text-red-600 border-red-100 bg-red-50' : 'text-amber-600 border-amber-100 bg-amber-50'}`}
+                      className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-md border ${deal.sla_status === 'breached' ? 'text-red-600 border-red-200 bg-red-100' : 'text-amber-600 border-amber-200 bg-amber-100'}`}
                     >
                       {deal.sla_status === 'breached' ? 'Atrasado' : 'Vence 24h'}
                     </div>
@@ -122,7 +127,7 @@ export function Overview() {
                       size="sm"
                       variant="primary"
                       onClick={() => navigate('/app/pipeline')}
-                      className="px-6 py-2 h-auto text-[11px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all"
+                      className="px-6 py-2.5 h-auto text-[11px] font-bold uppercase tracking-widest shadow-lg bg-blue-600 hover:bg-blue-700 text-white border-none"
                     >
                       Abrir Processo
                     </Button>
@@ -130,7 +135,7 @@ export function Overview() {
                 </div>
               ))}
               {criticalDeals.length === 0 && (
-                <p className="p-10 text-center text-slate-400 text-xs italic">
+                <p className="p-10 text-center text-slate-400 text-xs italic font-medium">
                   Nenhum processo atrasado. Operação em dia! ✨
                 </p>
               )}
@@ -138,11 +143,11 @@ export function Overview() {
           </Card>
 
           {/* 3. PERFORMANCE / ATIVIDADE */}
-          <Card className="border border-slate-200">
+          <Card className="border border-slate-200 shadow-sm" noPadding>
             <CardHeader title="Atividade Recente" subtitle="Timeline Global de Operação" />
-            <div className="space-y-6 opacity-40 italic">
-              <p className="text-xs text-slate-400 font-medium">
-                Timeline real conectada ao events_audit em breve...
+            <div className="p-10 text-center opacity-60">
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                Aguardando novos eventos...
               </p>
             </div>
           </Card>
@@ -153,7 +158,7 @@ export function Overview() {
           {/* RESUMO DO FUNIL */}
           <Card className="border border-slate-200 shadow-sm" noPadding>
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
+              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">
                 Resumo do Funil
               </h3>
               <BarChart3 className="w-4 h-4 text-slate-300" />
@@ -178,12 +183,12 @@ export function Overview() {
             </div>
           </Card>
 
-          {/* PERFORMANCE POR RESPONSÁVEL */}
-          <Card className="bg-[#0B1220] text-white shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-all" />
-            <div className="relative z-10">
-              <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-white/40 italic">
-                Performance por Responsável
+          {/* PERFORMANCE POR RESPONSÁVEL (HI-CONTRAST) */}
+          <Card className="bg-slate-900 text-white shadow-xl relative overflow-hidden group border border-slate-800">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full -mr-16 -mt-16 blur-2xl" />
+            <div className="relative z-10 p-2">
+              <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-blue-400 italic">
+                Performance / Time
               </h3>
               <div className="space-y-6">
                 {[
@@ -193,28 +198,28 @@ export function Overview() {
                 ].map((m, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0 group/row"
+                    className="flex items-center justify-between border-b border-white/5 pb-5 last:border-0 last:pb-0"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xs shadow-lg group-hover/row:scale-110 transition-all border border-blue-400/20">
+                      <div className="w-11 h-11 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm shadow-lg border border-blue-400/30">
                         {m.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-[14px] font-bold tracking-tight text-white leading-none">
+                        <p className="text-[15px] font-black tracking-tight text-white leading-none uppercase">
                           {m.name}
                         </p>
-                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-blue-500/10 border border-blue-400/20 rounded text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                        <span className="inline-block mt-2 px-2.5 py-1 bg-blue-500/20 border border-blue-400/30 rounded text-[10px] font-black text-blue-300 uppercase tracking-widest">
                           {m.deals} DEALS ATIVOS
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
                       <p
-                        className={`text-xs font-bold uppercase tracking-tighter ${m.overdue > 0 ? 'text-red-400' : 'text-emerald-400'}`}
+                        className={`text-xs font-black uppercase tracking-widest ${m.overdue > 0 ? 'text-red-400' : 'text-emerald-400'}`}
                       >
                         {m.overdue} Atrasos
                       </p>
-                      <p className="text-[10px] font-medium text-white/20 uppercase mt-1 tracking-widest">
+                      <p className="text-[10px] font-bold text-white/40 uppercase mt-1.5 tracking-tighter">
                         Média {m.sla}
                       </p>
                     </div>
@@ -233,9 +238,7 @@ function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
       <div>
-        <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest italic">
-          {title}
-        </h3>
+        <h3 className="font-bold text-slate-900 text-xs uppercase tracking-widest">{title}</h3>
         {subtitle && (
           <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{subtitle}</p>
         )}
