@@ -1,10 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './lib/auth';
 import { PrivateRoute } from './components/PrivateRoute';
 import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
 import Pipeline from './pages/app/Pipeline';
 import { Overview } from './pages/app/Overview';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -36,17 +46,21 @@ function AppRoutes() {
         <Route
           path="companies"
           element={
-            <div className="text-xl font-bold uppercase tracking-tighter">Company Directory</div>
+            <div className="p-10 text-xl font-black uppercase italic opacity-20">
+              Company Directory
+            </div>
           }
         />
         <Route
           path="inbox"
-          element={<div className="text-xl font-bold uppercase tracking-tighter">Inbox Area</div>}
+          element={
+            <div className="p-10 text-xl font-black uppercase italic opacity-20">Inbox Area</div>
+          }
         />
         <Route
           path="settings"
           element={
-            <div className="text-xl font-bold uppercase tracking-tighter">Settings Area</div>
+            <div className="p-10 text-xl font-black uppercase italic opacity-20">Settings Area</div>
           }
         />
       </Route>
@@ -58,10 +72,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
