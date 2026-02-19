@@ -22,7 +22,12 @@ export function PrivateRoute({ children, requireAdworks = false }: PrivateRouteP
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdworks && profile && !profile.role_global.startsWith('ADWORKS_') && !profile.role_global.startsWith('OPERATOR_')) {
+  if (
+    requireAdworks &&
+    profile &&
+    !profile.role_global.startsWith('ADWORKS_') &&
+    !profile.role_global.startsWith('OPERATOR_')
+  ) {
     return <Navigate to="/" replace />;
   }
 

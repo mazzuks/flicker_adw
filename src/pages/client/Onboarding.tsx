@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
-import { 
-  CheckCircle, 
-  Circle, 
-  ArrowRight, 
-  ArrowLeft, 
-  Plus, 
-  Trash2, 
-  Globe, 
-  Search, 
-  Zap, 
+import {
+  CheckCircle,
+  Circle,
+  ArrowRight,
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Globe,
+  Search,
+  Zap,
   XCircle,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 
 interface Step {
@@ -42,7 +42,9 @@ export function Onboarding() {
   const [stepStatuses, setStepStatuses] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [generating, setGenerating] = useState(false);
-  const [domainStatus, setDomainStatus] = useState<{available: boolean, domain: string} | null>(null);
+  const [domainStatus, setDomainStatus] = useState<{ available: boolean; domain: string } | null>(
+    null
+  );
 
   const checkDomain = async () => {
     if (!formData.domain_name) return;
@@ -50,7 +52,7 @@ export function Onboarding() {
     try {
       const domain = `${formData.domain_name}${formData.domain_extension || '.com.br'}`;
       const { data, error } = await supabase.functions.invoke('domain-checker', {
-        body: { domain }
+        body: { domain },
       });
       if (!error) setDomainStatus(data);
     } catch (e) {
@@ -82,12 +84,14 @@ export function Onboarding() {
 
     if (steps && steps.length > 0) {
       const statuses: Record<string, string> = {};
-      steps.forEach(step => {
+      steps.forEach((step) => {
         statuses[step.step_key] = step.status;
       });
       setStepStatuses(statuses);
 
-      const firstIncomplete = STEPS.findIndex(s => !statuses[s.key] || statuses[s.key] === 'NOT_STARTED');
+      const firstIncomplete = STEPS.findIndex(
+        (s) => !statuses[s.key] || statuses[s.key] === 'NOT_STARTED'
+      );
       if (firstIncomplete !== -1) {
         setCurrentStepIndex(firstIncomplete);
       }
@@ -118,7 +122,7 @@ export function Onboarding() {
   const initializeSteps = async () => {
     if (!currentClientId) return;
 
-    const stepsToInsert = STEPS.map(step => ({
+    const stepsToInsert = STEPS.map((step) => ({
       client_id: currentClientId,
       step_key: step.key,
       status: 'NOT_STARTED',
@@ -134,14 +138,12 @@ export function Onboarding() {
 
     const currentStep = STEPS[currentStepIndex];
 
-    await supabase
-      .from('onboarding_steps')
-      .upsert({
-        client_id: currentClientId,
-        step_key: currentStep.key,
-        status: 'IN_PROGRESS',
-        data_json: formData,
-      });
+    await supabase.from('onboarding_steps').upsert({
+      client_id: currentClientId,
+      step_key: currentStep.key,
+      status: 'IN_PROGRESS',
+      data_json: formData,
+    });
 
     if (currentStepIndex < STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
@@ -156,10 +158,12 @@ export function Onboarding() {
 
         // 🤖 DISPARAR AUTOMAÇÃO DE DOSSIÊ
         await supabase.functions.invoke('onboarding-automation', {
-          body: { clientId: currentClientId }
+          body: { clientId: currentClientId },
         });
 
-        alert('🚀 Onboarding concluído! Nossa equipe já gerou o seu dossiê e iniciou a abertura do seu CNPJ.');
+        alert(
+          '🚀 Onboarding concluído! Nossa equipe já gerou o seu dossiê e iniciou a abertura do seu CNPJ.'
+        );
         navigate('/client');
       } catch (e) {
         console.error(e);
@@ -178,9 +182,7 @@ export function Onboarding() {
         return (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nome fantasia
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nome fantasia</label>
               <input
                 type="text"
                 value={formData.fantasy_name || ''}
@@ -190,9 +192,7 @@ export function Onboarding() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Segmento
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Segmento</label>
               <select
                 value={formData.segment || ''}
                 onChange={(e) => setFormData({ ...formData, segment: e.target.value })}
@@ -209,9 +209,7 @@ export function Onboarding() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cidade
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
                 <input
                   type="text"
                   value={formData.city || ''}
@@ -220,9 +218,7 @@ export function Onboarding() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Estado
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                 <input
                   type="text"
                   value={formData.state || ''}
@@ -240,9 +236,7 @@ export function Onboarding() {
         return (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                CEP
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">CEP</label>
               <input
                 type="text"
                 value={formData.cep || ''}
@@ -252,9 +246,7 @@ export function Onboarding() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Logradouro
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Logradouro</label>
               <input
                 type="text"
                 value={formData.street || ''}
@@ -265,9 +257,7 @@ export function Onboarding() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Número
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Número</label>
                 <input
                   type="text"
                   value={formData.number || ''}
@@ -276,9 +266,7 @@ export function Onboarding() {
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Complemento
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
                 <input
                   type="text"
                   value={formData.complement || ''}
@@ -289,9 +277,7 @@ export function Onboarding() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bairro
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
               <input
                 type="text"
                 value={formData.neighborhood || ''}
@@ -341,9 +327,7 @@ export function Onboarding() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        CPF
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
                       <input
                         type="text"
                         value={partner.cpf || ''}
@@ -423,7 +407,8 @@ export function Onboarding() {
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                Nossa equipe irá sugerir as melhores CNAEs (códigos de atividade) com base na sua descrição.
+                Nossa equipe irá sugerir as melhores CNAEs (códigos de atividade) com base na sua
+                descrição.
               </p>
             </div>
           </>
@@ -479,11 +464,10 @@ export function Onboarding() {
               </div>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800 font-medium mb-1">
-                Sugestão: Simples Nacional
-              </p>
+              <p className="text-sm text-blue-800 font-medium mb-1">Sugestão: Simples Nacional</p>
               <p className="text-sm text-blue-800">
-                Baseado no seu faturamento estimado, o Simples Nacional parece a melhor opção. Nossa equipe irá confirmar após análise completa.
+                Baseado no seu faturamento estimado, o Simples Nacional parece a melhor opção. Nossa
+                equipe irá confirmar após análise completa.
               </p>
             </div>
           </>
@@ -515,7 +499,9 @@ export function Onboarding() {
                     name="needs_certificate"
                     value="yes"
                     checked={formData.needs_certificate === 'yes'}
-                    onChange={(e) => setFormData({ ...formData, needs_certificate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, needs_certificate: e.target.value })
+                    }
                     className="text-blue-600"
                   />
                   <span className="text-sm text-gray-700">Sim, preciso</span>
@@ -526,7 +512,9 @@ export function Onboarding() {
                     name="needs_certificate"
                     value="no"
                     checked={formData.needs_certificate === 'no'}
-                    onChange={(e) => setFormData({ ...formData, needs_certificate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, needs_certificate: e.target.value })
+                    }
                     className="text-blue-600"
                   />
                   <span className="text-sm text-gray-700">Não preciso agora</span>
@@ -536,7 +524,8 @@ export function Onboarding() {
             {formData.needs_certificate === 'yes' && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
-                  Iremos providenciar o certificado digital para você. Entraremos em contato em breve.
+                  Iremos providenciar o certificado digital para você. Entraremos em contato em
+                  breve.
                 </p>
               </div>
             )}
@@ -582,20 +571,34 @@ export function Onboarding() {
             >
               {generating ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : <Search className="w-4 h-4" />}
+              ) : (
+                <Search className="w-4 h-4" />
+              )}
               VERIFICAR DISPONIBILIDADE
             </button>
 
             {domainStatus && (
-              <div className={`p-6 rounded-[2rem] border-2 animate-in zoom-in duration-300 ${domainStatus.available ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+              <div
+                className={`p-6 rounded-[2rem] border-2 animate-in zoom-in duration-300 ${domainStatus.available ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}
+              >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm ${domainStatus.available ? 'text-green-500' : 'text-red-500'}`}>
-                    {domainStatus.available ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm ${domainStatus.available ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    {domainStatus.available ? (
+                      <CheckCircle2 className="w-6 h-6" />
+                    ) : (
+                      <XCircle className="w-6 h-6" />
+                    )}
                   </div>
                   <div>
-                    <p className="font-black uppercase tracking-tighter italic text-lg leading-none mb-1">{domainStatus.domain}</p>
+                    <p className="font-black uppercase tracking-tighter italic text-lg leading-none mb-1">
+                      {domainStatus.domain}
+                    </p>
                     <p className="text-xs font-bold uppercase tracking-widest opacity-70">
-                      {domainStatus.available ? 'Está disponível! Podemos registrar agora.' : 'Já possui dono. Tente outra variação.'}
+                      {domainStatus.available
+                        ? 'Está disponível! Podemos registrar agora.'
+                        : 'Já possui dono. Tente outra variação.'}
                     </p>
                   </div>
                 </div>
@@ -605,7 +608,8 @@ export function Onboarding() {
             <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 flex gap-4">
               <Zap className="w-6 h-6 text-adworks-blue shrink-0" />
               <p className="text-xs font-medium text-blue-700 leading-relaxed italic">
-                "Um domínio curto e fácil de lembrar aumenta em 30% a conversão dos seus anúncios digitais."
+                "Um domínio curto e fácil de lembrar aumenta em 30% a conversão dos seus anúncios
+                digitais."
               </p>
             </div>
           </div>
@@ -662,7 +666,8 @@ export function Onboarding() {
                   placeholder="contato"
                 />
                 <span className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
-                  @{formData.domain_name || 'seudominio'}{formData.domain_extension || '.com.br'}
+                  @{formData.domain_name || 'seudominio'}
+                  {formData.domain_extension || '.com.br'}
                 </span>
               </div>
             </div>
@@ -821,27 +826,29 @@ export function Onboarding() {
                 Como pretende captar clientes?
               </label>
               <div className="space-y-2">
-                {['Redes Sociais', 'Google Ads', 'Site', 'Indicação', 'WhatsApp', 'Outros'].map((source) => (
-                  <label key={source} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.lead_sources?.includes(source) || false}
-                      onChange={(e) => {
-                        const sources = formData.lead_sources || [];
-                        if (e.target.checked) {
-                          setFormData({ ...formData, lead_sources: [...sources, source] });
-                        } else {
-                          setFormData({
-                            ...formData,
-                            lead_sources: sources.filter((s: string) => s !== source),
-                          });
-                        }
-                      }}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700">{source}</span>
-                  </label>
-                ))}
+                {['Redes Sociais', 'Google Ads', 'Site', 'Indicação', 'WhatsApp', 'Outros'].map(
+                  (source) => (
+                    <label key={source} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.lead_sources?.includes(source) || false}
+                        onChange={(e) => {
+                          const sources = formData.lead_sources || [];
+                          if (e.target.checked) {
+                            setFormData({ ...formData, lead_sources: [...sources, source] });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              lead_sources: sources.filter((s: string) => s !== source),
+                            });
+                          }
+                        }}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">{source}</span>
+                    </label>
+                  )
+                )}
               </div>
             </div>
             <div>
@@ -911,8 +918,8 @@ export function Onboarding() {
                     idx === currentStepIndex
                       ? 'w-8 bg-adworks-blue'
                       : idx < currentStepIndex
-                      ? 'bg-green-500'
-                      : 'bg-gray-200'
+                        ? 'bg-green-500'
+                        : 'bg-gray-200'
                   }`}
                 ></div>
               ))}
@@ -963,12 +970,16 @@ export function Onboarding() {
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className={`text-[10px] font-black uppercase ${isActive ? 'text-adworks-blue' : 'text-gray-400'}`}>
+                <span
+                  className={`text-[10px] font-black uppercase ${isActive ? 'text-adworks-blue' : 'text-gray-400'}`}
+                >
                   Etapa {idx + 1}
                 </span>
                 {isCompleted && <CheckCircle className="w-3 h-3 text-green-500" />}
               </div>
-              <p className={`text-xs font-bold truncate ${isActive ? 'text-adworks-dark' : 'text-gray-600'}`}>
+              <p
+                className={`text-xs font-bold truncate ${isActive ? 'text-adworks-dark' : 'text-gray-600'}`}
+              >
                 {step.label}
               </p>
             </button>

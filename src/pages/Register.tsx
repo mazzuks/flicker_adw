@@ -53,11 +53,7 @@ export function Register() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Criar conta</h2>
 
-          {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -107,7 +103,10 @@ export function Register() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirmar senha
               </label>
               <input

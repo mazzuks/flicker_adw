@@ -120,7 +120,9 @@ export function LeadForm() {
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Enviado com sucesso!</h2>
-          <p className="text-gray-600">Obrigado pelo seu interesse. Entraremos em contato em breve.</p>
+          <p className="text-gray-600">
+            Obrigado pelo seu interesse. Entraremos em contato em breve.
+          </p>
         </div>
       </div>
     );

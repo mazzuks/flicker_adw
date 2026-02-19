@@ -62,25 +62,27 @@ export function Documents() {
     if (docs) {
       setDocuments(docs);
 
-      const docIds = docs.map(d => d.id);
+      const docIds = docs.map((d) => d.id);
       if (docIds.length > 0) {
         const { data: commentsData } = await supabase
           .from('document_comments')
-          .select(`
+          .select(
+            `
             *,
             author:author_user_id (
               id,
               email,
               full_name
             )
-          `)
+          `
+          )
           .in('document_id', docIds)
           .eq('visibility', 'CLIENT')
           .order('created_at', { ascending: false });
 
         if (commentsData) {
           const commentsByDoc: Record<string, any[]> = {};
-          commentsData.forEach(comment => {
+          commentsData.forEach((comment) => {
             if (!commentsByDoc[comment.document_id]) {
               commentsByDoc[comment.document_id] = [];
             }
@@ -95,7 +97,7 @@ export function Documents() {
   };
 
   const getDocumentByCategory = (category: string) => {
-    return documents.find(d => d.category === category);
+    return documents.find((d) => d.category === category);
   };
 
   if (loading) {
@@ -106,17 +108,15 @@ export function Documents() {
     );
   }
 
-  const pendingCount = documents.filter(d => d.status === 'RECEIVED').length;
-  const invalidCount = documents.filter(d => d.status === 'INVALID').length;
-  const approvedCount = documents.filter(d => d.status === 'APPROVED').length;
+  const pendingCount = documents.filter((d) => d.status === 'RECEIVED').length;
+  const invalidCount = documents.filter((d) => d.status === 'INVALID').length;
+  const approvedCount = documents.filter((d) => d.status === 'APPROVED').length;
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Documentos</h1>
-        <p className="text-gray-600 mt-1">
-          Envie os documentos necessários para análise
-        </p>
+        <p className="text-gray-600 mt-1">Envie os documentos necessários para análise</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -161,9 +161,7 @@ export function Documents() {
                 <div className="mt-2 ml-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-3">
                     <MessageSquare className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-900">
-                      Comentários da equipe
-                    </span>
+                    <span className="text-sm font-medium text-gray-900">Comentários da equipe</span>
                   </div>
                   <div className="space-y-2">
                     {docComments.map((comment) => (

@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { 
-  Users, 
-  Shield, 
-  Mail, 
-  MoreVertical, 
-  Plus, 
-  Search, 
+import {
+  Users,
+  Shield,
+  Mail,
+  MoreVertical,
+  Plus,
+  Search,
   Filter,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 interface TeamMember {
@@ -66,7 +66,9 @@ export function AdworksTeam() {
           <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
             Equipe Interna
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de colaboradores e permissões da Adworks.</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de colaboradores e permissões da Adworks.
+          </p>
         </div>
         <button className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2">
           <Plus className="w-5 h-5" />
@@ -89,7 +91,10 @@ export function AdworksTeam() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {members.map((member) => (
-          <div key={member.id} className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group">
+          <div
+            key={member.id}
+            className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group"
+          >
             <div className="flex items-start justify-between mb-6">
               <div className="w-16 h-16 bg-adworks-gray rounded-2xl flex items-center justify-center font-black text-adworks-blue text-xl group-hover:scale-105 transition-transform">
                 {member.full_name?.charAt(0) || member.email.charAt(0).toUpperCase()}
@@ -98,19 +103,23 @@ export function AdworksTeam() {
                 <MoreVertical className="w-5 h-5" />
               </button>
             </div>
-            
-            <h3 className="text-lg font-black text-adworks-dark uppercase italic tracking-tight mb-1">{member.full_name || 'Sem nome'}</h3>
+
+            <h3 className="text-lg font-black text-adworks-dark uppercase italic tracking-tight mb-1">
+              {member.full_name || 'Sem nome'}
+            </h3>
             <div className="flex items-center gap-2 text-xs text-gray-400 font-bold mb-6">
-               <Mail className="w-3 h-3" />
-               {member.email}
+              <Mail className="w-3 h-3" />
+              {member.email}
             </div>
 
             <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-               <div className="flex items-center gap-2">
-                 <Shield className="w-4 h-4 text-adworks-blue" />
-                 <span className="text-[10px] font-black text-adworks-dark uppercase tracking-widest">{getRoleLabel(member.role_global)}</span>
-               </div>
-               <div className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-adworks-blue" />
+                <span className="text-[10px] font-black text-adworks-dark uppercase tracking-widest">
+                  {getRoleLabel(member.role_global)}
+                </span>
+              </div>
+              <div className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
             </div>
           </div>
         ))}

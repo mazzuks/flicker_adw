@@ -38,7 +38,8 @@ export default function ForgotPassword() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Email Enviado!</h2>
             <p className="text-slate-600 mb-6">
-              Verifique sua caixa de entrada em <strong>{email}</strong> e clique no link para redefinir sua senha.
+              Verifique sua caixa de entrada em <strong>{email}</strong> e clique no link para
+              redefinir sua senha.
             </p>
             <Link
               to="/login"

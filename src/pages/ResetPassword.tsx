@@ -37,7 +37,7 @@ export default function ResetPassword() {
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       });
 
       if (error) throw error;
@@ -79,9 +79,7 @@ export default function ResetPassword() {
             <Lock className="w-8 h-8 text-blue-600" />
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Nova Senha</h2>
-          <p className="text-slate-600">
-            Digite sua nova senha abaixo
-          </p>
+          <p className="text-slate-600">Digite sua nova senha abaixo</p>
         </div>
 
         {error && (
@@ -107,7 +105,10 @@ export default function ResetPassword() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
               Confirmar Nova Senha
             </label>
             <input

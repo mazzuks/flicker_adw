@@ -28,7 +28,8 @@ export default function Team() {
     try {
       const { data, error } = await supabase
         .from('client_memberships')
-        .select(`
+        .select(
+          `
           id,
           user_id,
           role_in_client,
@@ -37,7 +38,8 @@ export default function Team() {
             email,
             full_name
           )
-        `)
+        `
+        )
         .eq('client_id', currentClientId)
         .order('created_at', { ascending: true });
 
@@ -49,7 +51,7 @@ export default function Team() {
         role_in_client: m.role_in_client,
         created_at: m.created_at,
         email: m.user?.email || 'N/A',
-        full_name: m.user?.full_name || 'Sem nome'
+        full_name: m.user?.full_name || 'Sem nome',
       }));
 
       setMembers(formattedMembers);
@@ -72,8 +74,12 @@ export default function Team() {
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">Minha Equipe</h1>
-          <p className="text-gray-500 font-medium">Colaboradores com acesso ao painel da sua empresa.</p>
+          <h1 className="text-4xl font-black text-adworks-dark tracking-tighter uppercase italic">
+            Minha Equipe
+          </h1>
+          <p className="text-gray-500 font-medium">
+            Colaboradores com acesso ao painel da sua empresa.
+          </p>
         </div>
         <button className="bg-adworks-blue text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2">
           <UserPlus className="w-5 h-5" />
@@ -96,36 +102,41 @@ export default function Team() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {members.map((member) => (
-          <div key={member.id} className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group relative overflow-hidden">
+          <div
+            key={member.id}
+            className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 hover:border-adworks-blue/30 transition-all group relative overflow-hidden"
+          >
             {member.role_in_client === 'CLIENT_OWNER' && (
               <div className="absolute top-0 right-0 bg-adworks-blue text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest rounded-bl-xl shadow-md">
                 Proprietário
               </div>
             )}
-            
+
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 bg-adworks-gray rounded-2xl flex items-center justify-center font-black text-adworks-blue text-xl group-hover:scale-105 transition-transform">
                 {member.full_name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h3 className="text-lg font-black text-adworks-dark uppercase italic tracking-tight">{member.full_name}</h3>
+                <h3 className="text-lg font-black text-adworks-dark uppercase italic tracking-tight">
+                  {member.full_name}
+                </h3>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mt-1">
-                   <Mail className="w-3.5 h-3.5" />
-                   {member.email}
+                  <Mail className="w-3.5 h-3.5" />
+                  {member.email}
                 </p>
               </div>
             </div>
 
             <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
-               <div className="flex items-center gap-2">
-                 <Shield className="w-4 h-4 text-adworks-blue" />
-                 <span className="text-[10px] font-black text-adworks-dark uppercase tracking-widest">
-                   {member.role_in_client === 'CLIENT_OWNER' ? 'Dono da Empresa' : 'Colaborador'}
-                 </span>
-               </div>
-               <button className="text-gray-300 hover:text-red-500 transition-colors">
-                  <Trash2 className="w-5 h-5" />
-               </button>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-adworks-blue" />
+                <span className="text-[10px] font-black text-adworks-dark uppercase tracking-widest">
+                  {member.role_in_client === 'CLIENT_OWNER' ? 'Dono da Empresa' : 'Colaborador'}
+                </span>
+              </div>
+              <button className="text-gray-300 hover:text-red-500 transition-colors">
+                <Trash2 className="w-5 h-5" />
+              </button>
             </div>
           </div>
         ))}

@@ -20,18 +20,18 @@ import ClientAccount from './pages/client/Account';
 import ClientTeam from './pages/client/Team';
 
 // 🎧 OPERATOR & MASTER COMPONENTS (Unified)
-import { 
-  AdworksDashboard, 
-  AdworksTasks, 
-  AdworksTeam, 
-  Clients as ClientsList, 
-  TicketsCNPJ, 
-  TicketsFiscal, 
-  TicketsINPI, 
+import {
+  AdworksDashboard,
+  AdworksTasks,
+  AdworksTeam,
+  Clients as ClientsList,
+  TicketsCNPJ,
+  TicketsFiscal,
+  TicketsINPI,
   MasterSettings,
   MasterDashboard,
   MasterAnalytics,
-  OperatorInbox
+  OperatorInbox,
 } from './pages/adworks';
 
 import { SiteBuilder } from './pages/client/site/SiteBuilder';
@@ -45,8 +45,10 @@ import { SiteBuilder } from './pages/client/site/SiteBuilder';
 
 function RootRedirect() {
   const { profile, currentClientId } = useAuth();
-  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId) return <Navigate to="/master" replace />;
-  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN') return <Navigate to="/operator" replace />;
+  if (profile?.role_global === 'ADWORKS_SUPERADMIN' && !currentClientId)
+    return <Navigate to="/master" replace />;
+  if (profile?.role_global?.startsWith('OPERATOR_') || profile?.role_global === 'ADWORKS_ADMIN')
+    return <Navigate to="/operator" replace />;
   return <Navigate to="/client" replace />;
 }
 
@@ -62,17 +64,30 @@ function AppRoutes() {
   }
 
   const isMaster = profile?.role_global === 'ADWORKS_SUPERADMIN';
-  const isStaff = isMaster || profile?.role_global === 'ADWORKS_ADMIN' || profile?.role_global?.startsWith('OPERATOR_');
+  const isStaff =
+    isMaster ||
+    profile?.role_global === 'ADWORKS_ADMIN' ||
+    profile?.role_global?.startsWith('OPERATOR_');
 
   return (
     <Routes>
       <Route path="/f/:clientSlug/:formId" element={<LeadForm />} />
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
       <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
-      <Route path="/forgot-password" element={!user ? <ForgotPassword /> : <Navigate to="/" replace />} />
+      <Route
+        path="/forgot-password"
+        element={!user ? <ForgotPassword /> : <Navigate to="/" replace />}
+      />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout />
+          </PrivateRoute>
+        }
+      >
         <Route index element={<RootRedirect />} />
 
         {/* 👤 CAIXINHA DO CLIENTE (/client) */}
@@ -86,7 +101,14 @@ function AppRoutes() {
           <Route path="finance" element={<ClientFinance />} />
           <Route path="account" element={<ClientAccount />} />
           <Route path="team" element={<ClientTeam />} />
-          <Route path="site" element={<div className="p-20 text-center font-black italic opacity-20 uppercase tracking-tighter">Site View Mode em breve</div>} />
+          <Route
+            path="site"
+            element={
+              <div className="p-20 text-center font-black italic opacity-20 uppercase tracking-tighter">
+                Site View Mode em breve
+              </div>
+            }
+          />
         </Route>
 
         {/* 🎧 CAIXINHA DO OPERADOR (/operator) */}
@@ -106,7 +128,7 @@ function AppRoutes() {
         {/* 🛡️ CAIXINHA DO MASTER (/master) */}
         {isMaster && (
           <Route path="master">
-            <Route index element={<MasterDashboard />} /> 
+            <Route index element={<MasterDashboard />} />
             <Route path="tasks" element={<AdworksTasks />} />
             <Route path="clients" element={<ClientsList />} />
             <Route path="team" element={<AdworksTeam />} />

@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Paperclip,
   Clock,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 
 interface Lead {
@@ -71,11 +71,12 @@ export function CRM() {
 
   const filterLeads = () => {
     let filtered = [...leads];
-    if (selectedStage) filtered = filtered.filter(lead => lead.stage === selectedStage);
+    if (selectedStage) filtered = filtered.filter((lead) => lead.stage === selectedStage);
     if (searchTerm) {
-      filtered = filtered.filter(lead =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (lead) =>
+          lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          lead.email?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     setFilteredLeads(filtered);
@@ -87,7 +88,7 @@ export function CRM() {
   };
 
   const getLeadsByStage = (stage: string) => {
-    return filteredLeads.filter(lead => lead.stage === stage);
+    return filteredLeads.filter((lead) => lead.stage === stage);
   };
 
   if (loading) {
@@ -134,13 +135,22 @@ export function CRM() {
             const totalValue = stageLeads.length * 2000; // Mock de valor
 
             return (
-              <div key={stage.key} className="flex-1 min-w-[300px] flex flex-col bg-adworks-gray/30 rounded-[2.5rem] p-4 border border-transparent hover:border-gray-200 transition-colors">
+              <div
+                key={stage.key}
+                className="flex-1 min-w-[300px] flex flex-col bg-adworks-gray/30 rounded-[2.5rem] p-4 border border-transparent hover:border-gray-200 transition-colors"
+              >
                 <div className={`p-6 bg-white rounded-t-3xl shadow-sm mb-4 ${stage.color}`}>
-                   <div className="flex items-center justify-between">
-                      <h3 className="font-black text-adworks-dark uppercase tracking-tight text-xs italic">{stage.label}</h3>
-                      <span className="bg-adworks-gray px-2 py-1 rounded-lg text-[9px] font-black text-gray-400 border border-gray-100">{stageLeads.length}</span>
-                   </div>
-                   <p className="text-sm font-black text-adworks-blue mt-2 tracking-tighter">R$ {totalValue.toLocaleString()}</p>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-black text-adworks-dark uppercase tracking-tight text-xs italic">
+                      {stage.label}
+                    </h3>
+                    <span className="bg-adworks-gray px-2 py-1 rounded-lg text-[9px] font-black text-gray-400 border border-gray-100">
+                      {stageLeads.length}
+                    </span>
+                  </div>
+                  <p className="text-sm font-black text-adworks-blue mt-2 tracking-tighter">
+                    R$ {totalValue.toLocaleString()}
+                  </p>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-hide">
@@ -162,36 +172,43 @@ export function CRM() {
                           <MoreVertical className="w-4 h-4" />
                         </button>
                       </div>
-                      
+
                       <div className="space-y-1.5">
-                         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter">Negócio Indra Sistemas</p>
-                         <p className="text-xs font-black text-adworks-dark tracking-tight">R$ 2.000,00</p>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter">
+                          Negócio Indra Sistemas
+                        </p>
+                        <p className="text-xs font-black text-adworks-dark tracking-tight">
+                          R$ 2.000,00
+                        </p>
                       </div>
 
                       <div className="mt-6 flex items-center justify-between">
-                         <div className="flex gap-2">
-                            <div className="flex items-center gap-1 text-[9px] font-black text-gray-300 uppercase">
-                               <MessageSquare className="w-3 h-3" /> 1
-                            </div>
-                            <div className="flex items-center gap-1 text-[9px] font-black text-gray-300 uppercase">
-                               <Paperclip className="w-3 h-3" /> 2
-                            </div>
-                         </div>
-                         
-                         <div className="flex items-center gap-2">
-                           {lead.tags_json?.slice(0, 1).map((tag, i) => (
-                             <span key={i} className="text-[8px] font-black bg-blue-50 text-adworks-blue px-2 py-0.5 rounded-full border border-blue-100 uppercase">
-                               {tag}
-                             </span>
-                           ))}
-                           <div className="w-6 h-6 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center">
-                              <Clock className="w-3 h-3 text-orange-600" />
-                           </div>
-                         </div>
+                        <div className="flex gap-2">
+                          <div className="flex items-center gap-1 text-[9px] font-black text-gray-300 uppercase">
+                            <MessageSquare className="w-3 h-3" /> 1
+                          </div>
+                          <div className="flex items-center gap-1 text-[9px] font-black text-gray-300 uppercase">
+                            <Paperclip className="w-3 h-3" /> 2
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {lead.tags_json?.slice(0, 1).map((tag, i) => (
+                            <span
+                              key={i}
+                              className="text-[8px] font-black bg-blue-50 text-adworks-blue px-2 py-0.5 rounded-full border border-blue-100 uppercase"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          <div className="w-6 h-6 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center">
+                            <Clock className="w-3 h-3 text-orange-600" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   <button className="w-full py-4 border-2 border-dashed border-gray-200 rounded-3xl text-[10px] font-black text-gray-300 uppercase tracking-widest hover:border-adworks-blue hover:text-adworks-blue transition-all">
                     + Adicionar Negócio
                   </button>

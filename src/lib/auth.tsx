@@ -31,7 +31,11 @@ interface AuthContextType {
   currentClientId: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string
+  ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   setCurrentClientId: (clientId: string | null) => void;
   isAdworks: boolean;
@@ -49,7 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
 
@@ -60,7 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setLoading(false);
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, newSession) => {
         (async () => {
           setSession(newSession);
           setUser(newSession?.user ?? null);
@@ -95,7 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadMemberships = async (userId: string) => {
     const { data, error } = await supabase
       .from('client_memberships')
-      .select(`
+      .select(
+        `
         id,
         client_id,
         role_in_client,
@@ -105,7 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           slug,
           status
         )
-      `)
+      `
+      )
       .eq('user_id', userId);
 
     if (data && !error) {
@@ -139,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (data.user && !error) {
       // Pequeno delay para garantir que o trigger de auth termine (se houver)
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const { error: profileError } = await supabase.from('user_profiles').insert({
         id: data.user.id,
@@ -152,7 +162,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Error creating profile:', profileError);
       }
 
-      const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const slug = email
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-');
       const { data: client, error: clientError } = await supabase
         .from('clients')
         .insert({
@@ -185,7 +198,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentClientId(null);
   };
 
-  const isAdworks = profile?.role_global?.startsWith('ADWORKS_') || profile?.role_global?.startsWith('OPERATOR_') || false;
+  const isAdworks =
+    profile?.role_global?.startsWith('ADWORKS_') ||
+    profile?.role_global?.startsWith('OPERATOR_') ||
+    false;
 
   const impersonateClient = (clientId: string | null) => {
     setCurrentClientId(clientId);

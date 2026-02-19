@@ -47,13 +47,7 @@ export type NotificationType =
   | 'PAYMENT_INVOICE'
   | 'TASK_ASSIGNED';
 
-export type LeadStage =
-  | 'NOVO'
-  | 'CONTATO'
-  | 'QUALIFICADO'
-  | 'PROPOSTA'
-  | 'FECHADO'
-  | 'PERDIDO';
+export type LeadStage = 'NOVO' | 'CONTATO' | 'QUALIFICADO' | 'PROPOSTA' | 'FECHADO' | 'PERDIDO';
 
 export interface Database {
   public: {
@@ -68,7 +62,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['user_profiles']['Row'], 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['user_profiles']['Row'],
+          'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>;
       };
       clients: {
@@ -88,7 +85,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['clients']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['clients']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['clients']['Insert']>;
       };
       client_memberships: {
@@ -99,7 +99,10 @@ export interface Database {
           role_in_client: ClientRole;
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['client_memberships']['Row'], 'id' | 'created_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['client_memberships']['Row'],
+          'id' | 'created_at'
+        >;
         Update: Partial<Database['public']['Tables']['client_memberships']['Insert']>;
       };
       onboarding_steps: {
@@ -112,7 +115,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['onboarding_steps']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['onboarding_steps']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['onboarding_steps']['Insert']>;
       };
       documents: {
@@ -129,7 +135,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['documents']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['documents']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['documents']['Insert']>;
       };
       tickets: {
@@ -146,7 +155,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['tickets']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['tickets']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['tickets']['Insert']>;
       };
       notifications: {
@@ -181,7 +193,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['leads']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['leads']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['leads']['Insert']>;
       };
     };

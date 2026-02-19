@@ -205,9 +205,7 @@ export function NotificationCenter() {
                         <div className="flex items-start justify-between mb-1">
                           <h4
                             className={`text-sm font-medium ${
-                              !notification.read_at
-                                ? 'text-gray-900'
-                                : 'text-gray-700'
+                              !notification.read_at ? 'text-gray-900' : 'text-gray-700'
                             }`}
                           >
                             {notification.title}
@@ -216,9 +214,7 @@ export function NotificationCenter() {
                             <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 ml-2 mt-1"></div>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {notification.body}
-                        </p>
+                        <p className="text-sm text-gray-600 line-clamp-2">{notification.body}</p>
                         <p className="text-xs text-gray-500 mt-1">
                           {getTimeAgo(notification.created_at)}
                         </p>

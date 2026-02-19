@@ -2,14 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  FileText,
-  ArrowRight,
-  Calendar,
-} from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, FileText, ArrowRight, Calendar } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -188,7 +181,9 @@ export function Tasks() {
         </div>
         <div className="bg-white px-6 py-3 rounded-2xl shadow-adw-soft border border-gray-100 flex items-center space-x-3">
           <span className="text-sm font-black text-adworks-blue">{tasks.length}</span>
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pendências</span>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Pendências
+          </span>
         </div>
       </div>
 
@@ -198,7 +193,9 @@ export function Tasks() {
             <CheckCircle className="w-10 h-10 text-green-500" />
           </div>
           <h2 className="text-2xl font-black text-adworks-dark mb-2">Tudo em dia!</h2>
-          <p className="text-gray-500 max-w-xs mx-auto">Nenhuma ação pendente no momento. Nossa equipe está trabalhando no seu processo.</p>
+          <p className="text-gray-500 max-w-xs mx-auto">
+            Nenhuma ação pendente no momento. Nossa equipe está trabalhando no seu processo.
+          </p>
           <button
             onClick={() => navigate('/')}
             className="mt-8 bg-adworks-blue text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg"
@@ -210,22 +207,31 @@ export function Tasks() {
         <div className="grid gap-4">
           {tasks.map((task) => {
             const Icon = getIcon(task.type);
-            const priorityColor = task.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-adworks-blue';
+            const priorityColor =
+              task.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-adworks-blue';
             return (
               <div
                 key={task.id}
                 className="bg-white rounded-[2rem] p-8 shadow-adw-soft border border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:border-adworks-blue/30 transition-all gap-6"
               >
                 <div className="flex items-start space-x-6">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${priorityColor} bg-opacity-20 transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${priorityColor} bg-opacity-20 transition-transform group-hover:scale-110`}
+                  >
                     <Icon className="w-8 h-8" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-3 mb-1">
-                      <h3 className="text-xl font-black text-adworks-dark tracking-tight">{task.title}</h3>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter border ${
-                        task.priority === 'high' ? 'border-red-200 text-red-600 bg-red-50' : 'border-blue-200 text-adworks-blue bg-blue-50'
-                      }`}>
+                      <h3 className="text-xl font-black text-adworks-dark tracking-tight">
+                        {task.title}
+                      </h3>
+                      <span
+                        className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter border ${
+                          task.priority === 'high'
+                            ? 'border-red-200 text-red-600 bg-red-50'
+                            : 'border-blue-200 text-adworks-blue bg-blue-50'
+                        }`}
+                      >
                         {task.priority === 'high' ? 'Urgente' : 'Normal'}
                       </span>
                     </div>
@@ -238,7 +244,7 @@ export function Tasks() {
                     )}
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => navigate(task.actionUrl)}
                   className="bg-adworks-blue text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg shadow-adworks-blue/20 flex items-center justify-center space-x-2 active:scale-95"

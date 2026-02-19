@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
-import { Send, Paperclip, FileText, User, Clock, MessageSquare, ChevronRight, Search } from 'lucide-react';
+import {
+  Send,
+  Paperclip,
+  FileText,
+  User,
+  Clock,
+  MessageSquare,
+  ChevronRight,
+  Search,
+} from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -63,14 +72,16 @@ export function Inbox() {
   const loadMessages = async (ticketId: string) => {
     const { data } = await supabase
       .from('ticket_messages')
-      .select(`
+      .select(
+        `
         *,
         author:author_user_id (
           id,
           email,
           full_name
         )
-      `)
+      `
+      )
       .eq('ticket_id', ticketId)
       .eq('visibility', 'CLIENT')
       .order('created_at', { ascending: true });
@@ -102,9 +113,9 @@ export function Inbox() {
 
   const getTicketTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      'TICKET_CNPJ': 'CNPJ',
-      'TICKET_INPI': 'Marca',
-      'TICKET_FISCAL': 'Fiscal',
+      TICKET_CNPJ: 'CNPJ',
+      TICKET_INPI: 'Marca',
+      TICKET_FISCAL: 'Fiscal',
     };
     return labels[type] || type;
   };
@@ -132,18 +143,20 @@ export function Inbox() {
         {/* Sidebar: Ticket List */}
         <div className="w-full md:w-80 border-r border-gray-100 flex flex-col bg-adworks-gray/10">
           <div className="p-6 border-b border-gray-100">
-             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Buscar conversa..." 
-                  className="w-full pl-9 pr-4 py-2 bg-adworks-gray border-none rounded-xl text-xs font-bold focus:ring-1 focus:ring-adworks-blue"
-                />
-             </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar conversa..."
+                className="w-full pl-9 pr-4 py-2 bg-adworks-gray border-none rounded-xl text-xs font-bold focus:ring-1 focus:ring-adworks-blue"
+              />
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto">
             {tickets.length === 0 ? (
-              <div className="p-8 text-center text-gray-400 italic text-xs">Nenhuma conversa ativa</div>
+              <div className="p-8 text-center text-gray-400 italic text-xs">
+                Nenhuma conversa ativa
+              </div>
             ) : (
               tickets.map((ticket) => (
                 <button
@@ -154,19 +167,29 @@ export function Inbox() {
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-                       selectedTicket === ticket.id ? 'bg-adworks-blue text-white' : 'bg-white text-gray-400 border border-gray-100'
-                     }`}>
-                        <MessageSquare className="w-6 h-6" />
-                     </div>
-                     <div>
-                        <p className={`text-xs font-black uppercase tracking-widest ${selectedTicket === ticket.id ? 'text-adworks-blue' : 'text-gray-400'}`}>
-                          {getTicketTypeLabel(ticket.type)}
-                        </p>
-                        <p className="font-bold text-adworks-dark text-sm leading-tight">Suporte Adworks</p>
-                     </div>
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                        selectedTicket === ticket.id
+                          ? 'bg-adworks-blue text-white'
+                          : 'bg-white text-gray-400 border border-gray-100'
+                      }`}
+                    >
+                      <MessageSquare className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-xs font-black uppercase tracking-widest ${selectedTicket === ticket.id ? 'text-adworks-blue' : 'text-gray-400'}`}
+                      >
+                        {getTicketTypeLabel(ticket.type)}
+                      </p>
+                      <p className="font-bold text-adworks-dark text-sm leading-tight">
+                        Suporte Adworks
+                      </p>
+                    </div>
                   </div>
-                  <ChevronRight className={`w-4 h-4 transition-all ${selectedTicket === ticket.id ? 'text-adworks-blue translate-x-1' : 'text-gray-200'}`} />
+                  <ChevronRight
+                    className={`w-4 h-4 transition-all ${selectedTicket === ticket.id ? 'text-adworks-blue translate-x-1' : 'text-gray-200'}`}
+                  />
                 </button>
               ))
             )}
@@ -178,38 +201,56 @@ export function Inbox() {
           {selectedTicket ? (
             <>
               <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
-                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center border border-green-100">
-                       <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
-                    <div>
-                       <h3 className="font-black text-adworks-dark text-sm uppercase tracking-tight italic">Time de Especialistas</h3>
-                       <p className="text-[10px] font-bold text-gray-400 uppercase">Consultoria Online</p>
-                    </div>
-                 </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center border border-green-100">
+                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <div>
+                    <h3 className="font-black text-adworks-dark text-sm uppercase tracking-tight italic">
+                      Time de Especialistas
+                    </h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase">
+                      Consultoria Online
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-8 space-y-6">
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
                     <div className="w-16 h-16 bg-adworks-gray rounded-3xl flex items-center justify-center">
-                       <MessageSquare className="w-8 h-8 text-gray-300" />
+                      <MessageSquare className="w-8 h-8 text-gray-300" />
                     </div>
-                    <p className="text-gray-400 font-medium text-sm">Nenhuma mensagem ainda.<br/>Inicie a conversa abaixo.</p>
+                    <p className="text-gray-400 font-medium text-sm">
+                      Nenhuma mensagem ainda.
+                      <br />
+                      Inicie a conversa abaixo.
+                    </p>
                   </div>
                 ) : (
                   messages.map((msg) => {
                     const isMe = msg.author_user_id === user?.id;
                     return (
-                      <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] p-4 rounded-3xl text-sm font-medium shadow-sm ${
-                          isMe 
-                          ? 'bg-adworks-blue text-white rounded-tr-none shadow-blue-100' 
-                          : 'bg-adworks-gray text-adworks-dark rounded-tl-none'
-                        }`}>
+                      <div
+                        key={msg.id}
+                        className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] p-4 rounded-3xl text-sm font-medium shadow-sm ${
+                            isMe
+                              ? 'bg-adworks-blue text-white rounded-tr-none shadow-blue-100'
+                              : 'bg-adworks-gray text-adworks-dark rounded-tl-none'
+                          }`}
+                        >
                           {msg.message}
-                          <div className={`text-[9px] mt-2 font-bold uppercase tracking-tighter ${isMe ? 'text-blue-200 text-right' : 'text-gray-400'}`}>
-                            {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                          <div
+                            className={`text-[9px] mt-2 font-bold uppercase tracking-tighter ${isMe ? 'text-blue-200 text-right' : 'text-gray-400'}`}
+                          >
+                            {new Date(msg.created_at).toLocaleTimeString('pt-BR', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
                           </div>
                         </div>
                       </div>
@@ -243,11 +284,15 @@ export function Inbox() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-               <div className="w-24 h-24 bg-adworks-gray rounded-[2rem] flex items-center justify-center mb-6">
-                  <MessageSquare className="w-12 h-12 text-gray-200" />
-               </div>
-               <h3 className="text-xl font-black text-adworks-dark uppercase italic tracking-tighter">Selecione uma conversa</h3>
-               <p className="text-gray-400 max-w-xs mt-2">Escolha um dos seus processos ativos ao lado para falar com nossa equipe.</p>
+              <div className="w-24 h-24 bg-adworks-gray rounded-[2rem] flex items-center justify-center mb-6">
+                <MessageSquare className="w-12 h-12 text-gray-200" />
+              </div>
+              <h3 className="text-xl font-black text-adworks-dark uppercase italic tracking-tighter">
+                Selecione uma conversa
+              </h3>
+              <p className="text-gray-400 max-w-xs mt-2">
+                Escolha um dos seus processos ativos ao lado para falar com nossa equipe.
+              </p>
             </div>
           )}
         </div>
