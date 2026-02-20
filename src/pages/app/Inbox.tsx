@@ -1,220 +1,315 @@
-import React, { useState } from 'react';
-import { useDealsBoard } from '../../lib/queries';
+import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
 import {
   Search,
-  Filter,
   MessageSquare,
   User,
-  ChevronRight,
   Check,
   Send,
   Paperclip,
+  Clock,
+  ShieldCheck,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 
 /**
- * 💬 INBOX OPERACIONAL (Adworks Hub)
- * Gestão de threads com histórico completo e mensagens internas.
+ * 💬 INBOX OPERACIONAL (Final 2.0)
+ * Real-time chat with Supabase + Internal Notes + Full History.
  */
 
 export function Inbox() {
-  const { data: deals, isLoading } = useDealsBoard();
-  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const { profile } = useAuth();
+  const [threads, setThreads] = useState<any[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isInternal, setIsInternal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  if (isLoading)
-    return <div className="p-10 animate-pulse font-black text-slate-300">SYNCING INBOX...</div>;
+  // 1. Fetch Threads
+  useEffect(() => {
+    loadThreads();
+    const subscription = supabase
+      .channel('threads_live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages_threads' }, () =>
+        loadThreads()
+      )
+      .subscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
-  const currentThread = deals?.find((d: any) => d.id === selectedThread);
+  // 2. Fetch Messages for selected thread
+  useEffect(() => {
+    if (!selectedThreadId) return;
+    loadMessages();
+    markAsRead(selectedThreadId);
+
+    const subscription = supabase
+      .channel(`chat_${selectedThreadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `thread_id=eq.${selectedThreadId}`,
+        },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new]);
+          scrollToBottom();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [selectedThreadId]);
+
+  const loadThreads = async () => {
+    const { data } = await supabase
+      .from('messages_threads')
+      .select('*, companies(name)')
+      .order('last_message_at', { ascending: false });
+    setThreads(data || []);
+    setLoading(false);
+  };
+
+  const loadMessages = async () => {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('thread_id', selectedThreadId)
+      .order('created_at', { ascending: true });
+    setMessages(data || []);
+    setTimeout(scrollToBottom, 100);
+  };
+
+  const markAsRead = async (id: string) => {
+    await supabase.rpc('mark_thread_read', { p_thread_id: id });
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedThreadId) return;
+    const body = newMessage;
+    setNewMessage('');
+
+    const { error } = await supabase.rpc('send_chat_message', {
+      p_thread_id: selectedThreadId,
+      p_body: body,
+      p_is_internal: isInternal,
+    });
+
+    if (error) console.error('Error sending message:', error);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  if (loading)
+    return (
+      <div className="p-10 animate-pulse font-black text-slate-300">CARREGANDO CONVERSAS...</div>
+    );
+
+  const currentThread = threads.find((t) => t.id === selectedThreadId);
 
   return (
     <div className="h-[calc(100vh-140px)] flex bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
-      {/* 1. THREAD LIST (LEFT SIDE) */}
-      <aside className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/30">
+      {/* 1. THREAD LIST */}
+      <aside className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/30 shrink-0">
         <div className="p-6 border-b border-slate-100 bg-white">
-          <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-4">
-            Mensagens
+          <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-4 italic">
+            Inbox
           </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Buscar conversa..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-100 border-none rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Buscar..."
+              className="w-full pl-9 pr-4 py-2 bg-slate-100 border-none rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
-          {deals?.map((deal: any) => (
+          {threads.map((t) => (
             <button
-              key={deal.id}
-              onClick={() => setSelectedThread(deal.id)}
-              className={`w-full p-4 flex items-start gap-3 transition-all hover:bg-white text-left ${selectedThread === deal.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200' : ''}`}
+              key={t.id}
+              onClick={() => setSelectedThreadId(t.id)}
+              className={`w-full p-5 flex items-start gap-4 transition-all hover:bg-white text-left group ${selectedThreadId === t.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200' : ''}`}
             >
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs shrink-0 border border-white shadow-sm">
-                {deal.company_name.charAt(0)}
+              <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xs shrink-0 shadow-lg shadow-blue-100 group-hover:scale-110 transition-all">
+                {t.companies?.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-slate-900 truncate pr-2 uppercase tracking-tight">
-                    {deal.company_name}
+                  <span className="text-xs font-bold text-slate-900 truncate pr-2 uppercase tracking-tight italic">
+                    {t.companies?.name}
                   </span>
-                  <span className="text-[9px] font-bold text-slate-300 whitespace-nowrap">
-                    14:20
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 truncate leading-snug">
-                  Olá! O contrato já foi anexado no sistema.
-                </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <Badge variant="info" className="text-[8px] px-1.5 py-0">
-                    OPERACIONAL
-                  </Badge>
-                  {deal.id === '1' && (
-                    <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-[9px] text-white font-black">
-                      2
+                  {t.unread_count_operator > 0 && (
+                    <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-black">
+                      {t.unread_count_operator}
                     </div>
                   )}
                 </div>
+                <p className="text-[10px] text-slate-400 truncate font-medium">
+                  {t.last_message_preview || 'Inicie uma conversa...'}
+                </p>
               </div>
             </button>
           ))}
+          {threads.length === 0 && (
+            <p className="p-10 text-center text-[10px] font-bold text-slate-300 uppercase">
+              Nenhuma conversa ativa
+            </p>
+          )}
         </div>
       </aside>
 
-      {/* 2. CHAT VIEW (RIGHT SIDE) */}
+      {/* 2. CHAT AREA */}
       <main className="flex-1 flex flex-col bg-white">
-        {selectedThread ? (
+        {selectedThreadId ? (
           <>
-            {/* CHAT HEADER */}
-            <header className="p-4 px-8 border-b border-slate-100 flex items-center justify-between">
+            <header className="p-5 px-8 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs">
-                  {currentThread?.company_name.charAt(0)}
+                <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-lg">
+                  {currentThread?.companies?.name.charAt(0)}
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
-                    {currentThread?.company_name}
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">
+                    {currentThread?.companies?.name}
                   </h3>
-                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Online
-                    agora
+                  <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Canal
+                    de Suporte Ativo
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 text-slate-400">
-                <button className="p-2 hover:bg-slate-50 rounded-lg">
-                  <Filter className="w-4 h-4" />
-                </button>
-                <button className="p-2 hover:bg-slate-50 rounded-lg font-bold text-[10px] uppercase tracking-widest text-blue-600">
-                  Ver Processo
-                </button>
               </div>
             </header>
 
             {/* MESSAGE HISTORY */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-[#FDFDFD]">
+            <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[#FDFDFD]">
               <div className="flex justify-center">
                 <Badge
                   variant="neutral"
-                  className="bg-slate-100 text-slate-400 border-none text-[9px] font-bold tracking-[0.2em] px-4 py-1"
+                  className="bg-slate-100 text-slate-400 border-none text-[8px] font-black tracking-[0.2em] px-4 py-1 uppercase italic"
                 >
-                  HISTÓRICO COMPLETO ATIVADO
+                  Criptografia Ponta-a-Ponta
                 </Badge>
               </div>
 
-              {/* Recipient Message */}
-              <div className="flex gap-4 items-end max-w-[80%]">
-                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 shrink-0">
-                  <User className="w-4 h-4" />
-                </div>
-                <div className="bg-slate-100 p-4 rounded-2xl rounded-bl-none">
-                  <p className="text-sm font-medium text-slate-700 leading-relaxed">
-                    Poderia me confirmar se a etapa de CNPJ já foi protocolada? Recebi o e-mail mas
-                    não vi no app.
-                  </p>
-                  <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase">
-                    Cliente • 10:15
-                  </p>
-                </div>
-              </div>
-
-              {/* Operator Message */}
-              <div className="flex flex-col items-end gap-2">
-                <div className="bg-blue-600 p-4 rounded-2xl rounded-br-none max-w-[80%] shadow-lg shadow-blue-100">
-                  <p className="text-sm font-medium text-white leading-relaxed">
-                    Com certeza! O protocolo foi feito às 09:30. Acabei de anexar o comprovante na
-                    aba de documentos para você. Qualquer dúvida me avise.
-                  </p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[9px] font-bold text-slate-300 uppercase">
-                    Dan M. • 10:20
-                  </span>
-                  <Check className="w-3 h-3 text-blue-500" />
-                </div>
-              </div>
-
-              {/* Internal Note */}
-              <div className="flex justify-center">
-                <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl max-w-[70%] text-center">
-                  <p className="text-[11px] font-bold text-amber-700 italic">
-                    Nota Interna: Cliente está ansioso com o prazo do CNPJ. Priorizar protocolo na
-                    prefeitura amanhã.
-                  </p>
-                  <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mt-1">
-                    Visível apenas para o time
-                  </p>
-                </div>
-              </div>
+              {messages.map((m, i) => {
+                const isMine = m.author_id === profile?.id;
+                return (
+                  <div
+                    key={m.id}
+                    className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                  >
+                    <div
+                      className={`p-4 px-5 rounded-2xl max-w-[70%] shadow-sm border ${
+                        m.is_internal
+                          ? 'bg-amber-50 border-amber-100 text-amber-900 italic'
+                          : isMine
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-blue-100'
+                            : 'bg-white border-slate-100 text-slate-700'
+                      } ${isMine ? 'rounded-tr-none' : 'rounded-tl-none'}`}
+                    >
+                      {m.is_internal && (
+                        <div className="flex items-center gap-2 mb-2 text-[8px] font-black uppercase text-amber-500 tracking-widest border-b border-amber-200/50 pb-1">
+                          <ShieldCheck className="w-3 h-3" /> Nota Interna (Privado)
+                        </div>
+                      )}
+                      <p className="text-[13px] font-medium leading-relaxed">{m.body}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-1">
+                      <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">
+                        {new Date(m.created_at).toLocaleTimeString('pt-BR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      {isMine && <Check className="w-2.5 h-2.5 text-blue-400" />}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* INPUT AREA */}
             <footer className="p-6 border-t border-slate-100 bg-white">
-              <div className="relative group">
+              <div
+                className={`relative transition-all rounded-[2rem] border-2 ${isInternal ? 'border-amber-200 bg-amber-50/30' : 'border-slate-100 bg-slate-50'}`}
+              >
                 <textarea
-                  placeholder="Responda ao cliente ou deixe uma nota interna..."
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 pr-32 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none min-h-[100px] shadow-inner transition-all resize-none"
+                  placeholder={
+                    isInternal
+                      ? 'Escreva uma nota interna para o time...'
+                      : 'Responda ao cliente...'
+                  }
+                  className="w-full bg-transparent p-5 pr-32 text-sm font-medium focus:outline-none min-h-[100px] resize-none"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
                 />
-                <div className="absolute right-3 bottom-3 flex items-center gap-2">
-                  <button
-                    className="p-2.5 text-slate-300 hover:text-slate-600 transition-all"
-                    title="Anexar arquivo"
-                  >
+                <div className="absolute right-4 bottom-4 flex items-center gap-3">
+                  <button className="p-2 text-slate-300 hover:text-blue-600 transition-all">
                     <Paperclip className="w-5 h-5" />
                   </button>
-                  <button className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                  <button
+                    onClick={sendMessage}
+                    className={`px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg transition-all flex items-center gap-2 ${isInternal ? 'bg-amber-500 text-white shadow-amber-100' : 'bg-blue-600 text-white shadow-blue-100'} hover:scale-105 active:scale-95`}
+                  >
                     Enviar <Send className="w-3 h-3" />
                   </button>
                 </div>
               </div>
-              <div className="mt-3 flex items-center gap-4">
-                <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="mt-4 flex items-center justify-between">
+                <label className="flex items-center gap-2.5 cursor-pointer group px-2">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-slate-200 text-amber-500 focus:ring-amber-500"
+                    checked={isInternal}
+                    onChange={(e) => setIsInternal(e.target.checked)}
+                    className="w-4 h-4 rounded-lg border-slate-200 text-amber-500 focus:ring-amber-500 transition-all"
                   />
-                  <span className="text-[10px] font-bold text-slate-400 group-hover:text-amber-600 uppercase tracking-widest transition-colors">
-                    Nota Interna
-                  </span>
+                  <div className="flex flex-col">
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isInternal ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-600'}`}
+                    >
+                      Nota Interna
+                    </span>
+                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tight">
+                      O cliente não verá esta mensagem
+                    </span>
+                  </div>
                 </label>
-                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                  Shift + Enter para enviar
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest italic mr-4">
+                  Dica: Enter para enviar rápida
                 </span>
               </div>
             </footer>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center space-y-4">
-            <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center shadow-inner">
-              <MessageSquare className="w-10 h-10" />
+          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center space-y-6">
+            <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2.5rem] flex items-center justify-center shadow-inner group transition-all">
+              <MessageSquare className="w-12 h-12 group-hover:rotate-12 transition-transform" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">
                 Selecione uma conversa
               </h3>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
-                Gerencie o atendimento e mantenha o histórico completo das empresas em um só lugar.
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto mt-2">
+                Central de Atendimento e Histórico Global Adworks.
               </p>
             </div>
           </div>
