@@ -2,8 +2,7 @@ import { supabase } from '../lib/supabase';
 
 /**
  * TEMPLETERIA ENGINE SERVICE
- * Closing the loop: Generate -> Save -> Version.
- * No emojis.
+ * Unified API for site generation, refinement and publishing.
  */
 
 export const templeteriaEngine = {
@@ -15,97 +14,37 @@ export const templeteriaEngine = {
     palette: string;
     sections: string[];
   }) {
-    // 1. Call Edge Function
-    const { data: aiResponse, error: aiError } = await supabase.functions.invoke(
-      'templeteria-generate',
-      {
-        body: payload,
-      }
-    );
-
-    if (aiError) throw aiError;
-
-    // 2. Create Site entry
-    const slug = `${payload.siteName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(7)}`;
-    const { data: site, error: siteError } = await supabase
-      .from('templeteria_sites')
-      .insert({
-        client_id: payload.client_id,
-        name: payload.siteName,
-        slug,
-        status: 'DRAFT',
-      })
-      .select()
-      .single();
-
-    if (siteError) throw siteError;
-
-    // 3. Create Version 1
-    const { error: verError } = await supabase.from('templeteria_site_versions').insert({
-      site_id: site.id,
-      client_id: payload.client_id,
-      version: 1,
-      template_json: aiResponse.template,
-      notes: 'AI generated draft',
+    // 1. Call real Edge Function
+    const { data, error } = await supabase.functions.invoke('templeteria-generate', {
+      body: payload
     });
 
-    if (verError) throw verError;
+    if (error) throw error;
+    if (!data || !data.siteId) throw new Error('Invalid response from AI generator');
 
-    return site;
+    return data; // Returns { siteId, slug, schema }
   },
 
   async refineSite(payload: {
     siteId: string;
     client_id: string;
-    currentTemplate: any;
     instruction: string;
-    scope: 'GLOBAL' | 'PAGE' | 'BLOCK';
-    targetId?: string;
   }) {
-    // 1. Call Refine Edge Function
-    const { data: aiResponse, error: aiError } = await supabase.functions.invoke(
-      'templeteria-refine',
-      {
-        body: payload,
-      }
-    );
-
-    if (aiError) throw aiError;
-
-    // 2. Save new version
-    const { data: lastVersion } = await supabase
-      .from('templeteria_site_versions')
-      .select('version')
-      .eq('site_id', payload.siteId)
-      .order('version', { ascending: false })
-      .limit(1)
-      .single();
-
-    const nextVer = (lastVersion?.version || 0) + 1;
-
-    const { error: verError } = await supabase.from('templeteria_site_versions').insert({
-      site_id: payload.siteId,
-      client_id: payload.client_id,
-      version: nextVer,
-      template_json: aiResponse.template,
-      notes: 'AI refinement',
+    // 1. Call real Refine Edge Function
+    const { data, error } = await supabase.functions.invoke('templeteria-refine', {
+      body: payload
     });
 
-    if (verError) throw verError;
-
-    return aiResponse.template;
+    if (error) throw error;
+    return data; // Returns { schema }
   },
 
-  async publishSite(siteId: string, versionId: string) {
-    const { error } = await supabase
-      .from('templeteria_sites')
-      .update({
-        status: 'PUBLISHED',
-        published_version_id: versionId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', siteId);
+  async publishSite(siteId: string) {
+    const { data, error } = await supabase.functions.invoke('templeteria-publish', {
+      body: { siteId }
+    });
 
     if (error) throw error;
-  },
+    return data; // Returns { success, slug }
+  }
 };
