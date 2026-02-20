@@ -1,28 +1,28 @@
 import { create } from 'zustand';
 
+export type activeDrawerTab = 'overview' | 'tasks' | 'files' | 'comments' | 'activities';
+
 interface UIState {
-  sidebarCollapsed: boolean;
+  isDrawerOpen: boolean;
   selectedDealId: string | null;
-  pipelineFilters: {
-    search: string;
-    owner: string;
-    priority: string;
-  };
-  toggleSidebar: () => void;
-  selectDeal: (id: string | null) => void;
-  setFilters: (filters: Partial<UIState['pipelineFilters']>) => void;
+  activeDrawerTab: activeDrawerTab;
+  // Actions
+  openDeal: (dealId: string, tab?: activeDrawerTab) => void;
+  closeDrawer: () => void;
+  setTab: (tab: activeDrawerTab) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  sidebarCollapsed: false,
+  isDrawerOpen: false,
   selectedDealId: null,
-  pipelineFilters: {
-    search: '',
-    owner: 'all',
-    priority: 'all',
-  },
-  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-  selectDeal: (id) => set({ selectedDealId: id }),
-  setFilters: (newFilters) =>
-    set((state) => ({ pipelineFilters: { ...state.pipelineFilters, ...newFilters } })),
+  activeDrawerTab: 'overview',
+
+  openDeal: (dealId, tab = 'overview') => 
+    set({ selectedDealId: dealId, isDrawerOpen: true, activeDrawerTab: tab }),
+    
+  closeDrawer: () => 
+    set({ isDrawerOpen: false, selectedDealId: null }),
+
+  setTab: (tab) => 
+    set({ activeDrawerTab: tab }),
 }));

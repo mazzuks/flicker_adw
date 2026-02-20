@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
-import { Wand2, ArrowRight, ArrowLeft, Sparkles, Layout, Info, AlertCircle } from 'lucide-react';
+import {
+  Wand2,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  Layout,
+  Info,
+  AlertCircle,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
 
 const WIZARD_STEPS = [
   { id: 1, label: 'Nicho', desc: 'Qual o ramo da empresa?' },
@@ -54,7 +62,7 @@ export function TempleteriaWizard() {
         sections: ['hero', 'services', 'contact'],
       });
 
-      navigate(`/app/refiner/${site.id}`);
+      navigate(`/app/refiner/${site.siteId}`);
     } catch (err: any) {
       setError(err.message || 'Falha ao gerar site');
       setIsGenerating(false);

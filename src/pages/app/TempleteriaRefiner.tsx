@@ -1,6 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '../../components/ui/Button';
-import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import {
   Settings2,
   Monitor,
@@ -14,9 +11,12 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
+import { Button } from '../../components/ui/Button';
+import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 
 /**
  * TEMPLETERIA REFINER
@@ -48,14 +48,14 @@ export function TempleteriaRefiner() {
       const { data: siteData, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('*')
-        .eq('id', siteId)
+        .eq('id', siteId as string)
         .single();
       if (siteError) throw siteError;
 
       const { data: verData, error: verError } = await supabase
         .from('templeteria_site_versions')
         .select('*')
-        .eq('site_id', siteId)
+        .eq('site_id', siteId as string)
         .order('version', { ascending: false })
         .limit(1)
         .single();
