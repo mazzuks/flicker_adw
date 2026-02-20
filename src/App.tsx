@@ -8,6 +8,10 @@ import Pipeline from './pages/app/Pipeline';
 import { Overview } from './pages/app/Overview';
 import { Settings } from './pages/app/Settings';
 
+import { TempleteriaWizard } from './pages/app/TempleteriaWizard';
+import { TempleteriaRefiner } from './pages/app/TempleteriaRefiner';
+import { PublicSiteView } from './pages/public/PublicSiteView';
+
 const queryClient = new QueryClient();
 
 function AppRoutes() {
@@ -52,7 +56,11 @@ function AppRoutes() {
           }
         />
         <Route path="settings" element={<Settings />} />
+        <Route path="templeteria/wizard" element={<TempleteriaWizard />} />
+        <Route path="refiner/:siteId" element={<TempleteriaRefiner />} />
       </Route>
+
+      <Route path="/s/:slug" element={<PublicSiteView />} />
 
       <Route path="*" element={<Navigate to="/app/overview" replace />} />
     </Routes>

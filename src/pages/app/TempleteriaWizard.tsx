@@ -2,44 +2,33 @@ import React, { useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import {
-  Wand2,
-  ArrowRight,
-  ArrowLeft,
-  CheckCircle2,
-  Sparkles,
-  Layout,
-  Type,
-  Palette,
-  Globe,
-  Rocket,
-  Info,
-} from 'lucide-react';
-
-/**
- * 🪄 TEMPLETERIA WIZARD (High-Fidelity)
- * 12-step guided process for AI-powered site generation.
- */
+import { Wand2, ArrowRight, ArrowLeft, Sparkles, Layout, Info, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../lib/auth';
+import { templeteriaEngine } from '../../services/templeteriaEngine';
 
 const WIZARD_STEPS = [
   { id: 1, label: 'Nicho', desc: 'Qual o ramo da empresa?' },
   { id: 2, label: 'Objetivo', desc: 'O que o site deve fazer?' },
-  { id: 3, label: 'Público', desc: 'Para quem vamos vender?' },
-  { id: 4, label: 'Diferenciais', desc: 'O que te torna único?' },
-  { id: 5, label: 'Tom de Voz', desc: 'Formal, descontraído, técnico?' },
+  { id: 3, label: 'Publico', desc: 'Para quem vamos vender?' },
+  { id: 4, label: 'Diferenciais', desc: 'O que te torna unico?' },
+  { id: 5, label: 'Tom de Voz', desc: 'Formal, descontraido, tecnico?' },
   { id: 6, label: 'Cores', desc: 'Identidade visual base.' },
-  { id: 7, label: 'Serviços', desc: 'O que você oferece?' },
+  { id: 7, label: 'Servicos', desc: 'O que voce oferece?' },
   { id: 8, label: 'Depoimentos', desc: 'Prova social (opcional).' },
   { id: 9, label: 'Contatos', desc: 'WhatsApp, E-mail, Local.' },
-  { id: 10, label: 'Estrutura', desc: 'Páginas desejadas.' },
-  { id: 11, label: 'Domínio', desc: 'Sugestão de nome.' },
-  { id: 12, label: 'Revisão', desc: 'Confirmar e gerar site.' },
+  { id: 10, label: 'Estrutura', desc: 'Paginas desejadas.' },
+  { id: 11, label: 'Dominio', desc: 'Sugestao de nome.' },
+  { id: 12, label: 'Revisao', desc: 'Confirmar e gerar site.' },
 ];
 
 export function TempleteriaWizard() {
+  const { currentClientId } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleNext = () => {
     if (currentStep < 12) setCurrentStep((prev) => prev + 1);
@@ -50,17 +39,32 @@ export function TempleteriaWizard() {
     if (currentStep > 1) setCurrentStep((prev) => prev - 1);
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!currentClientId) return;
     setIsGenerating(true);
-    // Simulação de delay da IA (será substituído por Edge Function)
-    setTimeout(() => setIsGenerating(false), 3000);
+    setError(null);
+
+    try {
+      const site = await templeteriaEngine.generateSiteDraft({
+        client_id: currentClientId,
+        siteName: answers[11] || 'Novo Projeto',
+        businessType: answers[1],
+        tone: answers[5],
+        palette: answers[6],
+        sections: ['hero', 'services', 'contact'],
+      });
+
+      navigate(`/app/refiner/${site.id}`);
+    } catch (err: any) {
+      setError(err.message || 'Falha ao gerar site');
+      setIsGenerating(false);
+    }
   };
 
   const progress = (currentStep / 12) * 100;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700 pb-20">
-      {/* 🧬 PROGRESS HEADER */}
       <header className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -69,10 +73,10 @@ export function TempleteriaWizard() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-slate-900 tracking-tight uppercase">
-                Templeteria Adworks
+                Templeteria
               </h1>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
-                Criação Guiada por IA
+                Criacao Guiada por IA
               </p>
             </div>
           </div>
@@ -91,7 +95,6 @@ export function TempleteriaWizard() {
         </div>
       </header>
 
-      {/* 🪄 MAIN FORM AREA */}
       <main className="min-h-[400px] flex flex-col">
         {isGenerating ? (
           <div className="flex-1 flex flex-col items-center justify-center p-20 text-center space-y-6 animate-pulse">
@@ -101,10 +104,10 @@ export function TempleteriaWizard() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight">
-                O Motor de IA está criando seu site...
+                O Motor de IA esta criando seu site...
               </h3>
               <p className="text-sm text-slate-400 font-medium italic mt-2">
-                Processando nicho, tom de voz e componentes visuais.
+                Processando nicho e componentes visuais.
               </p>
             </div>
           </div>
@@ -124,19 +127,24 @@ export function TempleteriaWizard() {
                 </p>
               </div>
 
-              {/* Dynamic Inputs based on step (v1) */}
               <div className="space-y-4">
                 <textarea
                   autoFocus
-                  placeholder="Descreva aqui com suas palavras..."
+                  placeholder="Descreva aqui..."
                   className="w-full bg-slate-50 border-2 border-slate-100 rounded-3xl p-8 text-lg font-medium focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white outline-none min-h-[150px] transition-all shadow-inner"
                   value={answers[currentStep] || ''}
                   onChange={(e) => setAnswers({ ...answers, [currentStep]: e.target.value })}
                 />
+                {error && (
+                  <div className="flex items-center gap-2 text-red-500">
+                    <AlertCircle className="w-4 h-4" />
+                    <p className="text-xs font-bold uppercase">{error}</p>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-slate-400">
                   <Info className="w-4 h-4" />
                   <p className="text-[10px] font-bold uppercase tracking-widest italic">
-                    A IA usará sua resposta para gerar textos profissionais.
+                    A IA usara sua resposta para gerar textos profissionais.
                   </p>
                 </div>
               </div>
@@ -145,7 +153,6 @@ export function TempleteriaWizard() {
         )}
       </main>
 
-      {/* 🕹️ NAVIGATION FOOTER */}
       <footer className="flex items-center justify-between gap-6 px-4">
         <button
           onClick={handleBack}
@@ -156,15 +163,12 @@ export function TempleteriaWizard() {
         </button>
 
         <div className="flex items-center gap-6">
-          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-            Ajuste fino disponível após a geração
-          </span>
           <Button
             onClick={handleNext}
             disabled={isGenerating}
             className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-12 py-7 h-auto rounded-3xl text-sm font-black uppercase tracking-[0.3em] flex items-center gap-4 transition-all hover:scale-105 active:scale-95 group"
           >
-            {currentStep === 12 ? 'GERAR MEU SITE' : 'PRÓXIMO PASSO'}
+            {currentStep === 12 ? 'GERAR MEU SITE' : 'PROXIMO PASSO'}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
