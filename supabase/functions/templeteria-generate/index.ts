@@ -20,40 +20,39 @@ serve(async (req) => {
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
   let jobId: string | null = null;
-  const { siteName, businessType, tone, palette, sections, extra, client_id } = await req.json()
+  const { siteName, businessType, tone, palette, sections, client_id } = await req.json()
 
   try {
-    // 1. Rate Limit
-    const today = new Date();
-    today.setHours(0,0,0,0);
+    // 1. Rate Limit (10 per day)
+    const today = new Date().toISOString().split('T')[0]
     const { count } = await supabase
       .from('templeteria_ai_jobs')
       .select('*', { count: 'exact', head: true })
       .eq('created_by', user.id)
       .eq('mode', 'GENERATE')
-      .gte('created_at', today.toISOString())
+      .gte('created_at', today)
 
     if (count && count >= 10) return new Response(JSON.stringify({ error: 'Daily limit reached' }), { status: 429, headers: corsHeaders })
 
-    // 2. Log Job
+    // 2. Log Initial Job
     const { data: job } = await supabase.from('templeteria_ai_jobs').insert({
       client_id, status: 'RUNNING', mode: 'GENERATE', created_by: user.id,
       input_payload_json: { siteName, businessType, tone, palette, sections }
     }).select().single()
     jobId = job.id
 
-    // 3. AI Call (Gemini Implementation)
+    // 3. AI Generation (Gemini)
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
-    let schema_json = {}
-    
-    if (!GEMINI_API_KEY) {
-        throw new Error("Missing GEMINI_API_KEY")
-    }
+    if (!GEMINI_API_KEY) throw new Error("Missing GEMINI_API_KEY env")
 
-    const prompt = `Generate a website JSON schema for a business named "${siteName}". 
-    Type: ${businessType}. Tone: ${tone}. Palette: ${palette}.
-    Required Sections: ${sections.join(', ')}.
-    Return ONLY valid JSON in this format:
+    const prompt = `Generate a modern business website JSON schema for:
+    Name: ${siteName}
+    Business: ${businessType}
+    Tone: ${tone}
+    Color Palette: ${palette}
+    Include sections: ${sections.join(', ')}
+    
+    Return ONLY valid JSON:
     {
       "metadata": {"title": "...", "description": "..."},
       "theme": {"primaryColor": "...", "font": "Inter"},
@@ -65,15 +64,14 @@ serve(async (req) => {
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     })
     
-    const aiResult = await response.json()
-    const textResponse = aiResult.candidates[0].content.parts[0].text
-    schema_json = JSON.parse(textResponse.replace(/```json|```/g, ''))
+    const result = await response.json()
+    const text = result.candidates[0].content.parts[0].text
+    const schema_json = JSON.parse(text.replace(/```json|```/g, ''))
 
-    // 4. Create Site and Update Job
+    // 4. Persistence
     const slug = siteName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.random().toString(36).substring(7)
     const { data: site } = await supabase.from('templeteria_sites').insert({
-      client_id, created_by: user.id, slug, title: siteName, 
-      schema_json, status: 'DRAFT'
+      client_id, created_by: user.id, slug, title: siteName, schema_json, status: 'DRAFT'
     }).select().single()
 
     await supabase.from('templeteria_ai_jobs').update({

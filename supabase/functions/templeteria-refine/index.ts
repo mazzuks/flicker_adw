@@ -23,22 +23,19 @@ serve(async (req) => {
   const { siteId, instruction, client_id } = await req.json()
 
   try {
-    // 1. Get Current Site
     const { data: site } = await supabase.from('templeteria_sites').select('*').eq('id', siteId).single()
     if (!site) throw new Error("Site not found")
 
-    // 2. Log Job
     const { data: job } = await supabase.from('templeteria_ai_jobs').insert({
       client_id, site_id: siteId, status: 'RUNNING', mode: 'REFINE', created_by: user.id,
       input_payload_json: { instruction, currentSchema: site.schema_json }
     }).select().single()
     jobId = job.id
 
-    // 3. AI Call (Gemini)
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
     if (!GEMINI_API_KEY) throw new Error("Missing GEMINI_API_KEY")
 
-    const prompt = `Adjust this website JSON schema based on the instruction: "${instruction}".
+    const prompt = `Refine this website JSON schema based on: "${instruction}".
     Current Schema: ${JSON.stringify(site.schema_json)}
     Return ONLY valid updated JSON schema.`
 
@@ -47,18 +44,12 @@ serve(async (req) => {
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     })
     
-    const aiResult = await response.json()
-    const textResponse = aiResult.candidates[0].content.parts[0].text
-    const updated_schema = JSON.parse(textResponse.replace(/```json|```/g, ''))
+    const result = await response.json()
+    const text = result.candidates[0].content.parts[0].text
+    const updated_schema = JSON.parse(text.replace(/```json|```/g, ''))
 
-    // 4. Update Site and Job
-    await supabase.from('templeteria_sites').update({
-       schema_json: updated_schema
-    }).eq('id', siteId)
-
-    await supabase.from('templeteria_ai_jobs').update({
-      status: 'DONE', output_payload_json: updated_schema, provider: 'gemini'
-    }).eq('id', jobId)
+    await supabase.from('templeteria_sites').update({ schema_json: updated_schema }).eq('id', siteId)
+    await supabase.from('templeteria_ai_jobs').update({ status: 'DONE', output_payload_json: updated_schema, provider: 'gemini' }).eq('id', jobId)
 
     return new Response(JSON.stringify({ schema: updated_schema }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
