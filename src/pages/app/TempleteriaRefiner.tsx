@@ -12,11 +12,11 @@ import {
   ShieldCheck,
   AlertCircle,
   Loader2,
+  MessageSquare,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
-import { templeteriaEngine } from '../../services/templeteriaEngine';
 
 export function TempleteriaRefiner() {
   const { siteId } = useParams();
@@ -24,35 +24,28 @@ export function TempleteriaRefiner() {
   const { currentClientId } = useAuth();
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [refining, setRefining] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [schema, setSchema] = useState<any>(null);
   const [site, setSite] = useState<any>(null);
+  const [instruction, setInstruction] = useState('');
+  const [showRefineModal, setShowRefineModal] = useState(false);
 
   useEffect(() => {
-    if (siteId) {
-      loadSiteData();
-    }
+    if (siteId) loadSiteData();
   }, [siteId]);
 
   const loadSiteData = async () => {
     setLoading(true);
     try {
-      const { data: siteData } = await supabase
+      const { data, error } = await supabase
         .from('templeteria_sites')
         .select('*')
         .eq('id', siteId)
         .single();
-
-      const { data: versionData } = await supabase
-        .from('templeteria_site_versions')
-        .select('*')
-        .eq('site_id', siteId)
-        .order('version', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (siteData) setSite(siteData);
-      if (versionData) setSchema(versionData.template_json);
+      if (error) throw error;
+      setSite(data);
+      setSchema(data.schema_json);
     } catch (err) {
       console.error('Error loading site:', err);
     } finally {
@@ -60,27 +53,39 @@ export function TempleteriaRefiner() {
     }
   };
 
-  const handlePublish = async () => {
-    if (!siteId || !site) return;
-    setSaving(true);
+  const handleRefine = async () => {
+    if (!instruction.trim()) return;
+    setRefining(true);
     try {
-      // Get current version id
-      const { data: version } = await supabase
-        .from('templeteria_site_versions')
-        .select('id')
-        .eq('site_id', siteId)
-        .order('version', { ascending: false })
-        .limit(1)
-        .single();
+      const { data, error } = await supabase.functions.invoke('templeteria-refine', {
+        body: { siteId, instruction, client_id: currentClientId },
+      });
+      if (error) throw error;
+      setSchema(data.schema);
+      setInstruction('');
+      setShowRefineModal(false);
+    } catch (err) {
+      console.error('Refine error:', err);
+      alert('Erro ao ajustar texto');
+    } finally {
+      setRefining(false);
+    }
+  };
 
-      if (version) {
-        await templeteriaEngine.publishSite(siteId, version.id);
-        alert('Site publicado com sucesso');
-      }
+  const handlePublish = async () => {
+    setPublishing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('templeteria-publish', {
+        body: { siteId },
+      });
+      if (error) throw error;
+      window.open(`/s/${data.slug}`, '_blank');
+      loadSiteData();
     } catch (err) {
       console.error('Publish error:', err);
+      alert('Erro ao publicar');
     } finally {
-      setSaving(false);
+      setPublishing(false);
     }
   };
 
@@ -91,11 +96,13 @@ export function TempleteriaRefiner() {
       </div>
     );
 
-  if (!schema)
+  if (!site || !schema)
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-50">
         <AlertCircle className="h-12 w-12 text-red-500" />
-        <h2 className="text-xl font-bold uppercase tracking-tight">Projeto nao encontrado</h2>
+        <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+          Projeto nao encontrado
+        </h2>
         <Button onClick={() => navigate('/app/overview')}>Voltar</Button>
       </div>
     );
@@ -105,7 +112,7 @@ export function TempleteriaRefiner() {
       <header className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/app/overview')}
             className="rounded-xl p-2 transition-all hover:bg-slate-100"
           >
             <ArrowLeft className="h-5 w-5 text-slate-400" />
@@ -115,7 +122,7 @@ export function TempleteriaRefiner() {
               Refino de Projeto
             </h1>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">
-              Ajustes Finais
+              Ajustes Finais de IA
             </p>
           </div>
         </div>
@@ -138,13 +145,14 @@ export function TempleteriaRefiner() {
         <div className="flex items-center gap-4">
           <Button
             variant="secondary"
+            onClick={() => setShowRefineModal(true)}
             className="gap-2 text-[11px] font-black uppercase tracking-widest"
           >
-            <RefreshCw className="h-3.5 w-3.5" /> Re-Gerar
+            <MessageSquare className="h-3.5 w-3.5" /> Re-Gerar Texto
           </Button>
           <Button
             onClick={handlePublish}
-            isLoading={saving}
+            isLoading={publishing}
             className="flex items-center gap-2 bg-blue-600 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 hover:bg-blue-700"
           >
             <ShieldCheck className="h-4 w-4" /> Aprovar Publicacao
@@ -153,7 +161,7 @@ export function TempleteriaRefiner() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10">
+        <aside className="w-80 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10 shrink-0">
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400">
               <Palette className="h-3.5 w-3.5" /> Identidade
@@ -164,12 +172,12 @@ export function TempleteriaRefiner() {
                 <div className="flex gap-2">
                   <div
                     className="h-10 w-10 rounded-lg border border-slate-100"
-                    style={{ backgroundColor: schema.theme.palette || schema.theme.primaryColor }}
+                    style={{ backgroundColor: schema.theme.primaryColor || '#2563eb' }}
                   />
                   <input
                     type="text"
                     readOnly
-                    value={schema.theme.palette || schema.theme.primaryColor}
+                    value={schema.theme.primaryColor || '#2563eb'}
                     className="flex-1 rounded-lg border border-slate-100 bg-slate-50 px-3 text-xs font-bold uppercase"
                   />
                 </div>
@@ -185,12 +193,12 @@ export function TempleteriaRefiner() {
               {schema.pages[0].blocks?.map((s: any, i: number) => (
                 <div
                   key={i}
-                  className="group flex cursor-pointer items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition-all hover:border-blue-200"
+                  className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition-all"
                 >
                   <span className="text-xs font-bold uppercase tracking-tight text-slate-600">
                     {s.type}
                   </span>
-                  <Settings2 className="h-4 w-4 text-slate-300 group-hover:text-blue-500" />
+                  <Settings2 className="h-4 w-4 text-slate-300" />
                 </div>
               ))}
             </div>
@@ -205,6 +213,38 @@ export function TempleteriaRefiner() {
           </div>
         </main>
       </div>
+
+      {showRefineModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-6">
+          <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
+              O que deseja ajustar?
+            </h3>
+            <textarea
+              className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none h-32 resize-none"
+              placeholder="Ex: Deixe o texto do heroi mais agressivo e focado em vendas..."
+              value={instruction}
+              onChange={(e) => setInstruction(e.target.value)}
+            />
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={() => setShowRefineModal(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 bg-blue-600 text-white"
+                isLoading={refining}
+                onClick={handleRefine}
+              >
+                Ajustar com IA
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
