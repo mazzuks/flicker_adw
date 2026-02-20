@@ -36,7 +36,7 @@ serve(async (req) => {
     const prompt = `Generate a modern business website schema for "${siteName}". 
     Type: ${businessType}. Tone: ${tone}. Colors: ${palette}.
     Sections: ${sections.join(', ')}.
-    Return ONLY valid JSON: 
+    Return ONLY valid JSON (no markdown blocks): 
     {
       "metadata": {"title": "...", "description": "..."},
       "theme": {"primaryColor": "...", "font": "Inter"},
@@ -49,18 +49,25 @@ serve(async (req) => {
     })
 
     const result = await response.json()
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+        throw new Error("AI failed to return content")
+    }
+
     const rawText = result.candidates[0].content.parts[0].text
-    const schema = JSON.parse(rawText.replace(/```json|```/g, '').trim())
+    const cleanJson = rawText.replace(/```json|```/g, '').trim()
+    const schema = JSON.parse(cleanJson)
 
     // 3. Persistent Data Creation
     const slug = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(7)}`
-    const { data: site } = await supabase.from('templeteria_sites').insert({
+    const { data: site, error: siteErr } = await supabase.from('templeteria_sites').insert({
       client_id, created_by: user.id, name: siteName, slug, status: 'DRAFT'
     }).select().single()
+    if (siteErr) throw siteErr
 
-    const { data: version } = await supabase.from('templeteria_site_versions').insert({
-      site_id: site.id, client_id, version: 1, schema_json: schema, created_by: user.id, notes: 'Initial AI generation'
+    const { data: version, error: verErr } = await supabase.from('templeteria_site_versions').insert({
+      site_id: site.id, client_id, version: 1, schema_json: schema, theme_json: schema.theme, created_by: user.id, notes: 'Initial AI generation'
     }).select().single()
+    if (verErr) throw verErr
 
     // 4. Update Job
     await supabase.from('templeteria_ai_jobs').update({

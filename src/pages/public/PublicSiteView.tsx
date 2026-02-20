@@ -24,7 +24,7 @@ export function PublicSiteView() {
   const loadPublishedSite = async () => {
     setLoading(true);
     try {
-      // 1. Fetch site by slug with PUBLISHED status
+      // 1. Fetch site by slug with PUBLISHED status and join version
       const { data: site, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('*, version:published_version_id(*)')
@@ -32,14 +32,22 @@ export function PublicSiteView() {
         .eq('status', 'PUBLISHED')
         .maybeSingle();
 
-      if (siteError || !site) {
+      if (siteError) throw siteError;
+
+      if (!site) {
         setError('Pagina nao encontrada ou nao publicada');
         return;
       }
 
-      // site.version will contain the joined template_json
+      if (!site.version) {
+        setError('Site sem versao publicada configurada');
+        return;
+      }
+
+      // site.version is the result of the join on templeteria_site_versions
       setSchema(site.version.schema_json);
     } catch (err: any) {
+      console.error('Public View Error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
