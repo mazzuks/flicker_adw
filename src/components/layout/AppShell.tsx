@@ -3,8 +3,8 @@ import {
   LayoutDashboard,
   Layers,
   Building2,
-  Inbox,
-  Settings,
+  Inbox as InboxIcon,
+  Settings as SettingsIcon,
   LogOut,
   Menu,
   Search,
@@ -15,7 +15,7 @@ import { useUIStore } from '../../store/useUIStore';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { profile, signOut } = useAuth();
-  const { isDrawerOpen, closeDrawer } = useUIStore();
+  const { closeDrawer } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -23,8 +23,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
-    { icon: Inbox, label: 'Inbox', path: '/app/inbox' },
-    { icon: Settings, label: 'Settings', path: '/app/settings' },
+    { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
+    { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];
 
   return (
@@ -114,8 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 overflow-y-auto p-8 bg-[#F7F8FA]">{children}</main>
       </div>
 
-      {/* GLOBAL DEAL DRAWER - Optional, but ensure no reference errors */}
-      {isDrawerOpen && <div onClick={closeDrawer} className="hidden" />}
+      <div onClick={closeDrawer} className="hidden" />
     </div>
   );
 }

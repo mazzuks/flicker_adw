@@ -109,7 +109,10 @@ export function Login() {
           <div className="mt-8 pt-6 border-t border-slate-50 text-center">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               Nao tem uma conta?{' '}
-              <Link to="/register" className="text-[#2563EB] hover:underline font-black">
+              <Link
+                to="/register"
+                className="text-[#2563EB] hover:underline font-black"
+              >
                 Crie agora
               </Link>
             </p>

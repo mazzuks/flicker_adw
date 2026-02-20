@@ -69,17 +69,18 @@ export function Inbox() {
   };
 
   const loadMessages = async () => {
+    if (!selectedThreadId) return;
     const { data } = await supabase
       .from('messages')
       .select('*')
-      .eq('thread_id', selectedThreadId as string)
+      .eq('thread_id', selectedThreadId)
       .order('created_at', { ascending: true });
     setMessages(data || []);
     setTimeout(scrollToBottom, 100);
   };
 
   const markAsRead = async (id: string) => {
-    await supabase.rpc('mark_thread_read' as any, { p_thread_id: id });
+    await supabase.rpc('mark_thread_read' as any, { p_thread_id: id } as any);
   };
 
   const sendMessage = async () => {
@@ -91,7 +92,7 @@ export function Inbox() {
       p_thread_id: selectedThreadId,
       p_body: body,
       p_is_internal: isInternal
-    });
+    } as any);
 
     if (error) console.error("Error sending message:", error);
   };
@@ -129,7 +130,7 @@ export function Inbox() {
               className={`w-full p-5 flex items-start gap-4 transition-all hover:bg-white text-left group ${selectedThreadId === t.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200' : ''}`}
             >
               <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xs shrink-0 shadow-lg shadow-blue-100 group-hover:scale-110 transition-all">
-                {t.companies?.name.charAt(0)}
+                {t.companies?.name?.charAt(0) || '?'}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-1">
@@ -151,7 +152,7 @@ export function Inbox() {
             <header className="p-5 px-8 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-lg">
-                    {currentThread?.companies?.name.charAt(0)}
+                    {currentThread?.companies?.name?.charAt(0) || '?'}
                   </div>
                   <div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">{currentThread?.companies?.name}</h3>
