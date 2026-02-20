@@ -5,10 +5,12 @@ import type { UserRoleGlobal } from '../types/supabase';
 
 interface UserProfile {
   id: string;
-  email: string;
+  account_id: string | null;
   full_name: string | null;
+  email: string;
   role_global: UserRoleGlobal;
   avatar_url: string | null;
+  created_at: string;
 }
 
 interface ClientMembership {
@@ -96,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
 
     if (data && !error) {
-      setProfile(data);
+      setProfile(data as UserProfile);
     }
   };
 
@@ -148,14 +150,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (data.user && !error) {
-      // Pequeno delay para garantir que o trigger de auth termine (se houver)
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const { error: profileError } = await supabase.from('user_profiles').insert({
         id: data.user.id,
         email,
         full_name: fullName,
-        role_global: 'CLIENT_OWNER',
+        role_global: 'CLIENT_OWNER' as UserRoleGlobal,
       });
 
       if (profileError) {

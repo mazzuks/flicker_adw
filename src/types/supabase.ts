@@ -49,7 +49,7 @@ export interface Database {
           account_id: string | null
           full_name: string | null
           email: string
-          role_global: string
+          role_global: UserRoleGlobal
           avatar_url: string | null
           created_at: string
         }
@@ -58,7 +58,7 @@ export interface Database {
           account_id?: string | null
           full_name?: string | null
           email: string
-          role_global?: string
+          role_global?: UserRoleGlobal
           avatar_url?: string | null
           created_at?: string
         }
@@ -67,7 +67,7 @@ export interface Database {
           account_id?: string | null
           full_name?: string | null
           email?: string
-          role_global?: string
+          role_global?: UserRoleGlobal
           avatar_url?: string | null
           created_at?: string
         }
@@ -150,6 +150,66 @@ export interface Database {
           sla_due_at?: string | null
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      deal_checklist_items: {
+        Row: {
+          id: string
+          deal_id: string | null
+          title: string
+          done: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          deal_id?: string | null
+          title: string
+          done?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          deal_id?: string | null
+          title?: string
+          done?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      deal_docs: {
+        Row: {
+          id: string
+          account_id: string | null
+          deal_id: string | null
+          name: string
+          storage_path: string
+          file_type: string | null
+          file_size: number | null
+          uploaded_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          deal_id?: string | null
+          name: string
+          storage_path: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          deal_id?: string | null
+          name?: string
+          storage_path?: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
         }
         Relationships: []
       }
@@ -311,6 +371,48 @@ export interface Database {
         }
         Relationships: []
       }
+      templeteria_ai_jobs: {
+        Row: {
+          id: string
+          client_id: string | null
+          site_id: string | null
+          status: string
+          mode: string
+          provider: string | null
+          input_payload_json: Json
+          output_payload_json: Json
+          error_message: string | null
+          created_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          client_id?: string | null
+          site_id?: string | null
+          status: string
+          mode: string
+          provider?: string | null
+          input_payload_json?: Json
+          output_payload_json?: Json
+          error_message?: string | null
+          created_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string | null
+          site_id?: string | null
+          status?: string
+          mode?: string
+          provider?: string | null
+          input_payload_json?: Json
+          output_payload_json?: Json
+          error_message?: string | null
+          created_by?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       v_deals_board: {
@@ -344,6 +446,10 @@ export interface Database {
       send_chat_message: {
         Args: { p_thread_id: string, p_body: string, p_is_internal: boolean }
         Returns: string
+      }
+      seed_dev_data: {
+        Args: Record<string, never>
+        Returns: Json
       }
     }
     Enums: {

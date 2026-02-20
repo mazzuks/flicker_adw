@@ -12,11 +12,6 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 
-/**
- * 💬 INBOX OPERACIONAL (Final 2.0)
- * Real-time chat with Supabase + Internal Notes + Full History.
- */
-
 export function Inbox() {
   const { profile } = useAuth();
   const [threads, setThreads] = useState<any[]>([]);
@@ -27,7 +22,6 @@ export function Inbox() {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 1. Fetch Threads
   useEffect(() => {
     loadThreads();
     const subscription = supabase
@@ -37,7 +31,6 @@ export function Inbox() {
     return () => { subscription.unsubscribe(); };
   }, []);
 
-  // 2. Fetch Messages for selected thread
   useEffect(() => {
     if (!selectedThreadId) return;
     loadMessages();
@@ -80,7 +73,7 @@ export function Inbox() {
   };
 
   const markAsRead = async (id: string) => {
-    await supabase.rpc('mark_thread_read' as any, { p_thread_id: id } as any);
+    await supabase.rpc('mark_thread_read', { p_thread_id: id });
   };
 
   const sendMessage = async () => {
@@ -88,11 +81,11 @@ export function Inbox() {
     const body = newMessage;
     setNewMessage('');
     
-    const { error } = await supabase.rpc('send_chat_message' as any, {
+    const { error } = await supabase.rpc('send_chat_message', {
       p_thread_id: selectedThreadId,
       p_body: body,
       p_is_internal: isInternal
-    } as any);
+    });
 
     if (error) console.error("Error sending message:", error);
   };
@@ -107,8 +100,6 @@ export function Inbox() {
 
   return (
     <div className="h-[calc(100vh-140px)] flex bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
-      
-      {/* 1. THREAD LIST */}
       <aside className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/30 shrink-0">
         <div className="p-6 border-b border-slate-100 bg-white">
           <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-4 italic">Inbox</h2>
@@ -130,32 +121,34 @@ export function Inbox() {
               className={`w-full p-5 flex items-start gap-4 transition-all hover:bg-white text-left group ${selectedThreadId === t.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200' : ''}`}
             >
               <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xs shrink-0 shadow-lg shadow-blue-100 group-hover:scale-110 transition-all">
-                {t.companies?.name?.charAt(0) || '?'}
+                {Array.isArray(t.companies) ? t.companies[0]?.name?.charAt(0) : t.companies?.name?.charAt(0) || '?'}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-slate-900 truncate pr-2 uppercase tracking-tight italic">{t.companies?.name}</span>
+                  <span className="text-xs font-bold text-slate-900 truncate pr-2 uppercase tracking-tight italic">
+                    {Array.isArray(t.companies) ? t.companies[0]?.name : t.companies?.name}
+                  </span>
                   {t.unread_count_operator > 0 && <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-black">{t.unread_count_operator}</div>}
                 </div>
                 <p className="text-[10px] text-slate-400 truncate font-medium">{t.last_message_preview || 'Inicie uma conversa...'}</p>
               </div>
             </button>
           ))}
-          {threads.length === 0 && <p className="p-10 text-center text-[10px] font-bold text-slate-300 uppercase">Nenhuma conversa ativa</p>}
         </div>
       </aside>
 
-      {/* 2. CHAT AREA */}
       <main className="flex-1 flex flex-col bg-white">
         {selectedThreadId ? (
           <>
             <header className="p-5 px-8 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-lg">
-                    {currentThread?.companies?.name?.charAt(0) || '?'}
+                    {Array.isArray(currentThread?.companies) ? currentThread.companies[0]?.name?.charAt(0) : currentThread?.companies?.name?.charAt(0) || '?'}
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">{currentThread?.companies?.name}</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">
+                      {Array.isArray(currentThread?.companies) ? currentThread.companies[0]?.name : currentThread?.companies?.name}
+                    </h3>
                     <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
                        <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Canal de Suporte Ativo
                     </p>
@@ -163,7 +156,6 @@ export function Inbox() {
                </div>
             </header>
 
-            {/* MESSAGE HISTORY */}
             <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[#FDFDFD]">
                <div className="flex justify-center"><Badge variant="neutral" className="bg-slate-100 text-slate-400 border-none text-[8px] font-black tracking-[0.2em] px-4 py-1 uppercase italic">Criptografia Ponta-a-Ponta</Badge></div>
 
@@ -193,7 +185,6 @@ export function Inbox() {
                <div ref={messagesEndRef} />
             </div>
 
-            {/* INPUT AREA */}
             <footer className="p-6 border-t border-slate-100 bg-white">
                <div className={`relative transition-all rounded-[2rem] border-2 ${isInternal ? 'border-amber-200 bg-amber-50/30' : 'border-slate-100 bg-slate-50'}`}>
                   <textarea 
@@ -226,7 +217,6 @@ export function Inbox() {
                         <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tight">O cliente não verá esta mensagem</span>
                      </div>
                   </label>
-                  <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest italic mr-4">Dica: Enter para enviar rápida</span>
                </div>
             </footer>
           </>
