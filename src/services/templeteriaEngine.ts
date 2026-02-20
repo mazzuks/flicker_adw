@@ -2,7 +2,8 @@ import { supabase } from '../lib/supabase';
 
 /**
  * TEMPLETERIA ENGINE SERVICE
- * Production implementation without mocks or naming inconsistencies.
+ * Production implementation with real Edge Function calls and versioning.
+ * No emojis.
  */
 
 export const templeteriaEngine = {
@@ -14,15 +15,15 @@ export const templeteriaEngine = {
     palette: string;
     sections: string[];
   }) {
-    // Calling the standardized Edge Function name
+    // 1. Invoke generation edge function
     const { data, error } = await supabase.functions.invoke('templeteria-generate', {
       body: payload
     });
 
     if (error) throw error;
-    if (!data || !data.siteId) throw new Error('AI Engine failed to generate site ID');
+    if (!data || !data.siteId) throw new Error('AI Engine failed to return site metadata');
 
-    return data; // { siteId, slug, schema }
+    return data; // { siteId, slug, versionId, schema }
   },
 
   async refineSite(payload: {
@@ -30,17 +31,19 @@ export const templeteriaEngine = {
     client_id: string;
     instruction: string;
   }) {
+    // 1. Invoke refinement edge function
     const { data, error } = await supabase.functions.invoke('templeteria-refine', {
       body: payload
     });
 
     if (error) throw error;
-    return data; // { schema }
+    return data; // { schema, versionId }
   },
 
-  async publishSite(siteId: string) {
+  async publishSite(siteId: string, versionId: string) {
+    // 1. Invoke publish edge function
     const { data, error } = await supabase.functions.invoke('templeteria-publish', {
-      body: { siteId }
+      body: { siteId, versionId }
     });
 
     if (error) throw error;

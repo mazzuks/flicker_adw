@@ -16,27 +16,29 @@ serve(async (req) => {
 
   const authHeader = req.headers.get('Authorization')!
   const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
-  
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-  const { siteId } = await req.json()
+  const { siteId, versionId } = await req.json()
 
   try {
-    // 1. Verify Ownership
+    // 1. Ownership Validation
     const { data: site } = await supabase.from('templeteria_sites').select('*').eq('id', siteId).single()
-    if (!site || site.created_by !== user.id) throw new Error("Unauthorized or not found")
+    if (!site || site.created_by !== user.id) throw new Error("Unauthorized or project not found")
 
-    // 2. Set status to PUBLISHED
-    await supabase.from('templeteria_sites').update({
+    // 2. Publish Update
+    const { error: updateError } = await supabase.from('templeteria_sites').update({
         status: 'PUBLISHED',
+        published_version_id: versionId,
         published_at: new Date().toISOString()
     }).eq('id', siteId)
+
+    if (updateError) throw updateError;
 
     return new Response(JSON.stringify({ success: true, slug: site.slug }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
-  } catch (err) {
+  } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 /**
  * PUBLIC SITE VIEWER
+ * Fetches only published versions from versioned architecture.
  * No emojis.
  */
 
@@ -17,40 +18,27 @@ export function PublicSiteView() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (slug) {
-      loadPublishedSite();
-    }
+    if (slug) loadPublishedSite();
   }, [slug]);
 
   const loadPublishedSite = async () => {
     setLoading(true);
     try {
-      // 1. Fetch site by slug
+      // 1. Fetch site by slug with PUBLISHED status
       const { data: site, error: siteError } = await supabase
         .from('templeteria_sites')
-        .select('*')
+        .select('*, version:published_version_id(*)')
         .eq('slug', slug)
         .eq('status', 'PUBLISHED')
         .maybeSingle();
 
       if (siteError || !site) {
-        setError('Site nao encontrado ou nao publicado');
+        setError('Pagina nao encontrada ou nao publicada');
         return;
       }
 
-      // 2. Fetch published version
-      const { data: version, error: verError } = await supabase
-        .from('templeteria_site_versions')
-        .select('*')
-        .eq('id', site.published_version_id)
-        .single();
-
-      if (verError || !version) {
-        setError('Falha ao carregar versao publicada');
-        return;
-      }
-
-      setSchema(version.template_json);
+      // site.version will contain the joined template_json
+      setSchema(site.version.schema_json);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -72,7 +60,7 @@ export function PublicSiteView() {
         <AlertCircle className="h-16 w-16 text-slate-200" />
         <div className="space-y-2">
           <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 italic">
-            Opa! Pagina indisponivel
+            Pagina indisponivel
           </h2>
           <p className="text-slate-400 font-medium max-w-xs uppercase text-[10px] tracking-widest leading-relaxed">
             {error}

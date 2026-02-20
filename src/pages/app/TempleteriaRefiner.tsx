@@ -3,7 +3,6 @@ import { Button } from '../../components/ui/Button';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import {
   Settings2,
-  RefreshCw,
   Monitor,
   Smartphone,
   ArrowLeft,
@@ -17,6 +16,13 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
+import { templeteriaEngine } from '../../services/templeteriaEngine';
+
+/**
+ * TEMPLETERIA REFINER
+ * Loads real versioned schema from DB.
+ * No mocks. No emojis.
+ */
 
 export function TempleteriaRefiner() {
   const { siteId } = useParams();
@@ -28,6 +34,7 @@ export function TempleteriaRefiner() {
   const [publishing, setPublishing] = useState(false);
   const [schema, setSchema] = useState<any>(null);
   const [site, setSite] = useState<any>(null);
+  const [currentVersionId, setCurrentVersionId] = useState<string | null>(null);
   const [instruction, setInstruction] = useState('');
   const [showRefineModal, setShowRefineModal] = useState(false);
 
@@ -38,14 +45,25 @@ export function TempleteriaRefiner() {
   const loadSiteData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: siteData, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('*')
         .eq('id', siteId)
         .single();
-      if (error) throw error;
-      setSite(data);
-      setSchema(data.schema_json);
+      if (siteError) throw siteError;
+
+      const { data: verData, error: verError } = await supabase
+        .from('templeteria_site_versions')
+        .select('*')
+        .eq('site_id', siteId)
+        .order('version', { ascending: false })
+        .limit(1)
+        .single();
+      if (verError) throw verError;
+
+      setSite(siteData);
+      setSchema(verData.schema_json);
+      setCurrentVersionId(verData.id);
     } catch (err) {
       console.error('Error loading site:', err);
     } finally {
@@ -54,36 +72,36 @@ export function TempleteriaRefiner() {
   };
 
   const handleRefine = async () => {
-    if (!instruction.trim()) return;
+    if (!instruction.trim() || !siteId || !currentClientId) return;
     setRefining(true);
     try {
-      const { data, error } = await supabase.functions.invoke('templeteria-refine', {
-        body: { siteId, instruction, client_id: currentClientId },
+      const result = await templeteriaEngine.refineSite({
+        siteId,
+        instruction,
+        client_id: currentClientId,
       });
-      if (error) throw error;
-      setSchema(data.schema);
+      setSchema(result.schema);
+      setCurrentVersionId(result.versionId);
       setInstruction('');
       setShowRefineModal(false);
     } catch (err) {
       console.error('Refine error:', err);
-      alert('Erro ao ajustar texto');
+      alert('Erro ao ajustar conteudo via IA');
     } finally {
       setRefining(false);
     }
   };
 
   const handlePublish = async () => {
+    if (!siteId || !currentVersionId) return;
     setPublishing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('templeteria-publish', {
-        body: { siteId },
-      });
-      if (error) throw error;
-      window.open(`/s/${data.slug}`, '_blank');
+      const result = await templeteriaEngine.publishSite(siteId, currentVersionId);
+      window.open(`/s/${result.slug}`, '_blank');
       loadSiteData();
     } catch (err) {
       console.error('Publish error:', err);
-      alert('Erro ao publicar');
+      alert('Erro ao publicar versao');
     } finally {
       setPublishing(false);
     }
@@ -161,7 +179,7 @@ export function TempleteriaRefiner() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10 shrink-0">
+        <aside className="w-80 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10">
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400">
               <Palette className="h-3.5 w-3.5" /> Identidade
@@ -216,13 +234,13 @@ export function TempleteriaRefiner() {
 
       {showRefineModal && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-6">
-          <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-md animate-in zoom-in-95 rounded-3xl bg-white p-8 shadow-2xl space-y-6 duration-200">
             <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
               O que deseja ajustar?
             </h3>
             <textarea
-              className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none h-32 resize-none"
-              placeholder="Ex: Deixe o texto do heroi mais agressivo e focado em vendas..."
+              className="h-32 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: Deixe o texto do heroi mais focado em resultados..."
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
             />
