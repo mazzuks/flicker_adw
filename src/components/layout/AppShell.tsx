@@ -1,23 +1,21 @@
-import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Layers,
   Building2,
-  Inbox,
-  Settings,
+  Inbox as InboxIcon,
+  Settings as SettingsIcon,
   LogOut,
   Menu,
   Search,
   Bell,
-  Command,
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { profile, signOut } = useAuth();
-  const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { isDrawerOpen, closeDrawer } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,23 +23,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
-    { icon: Inbox, label: 'Inbox', path: '/app/inbox' },
-    { icon: Settings, label: 'Settings', path: '/app/settings' },
+    { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
+    { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex font-sans text-[#0B1220]">
       {/* SIDEBAR */}
       <aside
-        className={`bg-white border-r border-[#E6E8EC] transition-all duration-300 flex flex-col shrink-0 ${sidebarCollapsed ? 'w-16' : 'w-64'}`}
+        className={`bg-white border-r border-[#E6E8EC] transition-all duration-300 flex flex-col shrink-0 w-64`}
       >
         <div className="h-16 flex items-center px-6 border-b border-[#E6E8EC] gap-3">
           <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-blue-100">
             <Building2 className="w-5 h-5 text-white" />
           </div>
-          {!sidebarCollapsed && (
-            <span className="font-bold tracking-tight text-lg italic uppercase">ADWORKS</span>
-          )}
+          <span className="font-bold tracking-tight text-lg italic uppercase">ADWORKS</span>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 mt-4">
@@ -60,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <item.icon
                   className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#2563EB]' : 'group-hover:text-[#0B1220]'}`}
                 />
-                {!sidebarCollapsed && <span className="text-sm font-semibold">{item.label}</span>}
+                <span className="text-sm font-semibold">{item.label}</span>
               </Link>
             );
           })}
@@ -75,9 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-3 px-3 py-2.5 w-full text-[#5B6475] hover:text-red-600 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            {!sidebarCollapsed && (
-              <span className="text-xs font-bold uppercase tracking-widest">Logout</span>
-            )}
+            <span className="text-xs font-bold uppercase tracking-widest">Logout</span>
           </button>
         </div>
       </aside>
@@ -87,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* TOPBAR */}
         <header className="h-16 bg-white border-b border-[#E6E8EC] flex items-center px-8 justify-between shrink-0">
           <div className="flex items-center gap-4 flex-1">
-            <button onClick={toggleSidebar} className="text-[#5B6475] hover:text-[#0B1220] p-1">
+            <button className="text-[#5B6475] hover:text-[#0B1220] p-1">
               <Menu className="w-5 h-5" />
             </button>
             <div className="relative max-w-md w-full group">
@@ -106,10 +100,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-3 pl-4 border-l border-[#E6E8EC]">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-[#0B1220] leading-none">
-                  {profile?.name || 'User'}
+                  {profile?.full_name || 'User'}
                 </p>
                 <p className="text-[10px] font-black text-[#2563EB] uppercase tracking-widest mt-1">
-                  {profile?.role}
+                  {profile?.role_global}
                 </p>
               </div>
               <div className="w-9 h-9 bg-[#F7F8FA] rounded-full border border-[#E6E8EC]" />

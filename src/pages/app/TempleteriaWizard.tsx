@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Wand2,
   ArrowRight,
@@ -8,7 +9,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
 import { Badge } from '../../components/ui/Badge';
@@ -48,7 +48,10 @@ export function TempleteriaWizard() {
   };
 
   const handleGenerate = async () => {
-    if (!currentClientId) return;
+    if (!currentClientId) {
+      setError('Sessao invalida ou cliente nao selecionado');
+      return;
+    }
     setIsGenerating(true);
     setError(null);
 
@@ -56,15 +59,17 @@ export function TempleteriaWizard() {
       const site = await templeteriaEngine.generateSiteDraft({
         client_id: currentClientId,
         siteName: answers[11] || 'Novo Projeto',
-        businessType: answers[1],
-        tone: answers[5],
-        palette: answers[6],
+        businessType: answers[1] || 'Negocio Geral',
+        tone: answers[5] || 'Neutro',
+        palette: answers[6] || '#2563eb',
         sections: ['hero', 'services', 'contact'],
       });
 
+      if (!site?.siteId) throw new Error('Falha ao obter ID do projeto');
       navigate(`/app/refiner/${site.siteId}`);
     } catch (err: any) {
-      setError(err.message || 'Falha ao gerar site');
+      console.error('Generation failure:', err);
+      setError(err.message || 'Falha ao gerar site via IA');
       setIsGenerating(false);
     }
   };

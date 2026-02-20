@@ -49,156 +49,522 @@ export type NotificationType =
 
 export type LeadStage = 'NOVO' | 'CONTATO' | 'QUALIFICADO' | 'PROPOSTA' | 'FECHADO' | 'PERDIDO';
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export interface Database {
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          id: string
+          name: string
+          plan: string
+          settings: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          plan?: string
+          settings?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          plan?: string
+          settings?: Json
+          created_at?: string
+        }
+      }
       user_profiles: {
         Row: {
-          id: string;
-          email: string;
-          full_name: string | null;
-          role_global: UserRoleGlobal;
-          avatar_url: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['user_profiles']['Row'],
-          'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>;
-      };
+          id: string
+          account_id: string | null
+          full_name: string | null
+          email: string
+          role_global: string
+          avatar_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id: string
+          account_id?: string | null
+          full_name?: string | null
+          email: string
+          role_global?: string
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          full_name?: string | null
+          email?: string
+          role_global?: string
+          avatar_url?: string | null
+          created_at?: string
+        }
+      }
+      companies: {
+        Row: {
+          id: string
+          account_id: string | null
+          name: string
+          cnpj: string | null
+          status: string
+          owner_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          name: string
+          cnpj?: string | null
+          status?: string
+          owner_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          name?: string
+          cnpj?: string | null
+          status?: string
+          owner_id?: string | null
+          created_at?: string
+        }
+      }
+      deals: {
+        Row: {
+          id: string
+          account_id: string | null
+          company_id: string | null
+          stage_key: string
+          title: string
+          value_cents: number
+          priority: string
+          owner_id: string | null
+          sla_due_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          company_id?: string | null
+          stage_key?: string
+          title: string
+          value_cents?: number
+          priority?: string
+          owner_id?: string | null
+          sla_due_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          company_id?: string | null
+          stage_key?: string
+          title?: string
+          value_cents?: number
+          priority?: string
+          owner_id?: string | null
+          sla_due_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      deal_checklist_items: {
+        Row: {
+          id: string
+          deal_id: string | null
+          title: string
+          done: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          deal_id?: string | null
+          title: string
+          done?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          deal_id?: string | null
+          title?: string
+          done?: boolean
+          created_at?: string
+        }
+      }
+      deal_docs: {
+        Row: {
+          id: string
+          account_id: string | null
+          deal_id: string | null
+          name: string
+          storage_path: string
+          file_type: string | null
+          file_size: number | null
+          uploaded_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          deal_id?: string | null
+          name: string
+          storage_path: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          deal_id?: string | null
+          name?: string
+          storage_path?: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+        }
+      }
+      messages_threads: {
+        Row: {
+          id: string
+          account_id: string | null
+          company_id: string | null
+          last_message_preview: string | null
+          last_message_at: string
+          unread_count_operator: number
+          unread_count_client: number
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          company_id?: string | null
+          last_message_preview?: string | null
+          last_message_at?: string
+          unread_count_operator?: number
+          unread_count_client?: number
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          company_id?: string | null
+          last_message_preview?: string | null
+          last_message_at?: string
+          unread_count_operator?: number
+          unread_count_client?: number
+          metadata?: Json
+          created_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          thread_id: string | null
+          author_id: string | null
+          body: string
+          is_internal: boolean
+          attachments: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          thread_id?: string | null
+          author_id?: string | null
+          body: string
+          is_internal?: boolean
+          attachments?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          thread_id?: string | null
+          author_id?: string | null
+          body?: string
+          is_internal?: boolean
+          attachments?: Json
+          created_at?: string
+        }
+      }
+      templeteria_sites: {
+        Row: {
+          id: string
+          client_id: string | null
+          created_by: string
+          slug: string
+          status: string
+          title: string | null
+          description: string | null
+          schema_json: Json
+          theme_json: Json
+          published_version_id: string | null
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          client_id?: string | null
+          created_by: string
+          slug: string
+          status?: string
+          title?: string | null
+          description?: string | null
+          schema_json?: Json
+          theme_json?: Json
+          published_version_id?: string | null
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string | null
+          created_by?: string
+          slug?: string
+          status?: string
+          title?: string | null
+          description?: string | null
+          schema_json?: Json
+          theme_json?: Json
+          published_version_id?: string | null
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      templeteria_site_versions: {
+        Row: {
+          id: string
+          site_id: string
+          client_id: string | null
+          version: number
+          schema_json: Json
+          theme_json: Json
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          site_id: string
+          client_id?: string | null
+          version: number
+          schema_json?: Json
+          theme_json?: Json
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          site_id?: string
+          client_id?: string | null
+          version?: number
+          schema_json?: Json
+          theme_json?: Json
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+      }
+      templeteria_ai_jobs: {
+        Row: {
+          id: string
+          client_id: string | null
+          site_id: string | null
+          status: string
+          mode: string
+          provider: string | null
+          input_payload_json: Json
+          output_payload_json: Json
+          error_message: string | null
+          created_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          client_id?: string | null
+          site_id?: string | null
+          status: string
+          mode: string
+          provider?: string | null
+          input_payload_json?: Json
+          output_payload_json?: Json
+          error_message?: string | null
+          created_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string | null
+          site_id?: string | null
+          status?: string
+          mode?: string
+          provider?: string | null
+          input_payload_json?: Json
+          output_payload_json?: Json
+          error_message?: string | null
+          created_by?: string
+          created_at?: string
+        }
+      }
       clients: {
         Row: {
-          id: string;
-          name: string;
-          slug: string;
-          plan: string;
-          status: ClientStatus;
-          fantasy_name: string | null;
-          cnpj: string | null;
-          segment: string | null;
-          city: string | null;
-          state: string | null;
-          address_json: Record<string, unknown>;
-          contacts_json: Record<string, unknown>;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['clients']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['clients']['Insert']>;
-      };
+          id: string
+          name: string
+          slug: string
+          plan: string
+          status: string
+          fantasy_name: string | null
+          cnpj: string | null
+          segment: string | null
+          city: string | null
+          state: string | null
+          address_json: Json
+          contacts_json: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          plan?: string
+          status?: string
+          fantasy_name?: string | null
+          cnpj?: string | null
+          segment?: string | null
+          city?: string | null
+          state?: string | null
+          address_json?: Json
+          contacts_json?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          plan?: string
+          status?: string
+          fantasy_name?: string | null
+          cnpj?: string | null
+          segment?: string | null
+          city?: string | null
+          state?: string | null
+          address_json?: Json
+          contacts_json?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
       client_memberships: {
         Row: {
-          id: string;
-          client_id: string;
-          user_id: string;
-          role_in_client: ClientRole;
-          created_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['client_memberships']['Row'],
-          'id' | 'created_at'
-        >;
-        Update: Partial<Database['public']['Tables']['client_memberships']['Insert']>;
-      };
-      onboarding_steps: {
-        Row: {
-          id: string;
-          client_id: string;
-          step_key: string;
-          status: OnboardingStepStatus;
-          data_json: Record<string, unknown>;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['onboarding_steps']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['onboarding_steps']['Insert']>;
-      };
-      documents: {
-        Row: {
-          id: string;
-          client_id: string;
-          category: string;
-          filename: string;
-          storage_path: string;
-          file_size: number | null;
-          mime_type: string | null;
-          status: DocumentStatus;
-          uploaded_by: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['documents']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['documents']['Insert']>;
-      };
-      tickets: {
-        Row: {
-          id: string;
-          client_id: string;
-          type: TicketType;
-          status: TicketStatus;
-          priority: TicketPriority;
-          assigned_to: string | null;
-          sla_due_at: string | null;
-          data_json: Record<string, unknown>;
-          timeline: unknown[];
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['tickets']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['tickets']['Insert']>;
-      };
-      notifications: {
-        Row: {
-          id: string;
-          client_id: string | null;
-          user_id: string;
-          type: NotificationType;
-          title: string;
-          body: string;
-          entity_type: string | null;
-          entity_id: string | null;
-          read_at: string | null;
-          created_at: string;
-        };
-        Insert: Omit<Database['public']['Tables']['notifications']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['notifications']['Insert']>;
-      };
+          id: string
+          client_id: string
+          user_id: string
+          role_in_client: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          client_id: string
+          user_id: string
+          role_in_client: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string
+          user_id?: string
+          role_in_client?: string
+          created_at?: string
+        }
+      }
       leads: {
         Row: {
-          id: string;
-          client_id: string;
-          form_id: string | null;
-          name: string;
-          email: string | null;
-          phone: string | null;
-          source: string | null;
-          tags_json: unknown[];
-          stage: LeadStage;
-          owner_user_id: string | null;
-          custom_fields: Record<string, unknown>;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<
-          Database['public']['Tables']['leads']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['leads']['Insert']>;
-      };
-    };
-  };
+          id: string
+          client_id: string
+          name: string
+          email: string | null
+          phone: string | null
+          stage: string
+          owner_user_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          client_id: string
+          name: string
+          email?: string | null
+          phone?: string | null
+          stage?: string
+          owner_user_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string | null
+          name?: string
+          email?: string | null
+          phone?: string | null
+          stage?: string
+          owner_user_id?: string | null
+          created_at?: string
+        }
+      }
+    }
+    Views: {
+      v_deals_board: {
+        Row: {
+          id: string
+          account_id: string | null
+          company_id: string | null
+          stage_key: string
+          title: string
+          value_cents: number
+          priority: string
+          owner_id: string | null
+          sla_due_at: string | null
+          created_at: string
+          updated_at: string
+          company_name: string | null
+          company_cnpj: string | null
+          checklist_total: number | null
+          checklist_done: number | null
+          docs_count: number | null
+          sla_status: string | null
+        }
+      }
+    }
+    Functions: {
+      mark_thread_read: {
+        Args: { p_thread_id: string }
+        Returns: void
+      }
+      send_chat_message: {
+        Args: { p_thread_id: string, p_body: string, p_is_internal: boolean }
+        Returns: string
+      }
+    }
+  }
 }
