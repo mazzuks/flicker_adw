@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from './supabase';
-import type { UserRoleGlobal } from '../types/database';
+import type { UserRoleGlobal } from '../types/supabase';
 
 interface UserProfile {
   id: string;

@@ -1,3 +1,11 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export type UserRoleGlobal =
   | 'ADWORKS_SUPERADMIN'
   | 'ADWORKS_ADMIN'
@@ -7,55 +15,6 @@ export type UserRoleGlobal =
   | 'CLIENT_OWNER'
   | 'CLIENT_USER'
   | 'CLIENT_VIEWER';
-
-export type ClientRole = 'CLIENT_OWNER' | 'CLIENT_USER' | 'CLIENT_VIEWER';
-
-export type ClientStatus = 'ONBOARDING' | 'ACTIVE' | 'SUSPENDED' | 'CANCELLED';
-
-export type OnboardingStepStatus =
-  | 'NOT_STARTED'
-  | 'IN_PROGRESS'
-  | 'SUBMITTED'
-  | 'NEEDS_FIX'
-  | 'APPROVED';
-
-export type DocumentStatus = 'RECEIVED' | 'INVALID' | 'APPROVED';
-
-export type TicketType = 'TICKET_CNPJ' | 'TICKET_INPI' | 'TICKET_FISCAL';
-
-export type TicketStatus =
-  | 'NEW'
-  | 'WAITING_CLIENT'
-  | 'READY'
-  | 'IN_PROGRESS'
-  | 'SUBMITTED'
-  | 'PENDING_EXTERNAL'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'DONE';
-
-export type TicketPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
-
-export type MessageVisibility = 'CLIENT' | 'INTERNAL';
-
-export type NotificationType =
-  | 'STATUS_CHANGED'
-  | 'DOC_REQUIRED'
-  | 'DOC_APPROVED'
-  | 'MESSAGE_RECEIVED'
-  | 'REPORT_READY'
-  | 'PAYMENT_INVOICE'
-  | 'TASK_ASSIGNED';
-
-export type LeadStage = 'NOVO' | 'CONTATO' | 'QUALIFICADO' | 'PROPOSTA' | 'FECHADO' | 'PERDIDO';
-
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
 
 export interface Database {
   public: {
@@ -82,6 +41,7 @@ export interface Database {
           settings?: Json
           created_at?: string
         }
+        Relationships: []
       }
       user_profiles: {
         Row: {
@@ -111,6 +71,15 @@ export interface Database {
           avatar_url?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       companies: {
         Row: {
@@ -140,6 +109,7 @@ export interface Database {
           owner_id?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       deals: {
         Row: {
@@ -181,64 +151,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-      }
-      deal_checklist_items: {
-        Row: {
-          id: string
-          deal_id: string | null
-          title: string
-          done: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          deal_id?: string | null
-          title: string
-          done?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          deal_id?: string | null
-          title?: string
-          done?: boolean
-          created_at?: string
-        }
-      }
-      deal_docs: {
-        Row: {
-          id: string
-          account_id: string | null
-          deal_id: string | null
-          name: string
-          storage_path: string
-          file_type: string | null
-          file_size: number | null
-          uploaded_by: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          account_id?: string | null
-          deal_id?: string | null
-          name: string
-          storage_path: string
-          file_type?: string | null
-          file_size?: number | null
-          uploaded_by?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          account_id?: string | null
-          deal_id?: string | null
-          name?: string
-          storage_path?: string
-          file_type?: string | null
-          file_size?: number | null
-          uploaded_by?: string | null
-          created_at?: string
-        }
+        Relationships: []
       }
       messages_threads: {
         Row: {
@@ -274,6 +187,15 @@ export interface Database {
           metadata?: Json
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "messages_threads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       messages: {
         Row: {
@@ -303,6 +225,7 @@ export interface Database {
           attachments?: Json
           created_at?: string
         }
+        Relationships: []
       }
       templeteria_sites: {
         Row: {
@@ -350,6 +273,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       templeteria_site_versions: {
         Row: {
@@ -385,152 +309,7 @@ export interface Database {
           created_by?: string | null
           created_at?: string
         }
-      }
-      templeteria_ai_jobs: {
-        Row: {
-          id: string
-          client_id: string | null
-          site_id: string | null
-          status: string
-          mode: string
-          provider: string | null
-          input_payload_json: Json
-          output_payload_json: Json
-          error_message: string | null
-          created_by: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          client_id?: string | null
-          site_id?: string | null
-          status: string
-          mode: string
-          provider?: string | null
-          input_payload_json?: Json
-          output_payload_json?: Json
-          error_message?: string | null
-          created_by: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          client_id?: string | null
-          site_id?: string | null
-          status?: string
-          mode?: string
-          provider?: string | null
-          input_payload_json?: Json
-          output_payload_json?: Json
-          error_message?: string | null
-          created_by?: string
-          created_at?: string
-        }
-      }
-      clients: {
-        Row: {
-          id: string
-          name: string
-          slug: string
-          plan: string
-          status: string
-          fantasy_name: string | null
-          cnpj: string | null
-          segment: string | null
-          city: string | null
-          state: string | null
-          address_json: Json
-          contacts_json: Json
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          slug: string
-          plan?: string
-          status?: string
-          fantasy_name?: string | null
-          cnpj?: string | null
-          segment?: string | null
-          city?: string | null
-          state?: string | null
-          address_json?: Json
-          contacts_json?: Json
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          slug?: string
-          plan?: string
-          status?: string
-          fantasy_name?: string | null
-          cnpj?: string | null
-          segment?: string | null
-          city?: string | null
-          state?: string | null
-          address_json?: Json
-          contacts_json?: Json
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      client_memberships: {
-        Row: {
-          id: string
-          client_id: string
-          user_id: string
-          role_in_client: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          client_id: string
-          user_id: string
-          role_in_client: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          client_id?: string
-          user_id?: string
-          role_in_client?: string
-          created_at?: string
-        }
-      }
-      leads: {
-        Row: {
-          id: string
-          client_id: string
-          name: string
-          email: string | null
-          phone: string | null
-          stage: string
-          owner_user_id: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          client_id: string
-          name: string
-          email?: string | null
-          phone?: string | null
-          stage?: string
-          owner_user_id?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          client_id?: string | null
-          name?: string
-          email?: string | null
-          phone?: string | null
-          stage?: string
-          owner_user_id?: string | null
-          created_at?: string
-        }
+        Relationships: []
       }
     }
     Views: {
@@ -554,6 +333,7 @@ export interface Database {
           docs_count: number | null
           sla_status: string | null
         }
+        Relationships: []
       }
     }
     Functions: {
@@ -565,6 +345,12 @@ export interface Database {
         Args: { p_thread_id: string, p_body: string, p_is_internal: boolean }
         Returns: string
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

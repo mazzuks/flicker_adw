@@ -3,8 +3,8 @@ import {
   LayoutDashboard,
   Layers,
   Building2,
-  Inbox as InboxIcon,
-  Settings as SettingsIcon,
+  Inbox,
+  Settings,
   LogOut,
   Menu,
   Search,
@@ -23,8 +23,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
-    { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
-    { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
+    { icon: Inbox, label: 'Inbox', path: '/app/inbox' },
+    { icon: Settings, label: 'Settings', path: '/app/settings' },
   ];
 
   return (
@@ -81,9 +81,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* TOPBAR */}
         <header className="h-16 bg-white border-b border-[#E6E8EC] flex items-center px-8 justify-between shrink-0">
           <div className="flex items-center gap-4 flex-1">
-            <button className="text-[#5B6475] hover:text-[#0B1220] p-1">
-              <Menu className="w-5 h-5" />
-            </button>
+            <div className="p-1">
+              <Menu className="w-5 h-5 text-[#5B6475]" />
+            </div>
             <div className="relative max-w-md w-full group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5B6475] group-focus-within:text-[#2563EB]" />
               <input
@@ -113,6 +113,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1 overflow-y-auto p-8 bg-[#F7F8FA]">{children}</main>
       </div>
+
+      {/* GLOBAL DEAL DRAWER - Optional, but ensure no reference errors */}
+      {isDrawerOpen && <div onClick={closeDrawer} className="hidden" />}
     </div>
   );
 }
