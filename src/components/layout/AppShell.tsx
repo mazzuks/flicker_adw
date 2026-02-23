@@ -1,3 +1,4 @@
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Layers,
@@ -14,9 +15,9 @@ import {
   ClipboardCheck,
   TrendingUp,
   ShieldCheck,
-  FileText
+  FileText,
+  Globe
 } from 'lucide-react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
 
@@ -30,6 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const clientItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
+    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
     { icon: Calendar, label: 'Agenda Fiscal', path: '/app/company/agenda-fiscal' },
@@ -43,6 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const operatorItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
+    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: ClipboardCheck, label: 'Fila Fiscal', path: '/app/operator/fiscal-queue' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
@@ -124,7 +127,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-6 pl-4">
             <button className="text-[#5B6475] hover:text-[#0B1220] transition-all">
-              <Bell className="w-5 h-5" />
+               <div className="relative">
+                  <Bell className="w-5 h-5" />
+                  <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white" />
+               </div>
             </button>
             <div className="flex items-center gap-3 pl-4 border-l border-[#E6E8EC]">
               <div className="text-right hidden sm:block">
@@ -135,7 +141,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {profile?.role_global}
                 </p>
               </div>
-              <div className="w-9 h-9 bg-[#F7F8FA] rounded-full border border-[#E6E8EC]" />
+              <div className="w-9 h-9 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center font-black text-[10px] text-slate-400">
+                 {profile?.full_name?.charAt(0) || 'U'}
+              </div>
             </div>
           </div>
         </header>

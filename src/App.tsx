@@ -10,6 +10,7 @@ import { Settings } from './pages/app/Settings';
 
 import { TempleteriaWizard } from './pages/app/TempleteriaWizard';
 import { TempleteriaRefiner } from './pages/app/TempleteriaRefiner';
+import { TempleteriaDashboard } from './pages/app/TempleteriaDashboard';
 import { PublicSiteView } from './pages/public/PublicSiteView';
 import { FiscalAgenda } from './pages/app/FiscalAgenda';
 import { AccountChecklist } from './pages/app/AccountChecklist';
@@ -65,6 +66,7 @@ function AppRoutes() {
           }
         />
         <Route path="settings" element={<Settings />} />
+        <Route path="templeteria" element={<TempleteriaDashboard />} />
         <Route path="templeteria/wizard" element={<TempleteriaWizard />} />
         <Route path="refiner/:siteId" element={<TempleteriaRefiner />} />
         <Route path="company/agenda-fiscal" element={<FiscalAgenda />} />
