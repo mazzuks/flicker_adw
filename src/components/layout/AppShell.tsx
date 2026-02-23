@@ -9,6 +9,8 @@ import {
   Menu,
   Search,
   Bell,
+  Calendar,
+  CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -23,6 +25,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
+    { icon: Calendar, label: 'Agenda Fiscal', path: '/app/company/agenda-fiscal' },
+    { icon: CheckSquare, label: 'Ativacao', path: '/app/company/checklist' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
     { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];

@@ -11,6 +11,8 @@ import { Settings } from './pages/app/Settings';
 import { TempleteriaWizard } from './pages/app/TempleteriaWizard';
 import { TempleteriaRefiner } from './pages/app/TempleteriaRefiner';
 import { PublicSiteView } from './pages/public/PublicSiteView';
+import { FiscalAgenda } from './pages/app/FiscalAgenda';
+import { AccountChecklist } from './pages/app/AccountChecklist';
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,8 @@ function AppRoutes() {
         <Route path="settings" element={<Settings />} />
         <Route path="templeteria/wizard" element={<TempleteriaWizard />} />
         <Route path="refiner/:siteId" element={<TempleteriaRefiner />} />
+        <Route path="company/agenda-fiscal" element={<FiscalAgenda />} />
+        <Route path="company/checklist" element={<AccountChecklist />} />
       </Route>
 
       <Route path="/s/:slug" element={<PublicSiteView />} />
