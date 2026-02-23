@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   FileText,
   Globe,
-  Home
+  Home,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -34,10 +35,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: Home, label: 'Home', path: '/app/home' },
   ];
 
+  const templeteriaItems = [
+    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    { icon: Plus, label: 'Criar site', path: '/app/templeteria/wizard', isSubItem: true },
+  ];
+
   const clientItems = [
     ...commonItems,
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
-    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    ...templeteriaItems,
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
     { icon: Calendar, label: 'Agenda Fiscal', path: '/app/company/agenda-fiscal' },
@@ -52,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const operatorItems = [
     ...commonItems,
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
-    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    ...templeteriaItems,
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: ClipboardCheck, label: 'Fila Fiscal', path: '/app/operator/fiscal-queue' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
@@ -63,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     ...commonItems,
     { icon: ShieldCheck, label: 'Admin BI', path: '/app/admin/finance' },
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
-    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    ...templeteriaItems,
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: ClipboardCheck, label: 'Fila Fiscal', path: '/app/operator/fiscal-queue' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
@@ -85,9 +91,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className="font-bold tracking-tight text-lg italic uppercase">ADWORKS</span>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 mt-4">
+        <nav className="flex-1 p-3 space-y-1 mt-4 overflow-y-auto scrollbar-hide">
           {navItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.path);
+            const isActive = location.pathname === item.path;
+            const isSubItem = (item as any).isSubItem;
             return (
               <Link
                 key={item.path}
@@ -96,12 +103,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   isActive
                     ? 'bg-[#EFF6FF] text-[#2563EB]'
                     : 'text-[#5B6475] hover:bg-[#F7F8FA] hover:text-[#0B1220]'
-                }`}
+                } ${isSubItem ? 'ml-6 py-1.5 opacity-80' : ''}`}
               >
                 <item.icon
-                  className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#2563EB]' : 'group-hover:text-[#0B1220]'}`}
+                  className={`${isSubItem ? 'w-3.5 h-3.5' : 'w-5 h-5'} shrink-0 ${isActive ? 'text-[#2563EB]' : 'group-hover:text-[#0B1220]'}`}
                 />
-                <span className="text-sm font-semibold">{item.label}</span>
+                <span className={`${isSubItem ? 'text-xs' : 'text-sm'} font-semibold`}>{item.label}</span>
               </Link>
             );
           })}
