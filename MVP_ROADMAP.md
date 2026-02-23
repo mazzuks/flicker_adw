@@ -49,6 +49,8 @@ Este arquivo e o nosso centro de comando para o desenvolvimento do MVP. Aqui mon
 ## 💸 3. Integracoes & Operacoes
 - [x] **Fluxo de Pagamento**: Estrutura de Invoices, Webhooks e Ativacao Automatica de Tenant.
     - Arquivo: `src/pages/app/Payments.tsx`
+- [x] **Automação de E-mails**: Motor de disparos automáticos (Welcome/Alertas) integrado ao banco.
+    - Arquivo: `supabase/functions/email-worker/index.ts`
 - [x] **SOP Registro de Dominio**: Fluxo guiado para Registro.br.
     - Arquivo: `src/pages/app/IntegrationsSOP.tsx`
 - [x] **SOP Registro de Marca**: Fluxo guiado para INPI.
