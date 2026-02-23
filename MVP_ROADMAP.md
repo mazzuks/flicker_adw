@@ -68,6 +68,26 @@ Este arquivo é o nosso centro de comando para o desenvolvimento do MVP. Aqui mo
 
 ---
 
+## 📅 5. Módulo Contábil & Fiscal (Novo)
+### 👤 Visão do Cliente (Empreendedor)
+- [ ] **Solicitador de Nota Fiscal**: Formulário para pedido de emissão (CNPJ, Valor, Descrição) + Status de entrega.
+- [ ] **Agenda Fiscal**: Calendário de vencimentos (Impostos, Documentos, Pró-labore) com alertas.
+- [ ] **Dashboard Financeiro Simplificado**: Resumo de faturamento e impostos (Mensal/Acumulado/Aberto).
+- [ ] **Integração Bancária**: Link direto para Conta Bancária PJ.
+- [ ] **Gestão de Certificado Digital**: Monitoramento de status, validade e renovação.
+- [ ] **Módulo Upsell**: Ativação de licença Conta Azul.
+
+### 🎧 Visão do Operador (Time Adworks)
+- [ ] **Fila Fiscal / Contábil**: Gestão de chamados, enquadramento e apuração de guias.
+- [ ] **Gerador/Publicador de DAS**: Upload e disponibilização automática da guia mensal.
+- [ ] **Validador de Solicitações de NF**: Interface para aprovar/reprovar pedidos de nota do cliente.
+- [ ] **Checklist Contábil de Ativação**: Validação de CNAE, Regime, Certificado e Portais.
+
+### 🛡️ Visão do Admin (Master)
+- [ ] **Dashboard Financeiro do Produto**: Métricas de negócio (Receita, Churn, Ticket Médio).
+
+---
+
 ## 🛠️ Notas Técnicas & Localização
 - **Supabase Project:** `nskecgwpdprzrowwawwb`
 - **Queries Principais:** Todas as views começam com `v_`.
