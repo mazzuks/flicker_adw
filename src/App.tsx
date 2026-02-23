@@ -18,6 +18,8 @@ import { FiscalOperatorQueue } from './pages/app/FiscalOperatorQueue';
 import { CompanyFinance } from './pages/app/CompanyFinance';
 import { OperatorFinanceEditor } from './pages/app/OperatorFinanceEditor';
 import { AdminFinanceBI } from './pages/app/AdminFinanceBI';
+import { CompanyDas } from './pages/app/CompanyDas';
+import { OperatorDasManager } from './pages/app/OperatorDasManager';
 
 const queryClient = new QueryClient();
 
@@ -72,6 +74,8 @@ function AppRoutes() {
         <Route path="company/finance" element={<CompanyFinance />} />
         <Route path="operator/finance/:accountId" element={<OperatorFinanceEditor />} />
         <Route path="admin/finance" element={<AdminFinanceBI />} />
+        <Route path="company/das" element={<CompanyDas />} />
+        <Route path="operator/das/:accountId" element={<OperatorDasManager />} />
       </Route>
 
       <Route path="/s/:slug" element={<PublicSiteView />} />
