@@ -13,6 +13,8 @@ import { TempleteriaRefiner } from './pages/app/TempleteriaRefiner';
 import { PublicSiteView } from './pages/public/PublicSiteView';
 import { FiscalAgenda } from './pages/app/FiscalAgenda';
 import { AccountChecklist } from './pages/app/AccountChecklist';
+import { NfSolicitator } from './pages/app/NfSolicitator';
+import { FiscalOperatorQueue } from './pages/app/FiscalOperatorQueue';
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,8 @@ function AppRoutes() {
         <Route path="refiner/:siteId" element={<TempleteriaRefiner />} />
         <Route path="company/agenda-fiscal" element={<FiscalAgenda />} />
         <Route path="company/checklist" element={<AccountChecklist />} />
+        <Route path="company/nf-requests" element={<NfSolicitator />} />
+        <Route path="operator/fiscal-queue" element={<FiscalOperatorQueue />} />
       </Route>
 
       <Route path="/s/:slug" element={<PublicSiteView />} />

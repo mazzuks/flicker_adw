@@ -10,26 +10,39 @@ import {
   Search,
   Bell,
   Calendar,
-  CheckSquare
+  CheckSquare,
+  FileSpreadsheet,
+  ClipboardCheck
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isAdworks } = useAuth();
   const { closeDrawer } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const navItems = [
+  const clientItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
     { icon: Building2, label: 'Companies', path: '/app/companies' },
     { icon: Calendar, label: 'Agenda Fiscal', path: '/app/company/agenda-fiscal' },
     { icon: CheckSquare, label: 'Ativacao', path: '/app/company/checklist' },
+    { icon: FileSpreadsheet, label: 'Notas Fiscais', path: '/app/company/nf-requests' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
     { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];
+
+  const operatorItems = [
+    { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
+    { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
+    { icon: ClipboardCheck, label: 'Fila Fiscal', path: '/app/operator/fiscal-queue' },
+    { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
+    { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
+  ];
+
+  const navItems = isAdworks ? operatorItems : clientItems;
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex font-sans text-[#0B1220]">
