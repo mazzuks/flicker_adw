@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
+import { templeteriaService } from '../../services/templeteria';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -14,19 +16,13 @@ import {
   Rocket,
   Clock,
   Layout,
-  MoreVertical,
   ChevronRight,
-  ShieldCheck,
   FileEdit,
 } from 'lucide-react';
 
-/**
- * 🪄 TEMPLETERIA DASHBOARD
- * Central management for all AI-generated sites.
- */
-
 export function TempleteriaDashboard() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [sites, setSites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,19 +30,15 @@ export function TempleteriaDashboard() {
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadSites();
-  }, []);
+    if (profile?.account_id) loadSites();
+  }, [profile?.account_id]);
 
   const loadSites = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('templeteria_sites')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
-      setSites(data || []);
+      if (!profile?.account_id) return;
+      const data = await templeteriaService.listSites(profile.account_id);
+      setSites(data);
     } catch (err) {
       console.error('Error loading sites:', err);
     } finally {
@@ -57,7 +49,7 @@ export function TempleteriaDashboard() {
   const handlePublish = async (siteId: string) => {
     setPublishingId(siteId);
     try {
-      // Get the latest version number for this site
+      // Get the latest version number
       const { data: ver } = await supabase
         .from('templeteria_site_versions')
         .select('version')
@@ -84,7 +76,7 @@ export function TempleteriaDashboard() {
   const copyToClipboard = (slug: string) => {
     const url = `${window.location.origin}/s/${slug}`;
     navigator.clipboard.writeText(url);
-    alert('Link copiado para a area de transferencia!');
+    alert('Link copiado!');
   };
 
   const filteredSites = sites.filter((s) => {
@@ -107,10 +99,7 @@ export function TempleteriaDashboard() {
       <div className="p-10 animate-pulse space-y-8">
         <div className="h-10 bg-slate-200 rounded-xl w-1/4" />
         <div className="grid grid-cols-4 gap-6">
-          <div className="h-32 bg-slate-100 rounded-3xl" />
-          <div className="h-32 bg-slate-100 rounded-3xl" />
-          <div className="h-32 bg-slate-100 rounded-3xl" />
-          <div className="h-32 bg-slate-100 rounded-3xl" />
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-3xl" />)}
         </div>
       </div>
     );
@@ -121,27 +110,27 @@ export function TempleteriaDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-            Gerenciador de Sites
+            Meus Sites
           </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic">
-            Ecossistema Templeteria Engine
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic">
+            Gerenciamento de Projetos Templeteria
           </p>
         </div>
         <Button
           onClick={() => navigate('/app/templeteria/wizard')}
           className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-8 py-6 h-auto rounded-2xl font-black uppercase tracking-widest gap-3 transition-all hover:scale-105 active:scale-95"
         >
-          <Plus className="w-5 h-5" /> Criar Novo Site
+          <Plus className="w-5 h-5" /> Novo Projeto
         </Button>
       </div>
 
       {/* KPI ROW */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MiniStat label="Total de Projetos" value={String(stats.total)} icon={Layout} color="text-blue-600" bg="bg-blue-50" />
-        <MiniStat label="Em Rascunho" value={String(stats.draft)} icon={FileEdit} color="text-amber-500" bg="bg-amber-50" />
-        <MiniStat label="Publicados" value={String(stats.published)} icon={Rocket} color="text-emerald-500" bg="bg-emerald-50" />
+        <MiniStat label="Total" value={String(stats.total)} icon={Layout} color="text-blue-600" bg="bg-blue-50" />
+        <MiniStat label="Drafts" value={String(stats.draft)} icon={FileEdit} color="text-amber-500" bg="bg-amber-50" />
+        <MiniStat label="Live" value={String(stats.published)} icon={Rocket} color="text-emerald-500" bg="bg-emerald-50" />
         <MiniStat 
-          label="Ultima Atividade" 
+          label="Atividade" 
           value={stats.lastActivity ? new Date(stats.lastActivity).toLocaleDateString('pt-BR') : '--'} 
           icon={Clock} 
           color="text-slate-400" 
@@ -149,7 +138,7 @@ export function TempleteriaDashboard() {
         />
       </div>
 
-      {/* FILTERS & TABS */}
+      {/* LIST CONTROL */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
          <div className="flex p-1.5 bg-slate-100 rounded-2xl">
             {(['all', 'draft', 'published'] as const).map(tab => (
@@ -166,19 +155,19 @@ export function TempleteriaDashboard() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
             <input 
               type="text"
-              placeholder="Buscar por nome ou slug..."
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="Buscar..."
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-[10px] font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
          </div>
       </div>
 
-      {/* SITES LIST */}
+      {/* LIST */}
       {filteredSites.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
            {filteredSites.map((site) => (
-             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
+             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner ${site.status === 'published' ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'}`}>
                       <Globe className="w-7 h-7" />
@@ -187,7 +176,6 @@ export function TempleteriaDashboard() {
                       <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">{site.name}</h3>
                       <div className="flex items-center gap-3 mt-1.5">
                          <span className="text-[10px] font-bold text-slate-400 tracking-widest">/s/{site.slug}</span>
-                         <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                          <Badge variant={site.status === 'published' ? 'success' : 'neutral'} className="text-[8px] px-2 py-0">
                             {site.status.toUpperCase()}
                          </Badge>
@@ -199,7 +187,7 @@ export function TempleteriaDashboard() {
                    <Button 
                       variant="secondary" 
                       onClick={() => navigate(`/app/refiner/${site.id}`)}
-                      className="gap-2 px-6 border-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                      className="gap-2 px-6 border-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-bold uppercase text-[10px]"
                    >
                       Editar <ChevronRight className="w-3.5 h-3.5" />
                    </Button>
@@ -208,13 +196,13 @@ export function TempleteriaDashboard() {
                       <>
                         <button 
                           onClick={() => window.open(`/s/${site.slug}`, '_blank')}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all" title="Ver Site"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all"
                         >
                            <ExternalLink className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => copyToClipboard(site.slug)}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" title="Copiar Link"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
                         >
                            <Copy className="w-4 h-4" />
                         </button>
@@ -223,12 +211,11 @@ export function TempleteriaDashboard() {
                       <Button 
                         onClick={() => handlePublish(site.id)}
                         isLoading={publishingId === site.id}
-                        className="bg-slate-900 text-white hover:bg-blue-600 gap-2 px-8 shadow-lg shadow-slate-200"
+                        className="bg-slate-900 text-white hover:bg-blue-600 gap-2 px-8 shadow-lg font-bold uppercase text-[10px]"
                       >
                          <Rocket className="w-4 h-4" /> Publicar
                       </Button>
                    )}
-                   <button className="p-3 text-slate-300 hover:text-slate-900 transition-all"><MoreVertical className="w-5 h-5" /></button>
                 </div>
              </div>
            ))}
@@ -236,9 +223,9 @@ export function TempleteriaDashboard() {
       ) : (
         <EmptyState 
            title="Nenhum site encontrado" 
-           description="Voce ainda nao possui sites gerados ou publicados neste filtro."
+           description="Voce ainda nao possui sites gerados ou publicados."
            icon={Globe}
-           actionLabel="CRIAR MEU PRIMEIRO SITE"
+           actionLabel="CRIAR PRIMEIRO SITE"
            onAction={() => navigate('/app/templeteria/wizard')}
         />
       )}
@@ -251,7 +238,7 @@ function MiniStat({ label, value, icon: Icon, color, bg }: any) {
     <Card className="p-8 border border-slate-100 shadow-sm rounded-[2rem] flex items-center justify-between group hover:shadow-lg transition-all">
        <div className="space-y-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{label}</p>
-          <p className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">{value}</p>
+          <p className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">{value}</p>
        </div>
        <div className={`p-4 rounded-2xl ${bg} ${color} shadow-inner group-hover:scale-110 transition-all`}>
           <Icon className="w-6 h-6" />

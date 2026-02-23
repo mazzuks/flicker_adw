@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { templeteriaService } from '../../services/templeteria';
 
 /**
  * PUBLIC SITE VIEWER
@@ -28,15 +29,8 @@ export function PublicSiteView() {
     if (!slug) return;
     setLoading(true);
     try {
-      // Fetch site by slug with snapshot data (Direct from sites table as requested)
-      const { data: site, error: siteError } = await supabase
-        .from('templeteria_sites')
-        .select('status, published_schema_json, published_at')
-        .eq('slug', slug)
-        .eq('status', 'published')
-        .maybeSingle();
-
-      if (siteError) throw siteError;
+      // 1. Fetch site data using centralized service
+      const site = await templeteriaService.getPublishedBySlug(slug);
 
       if (!site) {
         setError('Pagina nao encontrada ou nao publicada');
