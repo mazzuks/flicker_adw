@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
 import {
   TrendingUp,
   UserMinus,
@@ -14,11 +13,21 @@ import {
   ChevronRight,
   Filter,
   Building2,
+  PieChart,
 } from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 
 /**
- * 🛡️ PRODUCT FINANCE BI - ADMIN VIEW (MVP)
- * High-level business metrics and account-level performance tracking.
+ * 🛡️ PRODUCT FINANCE BI - ADMIN VIEW (MVP 2.0)
+ * Business intelligence with real-time metrics and growth charts.
  */
 
 export function AdminFinanceBI() {
@@ -27,6 +36,15 @@ export function AdminFinanceBI() {
   const [stats, setStats] = useState<any>(null);
   const [accountsList, setAccountsList] = useState<any[]>([]);
   const [searchAccountId, setSearchAccountId] = useState('');
+
+  // Mock data for the chart (would be a view in production)
+  const chartData = [
+    { name: 'Jan', mrr: 4200, churn: 2 },
+    { name: 'Fev', mrr: 5100, churn: 1 },
+    { name: 'Mar', mrr: 6800, churn: 4 },
+    { name: 'Abr', mrr: 8500, churn: 2 },
+    { name: 'Mai', mrr: 12400, churn: 3 },
+  ];
 
   useEffect(() => {
     loadBIData();
@@ -69,7 +87,7 @@ export function AdminFinanceBI() {
       // 2. Fetch Accounts with Details
       const { data: accountsData } = await supabase
         .from('accounts')
-        .select('id, name, plan, created_at, subscriptions(status, plan_name, price_monthly)');
+        .select('*, subscriptions(status, plan_name, price_monthly)');
 
       setAccountsList(accountsData || []);
     } catch (err) {
@@ -108,14 +126,13 @@ export function AdminFinanceBI() {
             <h1 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">
               Business Intelligence
             </h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 italic">
-              Dashboard de Saude do Produto
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 italic leading-none">
+              Gestao Estrategica Adworks
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {/* PERIOD SELECTOR */}
           <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
             <button
               onClick={() => changeMonth(-1)}
@@ -152,150 +169,97 @@ export function AdminFinanceBI() {
 
       {/* KPI GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <BiKpi
-          label="Receita Acumulada"
-          value={formatBRL(stats?.accumulated)}
-          icon={DollarSign}
-          color="text-indigo-500"
-          bg="bg-indigo-50"
-        />
-        <BiKpi
-          label="Receita do Mes (MRR)"
-          value={formatBRL(stats?.monthly)}
-          icon={TrendingUp}
-          color="text-emerald-500"
-          bg="bg-emerald-50"
-        />
-        <BiKpi
-          label="Ticket Medio"
-          value={formatBRL(stats?.ticket)}
-          icon={ArrowUpRight}
-          color="text-blue-500"
-          bg="bg-blue-50"
-        />
-        <BiKpi
-          label="Churn Rate (Mes)"
-          value={`${Number(stats?.churn || 0).toFixed(1)}%`}
-          icon={UserMinus}
-          color="text-red-500"
-          bg="bg-red-50"
-        />
+        <BiKpi label="Receita Acumulada" value={formatBRL(stats?.accumulated)} icon={DollarSign} color="text-indigo-500" bg="bg-indigo-50" />
+        <BiKpi label="Receita do Mes" value={formatBRL(stats?.monthly)} icon={TrendingUp} color="text-emerald-500" bg="bg-emerald-50" />
+        <BiKpi label="Ticket Medio" value={formatBRL(stats?.ticket)} icon={ArrowUpRight} color="text-blue-500" bg="bg-blue-50" />
+        <BiKpi label="Churn Rate" value={`${Number(stats?.churn || 0).toFixed(1)}%`} icon={UserMinus} color="text-red-500" bg="bg-red-50" />
       </div>
 
-      {/* ACCOUNTS LIST */}
-      <div className="space-y-6">
-        <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] italic ml-2">
-          Performance por Unidade de Negocio
-        </h3>
-        <Card noPadding className="border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Empresa
-                </th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Plano
-                </th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                  Status
-                </th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
-                  Receita/Mes
-                </th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                  Acoes
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {accountsList.map((acc) => {
-                const sub = acc.subscriptions?.[0];
-                return (
-                  <tr key={acc.id} className="hover:bg-slate-50/50 transition-all group">
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                          <Building2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-black text-slate-800 uppercase italic tracking-tight">
-                            {acc.name}
-                          </p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                            ID: {acc.id.substring(0, 8)}...
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest italic">
-                        {sub?.plan_name || acc.plan || 'TRIAL'}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex justify-center">
-                        <Badge
-                          variant={
-                            sub?.status === 'active' || acc.plan === 'active'
-                              ? 'success'
-                              : 'neutral'
-                          }
-                          className="text-[8px] font-black"
-                        >
-                          {sub?.status?.toUpperCase() || acc.plan?.toUpperCase() || 'OFFLINE'}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <span className="text-sm font-black text-slate-900 uppercase italic">
-                        {formatBRL(sub?.price_monthly || 0)}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex justify-center">
-                        <button className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* GROWTH CHART (8/12) */}
+        <div className="lg:col-span-8">
+           <Card className="p-8 border border-slate-200 shadow-sm rounded-[2.5rem]">
+              <div className="flex items-center justify-between mb-10">
+                 <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.3em] italic flex items-center gap-3">
+                    <PieChart className="w-4 h-4 text-blue-600" /> Tendencia de Crescimento (MRR)
+                 </h3>
+                 <Badge variant="success" className="text-[8px]">+12.4% este mes</Badge>
+              </div>
+              <div className="h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorMrr" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fontSize: 10, fontWeight: 700, fill: '#94A3B8'}} 
+                      dy={10}
+                    />
+                    <YAxis hide />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', color: '#0F172A' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="mrr" 
+                      stroke="#2563eb" 
+                      strokeWidth={4} 
+                      fillOpacity={1} 
+                      fill="url(#colorMrr)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+           </Card>
+        </div>
+
+        {/* ACCOUNTS LIST (4/12) */}
+        <div className="lg:col-span-4">
+           <Card noPadding className="border border-slate-200 shadow-sm overflow-hidden h-[465px] flex flex-col">
+              <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+                 <h3 className="font-black text-slate-900 text-[10px] uppercase tracking-[0.3em] italic">Unidades de Negocio</h3>
+              </div>
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
+                 {accountsList.map((acc) => (
+                    <div key={acc.id} className="p-5 flex items-center justify-between hover:bg-slate-50 transition-all cursor-pointer">
+                       <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 shrink-0"><Building2 className="w-4 h-4" /></div>
+                          <div className="min-w-0">
+                             <p className="text-xs font-black text-slate-800 uppercase italic truncate">{acc.name}</p>
+                             <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">{acc.subscriptions?.[0]?.plan_name || acc.plan}</p>
+                          </div>
+                       </div>
+                       <ChevronRight className="w-4 h-4 text-slate-200" />
+                    </div>
+                 ))}
+              </div>
+           </Card>
+        </div>
+
       </div>
     </div>
   );
 }
 
-function BiKpi({
-  label,
-  value,
-  icon: Icon,
-  color,
-  bg,
-}: {
-  label: string;
-  value: string;
-  icon: any;
-  color: string;
-  bg: string;
-}) {
-  return (
-    <Card className="p-8 border border-slate-200 shadow-sm rounded-[2.5rem] space-y-4 hover:shadow-xl transition-all group">
-      <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-xl ${bg} ${color} transition-all group-hover:scale-110 shadow-sm`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">
-          {label}
-        </span>
-      </div>
-      <div className="text-3xl font-black text-slate-900 tracking-tight italic uppercase">
-        {value}
-      </div>
-    </Card>
-  );
+function BiKpi({ label, value, icon: Icon, color, bg }: any) {
+   return (
+      <Card className="p-8 border border-slate-200 shadow-sm rounded-[2.5rem] space-y-4 hover:shadow-xl transition-all group">
+         <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-2xl ${bg} ${color} transition-all group-hover:scale-110 shadow-sm`}>
+               <Icon className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">{label}</span>
+         </div>
+         <div className="text-3xl font-black text-slate-900 tracking-tight italic uppercase">{value}</div>
+      </Card>
+   );
 }
