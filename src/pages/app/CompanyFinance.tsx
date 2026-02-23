@@ -12,6 +12,8 @@ import {
   Wallet,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
+  Zap,
 } from 'lucide-react';
 
 /**
@@ -22,6 +24,7 @@ import {
 export function CompanyFinance() {
   const { profile } = useAuth();
   const [metrics, setMetrics] = useState<any>(null);
+  const [account, setAccount] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -53,8 +56,16 @@ export function CompanyFinance() {
         .order('month_ref', { ascending: false })
         .limit(12);
 
+      // 3. Fetch account status (Upsell)
+      const { data: accData } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('id', profile?.account_id as string)
+        .single();
+
       setMetrics(currentMetrics);
       setHistory(historyData || []);
+      setAccount(accData);
     } catch (err) {
       console.error('Error loading finance data:', err);
     } finally {
@@ -159,6 +170,27 @@ export function CompanyFinance() {
           bg="bg-red-50"
         />
       </div>
+
+      {/* UPSELL SECTION */}
+      {!account?.financial_system_enabled && (
+         <div className="bg-blue-600 rounded-[2.5rem] p-10 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-blue-200 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-110 transition-all" />
+            <div className="space-y-4 relative z-10">
+               <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/10 rounded-xl"><Zap className="w-5 h-5 text-blue-200" /></div>
+                  <h3 className="text-sm font-black uppercase tracking-[0.3em] italic text-blue-200">Upgrade Comercial</h3>
+               </div>
+               <p className="text-2xl font-black uppercase italic tracking-tight leading-tight max-w-md">Contrate o <span className="text-blue-200 underline decoration-4">Conta Azul</span> com desconto exclusivo Adworks.</p>
+               <p className="text-sm font-medium text-blue-100/60 uppercase tracking-widest">Sincronizacao automatica de extratos e emissao ilimitada.</p>
+            </div>
+            <button 
+              onClick={() => window.open('https://contaazul.com/parceiro', '_blank')}
+              className="relative z-10 bg-white text-blue-600 px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl transition-all hover:scale-105 flex items-center gap-4 group/btn"
+            >
+               Ativar Agora <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
+            </button>
+         </div>
+      )}
 
       {/* HISTORY TABLE */}
       <div className="space-y-6">

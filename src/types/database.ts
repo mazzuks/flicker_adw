@@ -58,6 +58,8 @@ export interface Database {
           name: string
           plan: string
           settings: Json
+          financial_system_enabled: boolean
+          financial_system_partner: string | null
           created_at: string
         }
         Insert: {
@@ -65,6 +67,8 @@ export interface Database {
           name: string
           plan?: string
           settings?: Json
+          financial_system_enabled?: boolean
+          financial_system_partner?: string | null
           created_at?: string
         }
         Update: {
@@ -72,6 +76,8 @@ export interface Database {
           name?: string
           plan?: string
           settings?: Json
+          financial_system_enabled?: boolean
+          financial_system_partner?: string | null
           created_at?: string
         }
         Relationships: []
@@ -725,6 +731,42 @@ export interface Database {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          id: string
+          account_id: string
+          user_id: string | null
+          title: string
+          body: string
+          type: string
+          link: string | null
+          read_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          account_id: string
+          user_id?: string | null
+          title: string
+          body: string
+          type: string
+          link?: string | null
+          read_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string
+          user_id?: string | null
+          title?: string
+          body?: string
+          type?: string
+          link?: string | null
+          read_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       v_deals_board: {
@@ -755,6 +797,16 @@ export interface Database {
           avg_revenue_per_user: number | null
           ticket_average: number | null
           churn_rate_30d: number | null
+        }
+        Relationships: []
+      }
+      v_dashboard_stats: {
+        Row: {
+          account_id: string
+          total_pipeline_cents: number
+          active_deals: number
+          overdue_count: number
+          sla_avg_days: number
         }
         Relationships: []
       }

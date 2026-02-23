@@ -1,24 +1,54 @@
 import { useKpis, useDealsBoard } from '../../lib/queries';
+import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import {
   AlertTriangle,
   ChevronRight,
   Clock,
   Building2,
+  History,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 
 /**
- * 🏛️ ADWORKS DECISION PANEL (Final v7 - Absolute Fidelity)
- * Reconstructing EXACT layout and aesthetics from user-provided reference (file_59).
+ * 🏛️ ADWORKS DECISION PANEL (Final v8 - Real-time Audit)
+ * Reconstructing EXACT layout and aesthetics with real-time audit feed.
  */
 
 export function Overview() {
   const { data: kpis, isLoading: loadingKpis } = useKpis();
   const { data: deals, isLoading: loadingDeals } = useDealsBoard();
   const navigate = useNavigate();
+  
+  const [auditEvents, setAuditEvents] = useState<any[]>([]);
+  const [loadingAudit, setLoadingAudit] = useState(true);
 
-  if (loadingKpis || loadingDeals)
+  useEffect(() => {
+    loadAuditEvents();
+    
+    // Optional: Real-time subscription for the audit feed
+    const subscription = supabase
+      .channel('realtime_audit')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events_audit' }, () => loadAuditEvents())
+      .subscribe();
+
+    return () => { subscription.unsubscribe(); };
+  }, []);
+
+  const loadAuditEvents = async () => {
+    const { data } = await supabase
+      .from('events_audit')
+      .select('*, user_profiles:actor_id(full_name), deals:entity_id(title, company_name:companies(name))')
+      .order('created_at', { ascending: false })
+      .limit(6);
+    
+    setAuditEvents(data || []);
+    setLoadingAudit(false);
+  };
+
+  if (loadingKpis || loadingDeals || loadingAudit)
     return (
       <div className="p-10 animate-pulse space-y-6">
         <div className="h-10 bg-gray-200 rounded w-1/4" />
@@ -51,7 +81,7 @@ export function Overview() {
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight italic uppercase">OVERVIEW</h1>
       </div>
 
-      {/* 1. KPI TOP ROW - FIDELITY RECONSTRUCTION */}
+      {/* 1. KPI TOP ROW */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiItem label="PIPELINE TOTAL" value={kpis?.totalPipeline || 'R$ 0,00'} icon={Clock} color="text-blue-500" />
         <KpiItem label="PROCESSOS ATIVOS" value={String(kpis?.activeDeals || 0)} icon={Building2} color="text-slate-600" />
@@ -113,17 +143,37 @@ export function Overview() {
             </div>
           </div>
 
-          {/* PERFORMANCE EM TEMPO REAL */}
+          {/* PERFORMANCE EM TEMPO REAL (AUDIT FEED) */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
              <div className="p-6 border-b border-slate-50 bg-slate-50/30">
                <h3 className="text-xs font-black text-slate-900 tracking-tight uppercase italic">
                  PERFORMANCE EM TEMPO REAL
                </h3>
              </div>
-             <div className="p-10 text-center">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic leading-relaxed">
-                   Timeline Global de Operacao<br/>Sincronizando eventos do sistema...
-                </p>
+             <div className="divide-y divide-slate-50">
+                {auditEvents.map((act, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 px-6 hover:bg-slate-50 transition-all">
+                    <div className="flex items-center gap-3">
+                       <div className="p-1.5 bg-slate-100 rounded text-slate-400"><History className="w-4 h-4" /></div>
+                       <span className="text-[11px] font-bold text-slate-800">
+                          <span className="text-slate-900">{act.user_profiles?.full_name?.split(' ')[0] || 'Sistema'}</span> 
+                          <span className="text-slate-400 uppercase ml-2 tracking-tight">
+                             {act.action === 'moved' 
+                                ? `Moveu ${act.deals?.company_name?.name || 'Processo'} para ${act.payload_json?.to}` 
+                                : `Criou novo processo: ${act.deals?.title}`}
+                          </span>
+                       </span>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">
+                       {new Date(act.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+                {auditEvents.length === 0 && (
+                   <div className="p-10 text-center">
+                      <p className="text-[10px] font-black text-slate-300 uppercase italic">Aguardando eventos operacionais...</p>
+                   </div>
+                )}
              </div>
           </div>
         </div>
@@ -159,37 +209,6 @@ export function Overview() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* PERFORMANCE POR RESPONSÁVEL */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-50 bg-slate-50/30">
-              <h3 className="text-xs font-black text-slate-900 tracking-tight uppercase italic">
-                PERFORMANCE POR TIME
-              </h3>
-            </div>
-            <div className="divide-y divide-slate-50">
-               {[
-                 { name: 'Dan', active: 20, overdue: 10, sla: '-0.7d' },
-                 { name: 'Matheus', active: 10, overdue: 10, sla: '0.7d' },
-                 { name: 'Sah AI', active: 50, overdue: 10, sla: '-0.7d' },
-               ].map((m, i) => (
-                 <div key={i} className="flex items-center justify-between p-4 px-6 hover:bg-slate-50 transition-all cursor-pointer">
-                    <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center">
-                          <span className="text-[8px] font-black text-slate-400">DM</span>
-                       </div>
-                       <span className="text-[12px] font-black text-slate-700 uppercase italic tracking-tight">{m.name}</span>
-                    </div>
-                    <div className="flex items-center gap-5 text-[11px] font-black italic">
-                       <span className="text-slate-900">{m.active}</span>
-                       <span className="text-red-500">{m.overdue}</span>
-                       <span className="text-slate-400">{m.sla}</span>
-                       <ChevronRight className="w-4 h-4 text-slate-300" />
-                    </div>
-                 </div>
-               ))}
             </div>
           </div>
         </div>
