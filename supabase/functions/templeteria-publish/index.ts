@@ -18,36 +18,44 @@ serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-  const { siteId, versionNumber } = await req.json()
+  const { siteId, version } = await req.json()
 
   try {
-    // 1. Fetch the selected version data
-    const { data: version, error: verErr } = await supabase
+    // 1. Fetch the specific version data
+    const { data: verData, error: verErr } = await supabase
       .from('templeteria_site_versions')
       .select('*')
       .eq('site_id', siteId)
-      .eq('version', versionNumber)
+      .eq('version', version)
       .single()
 
-    if (verErr || !version) throw new Error("Version not found")
+    if (verErr || !verData) throw new Error("Version not found")
 
     // 2. Ownership Validation
     const { data: site } = await supabase.from('templeteria_sites').select('*').eq('id', siteId).single()
     if (!site || site.created_by !== user.id) throw new Error("Unauthorized or project not found")
 
-    // 3. Freeze Snapshot on Site record
+    // 3. Publish Update (Standardized Snapshot)
+    const now = new Date().toISOString();
     const { error: updateError } = await supabase.from('templeteria_sites').update({
         status: 'published',
-        published_version_id: version.id,
-        published_version: version.version,
-        published_schema_json: version.schema_json,
-        published_schema_version: version.schema_version,
-        published_at: new Date().toISOString()
+        published_version: verData.version,
+        published_schema_json: verData.schema_json,
+        published_schema_version: verData.schema_version,
+        published_at: now
     }).eq('id', siteId)
 
     if (updateError) throw updateError;
 
-    // 4. Log Job
+    // 4. Log Publish Event (Audit)
+    await supabase.from('templeteria_publish_events').insert({
+       site_id: siteId,
+       version_id: verData.id,
+       published_by: user.id,
+       published_at: now
+    })
+
+    // 5. Log General Job
     await supabase.from('templeteria_ai_jobs').insert({
        site_id: siteId,
        job_type: 'publish',

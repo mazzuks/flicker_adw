@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/auth';
-import { templeteriaEngine } from '../../services/templeteriaEngine';
-import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
+import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import {
+  Settings2,
   Monitor,
   Smartphone,
   ArrowLeft,
@@ -19,12 +15,17 @@ import {
   History as HistoryIcon,
   Eye,
   RotateCcw,
-  Settings2
+  CloudLightning,
 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
+import { templeteriaEngine } from '../../services/templeteriaEngine';
+import { Badge } from '../../components/ui/Badge';
 
 /**
- * TEMPLETERIA REFINER
- * Loads real versioned schema from DB.
+ * TEMPLETERIA REFINER (Fase 2.5)
+ * Supports version preview, snapshot preview, rollback, and Publish History.
  * No mocks. No emojis.
  */
 
@@ -37,9 +38,13 @@ export function TempleteriaRefiner() {
   const [refining, setRefining] = useState(false);
   const [publishing, setPublishing] = useState(false);
   
+  // Tabs: 'edit' | 'history' | 'publish'
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'edit' | 'history' | 'publish'>('edit');
+
   // Data State
   const [site, setSite] = useState<any>(null);
   const [versions, setVersions] = useState<any[]>([]);
+  const [publishHistory, setPublishHistory] = useState<any[]>([]);
   const [activeSchema, setActiveSchema] = useState<any>(null);
   const [activeVersionNumber, setActiveVersionNumber] = useState<number | 'published'>(1);
   
@@ -69,11 +74,19 @@ export function TempleteriaRefiner() {
         .order('version', { ascending: false });
       if (verError) throw verError;
 
+      // 3. Fetch publish events
+      const { data: pubData } = await supabase
+        .from('templeteria_publish_events')
+        .select('*, version:version_id(version)')
+        .eq('site_id', siteId as string)
+        .order('published_at', { ascending: false });
+
       setSite(siteData);
       setVersions(verData || []);
+      setPublishHistory(pubData || []);
       
-      // Default view: Latest version
-      if (verData && verData.length > 0) {
+      // Default view: Latest version if not already viewing published
+      if (activeVersionNumber !== 'published' && verData && verData.length > 0) {
         setActiveSchema(verData[0].schema_json);
         setActiveVersionNumber(verData[0].version);
       }
@@ -106,7 +119,7 @@ export function TempleteriaRefiner() {
       });
       setInstruction('');
       setShowRefineModal(false);
-      await loadSiteData(); // Full reload to get new version list
+      await loadSiteData();
     } catch (err) {
       console.error('Refine error:', err);
       alert('Erro ao ajustar conteudo via IA');
@@ -232,66 +245,98 @@ export function TempleteriaRefiner() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10">
-          <div className="space-y-4">
-            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
-              <Palette className="h-3.5 w-3.5" /> Identidade
-            </h3>
-            <div className="space-y-4">
-              <label className="block space-y-2">
-                <span className="text-[11px] font-bold text-slate-600">Cor Principal</span>
-                <div className="flex gap-2">
-                  <div
-                    className="h-10 w-10 rounded-lg border border-slate-100"
-                    style={{ backgroundColor: activeSchema.theme?.primaryColor || '#2563eb' }}
-                  />
-                  <input
-                    type="text"
-                    readOnly
-                    value={activeSchema.theme?.primaryColor || '#2563eb'}
-                    className="flex-1 rounded-lg border border-slate-100 bg-slate-50 px-3 text-xs font-bold uppercase"
-                  />
-                </div>
-              </label>
-            </div>
+        <aside className="w-80 shrink-0 overflow-y-auto border-r border-slate-200 bg-white flex flex-col">
+          {/* SIDEBAR TABS */}
+          <div className="flex border-b border-slate-100 flex-shrink-0">
+             <button onClick={() => setActiveSidebarTab('edit')} className={`flex-1 py-4 text-[9px] font-black uppercase tracking-widest border-b-2 transition-all ${activeSidebarTab === 'edit' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400'}`}>Edit</button>
+             <button onClick={() => setActiveSidebarTab('history')} className={`flex-1 py-4 text-[9px] font-black uppercase tracking-widest border-b-2 transition-all ${activeSidebarTab === 'history' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400'}`}>Versoes</button>
+             <button onClick={() => setActiveSidebarTab('publish')} className={`flex-1 py-4 text-[9px] font-black uppercase tracking-widest border-b-2 transition-all ${activeSidebarTab === 'publish' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400'}`}>Logs</button>
           </div>
 
-          <div className="space-y-6">
-            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
-              <HistoryIcon className="h-3.5 w-3.5" /> Historico de Versoes
-            </h3>
-            <div className="space-y-3">
-              {versions.map((v) => (
-                <div
-                  key={v.id}
-                  onClick={() => selectVersion(v)}
-                  className={`group relative flex cursor-pointer flex-col rounded-2xl border p-4 transition-all ${activeVersionNumber === v.version ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100 bg-slate-50 hover:border-blue-200'}`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 leading-none">
-                      Versao {v.version}
-                    </span>
-                    {site.published_version === v.version && <Badge variant="success" className="text-[8px] px-1.5 py-0">LIVE</Badge>}
-                  </div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase leading-none">{v.notes || 'Ajuste de IA'}</span>
-                  
-                  {/* Rollback action */}
-                  {site.status === 'published' && site.published_version !== v.version && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleRollback(v.version); }}
-                      className="absolute bottom-3 right-3 p-1.5 bg-white rounded-lg border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
-                      title="Fazer Rollback para esta versao"
-                    >
-                       <RotateCcw className="w-3 h-3" />
-                    </button>
-                  )}
+          <div className="flex-1 overflow-y-auto p-6 space-y-10">
+            {activeSidebarTab === 'edit' && (
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
+                  <Palette className="h-3.5 w-3.5" /> Identidade
+                </h3>
+                <div className="space-y-4">
+                  <label className="block space-y-2">
+                    <span className="text-[11px] font-bold text-slate-600">Cor Principal</span>
+                    <div className="flex gap-2">
+                      <div
+                        className="h-10 w-10 rounded-lg border border-slate-100"
+                        style={{ backgroundColor: activeSchema.theme?.primaryColor || '#2563eb' }}
+                      />
+                      <input
+                        type="text"
+                        readOnly
+                        value={activeSchema.theme?.primaryColor || '#2563eb'}
+                        className="flex-1 rounded-lg border border-slate-100 bg-slate-50 px-3 text-xs font-bold uppercase"
+                      />
+                    </div>
+                  </label>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {activeSidebarTab === 'history' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
+                  <HistoryIcon className="h-3.5 w-3.5" /> Historico de Versoes
+                </h3>
+                <div className="space-y-3">
+                  {versions.map((v) => (
+                    <div
+                      key={v.id}
+                      onClick={() => selectVersion(v)}
+                      className={`group relative flex cursor-pointer flex-col rounded-2xl border p-4 transition-all ${activeVersionNumber === v.version ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100 bg-slate-50 hover:border-blue-200'}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 leading-none">
+                          Versao {v.version}
+                        </span>
+                        {site.published_version === v.version && <Badge variant="success" className="text-[8px] px-1.5 py-0">LIVE</Badge>}
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase leading-none">{v.notes || 'Ajuste de IA'}</span>
+                      
+                      {site.status === 'published' && site.published_version !== v.version && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleRollback(v.version); }}
+                          className="absolute bottom-3 right-3 p-1.5 bg-white rounded-lg border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                          title="Rollback"
+                        >
+                           <RotateCcw className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeSidebarTab === 'publish' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
+                  <CloudLightning className="h-3.5 w-3.5" /> Logs de Publicacao
+                </h3>
+                <div className="space-y-4">
+                  {publishHistory.map((p) => (
+                    <div key={p.id} className="relative pl-6 border-l border-slate-100 pb-2">
+                       <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" />
+                       <p className="text-[11px] font-black text-slate-900 uppercase italic">V{p.version?.version} Publicada</p>
+                       <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">
+                          {new Date(p.published_at).toLocaleString('pt-BR')}
+                       </p>
+                    </div>
+                  ))}
+                  {publishHistory.length === 0 && <p className="text-center text-[9px] font-bold text-slate-300 uppercase tracking-widest">Nenhuma publicacao registrada</p>}
+                </div>
+              </div>
+            )}
           </div>
         </aside>
 
-        <main className="flex flex-1 justify-center overflow-y-auto bg-slate-100 p-12 scrollbar-hide">
+        <main className="flex-1 justify-center overflow-y-auto bg-slate-100 p-12 scrollbar-hide flex">
           <div
             className={`h-fit min-h-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl transition-all duration-500 ${viewMode === 'mobile' ? 'w-[375px] min-h-[667px]' : 'w-full max-w-5xl'}`}
           >
@@ -308,25 +353,13 @@ export function TempleteriaRefiner() {
             </h3>
             <textarea
               className="h-32 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Altere o titulo para algo mais agressivo focado em resultados..."
+              placeholder="Descreva o ajuste..."
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
             />
             <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => setShowRefineModal(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                className="flex-1 bg-blue-600 text-white font-bold uppercase text-[11px]"
-                isLoading={refining}
-                onClick={handleRefine}
-              >
-                Ajustar com IA
-              </Button>
+              <Button variant="secondary" className="flex-1" onClick={() => setShowRefineModal(false)}>Cancelar</Button>
+              <Button className="flex-1 bg-blue-600 text-white font-bold uppercase text-[11px]" isLoading={refining} onClick={handleRefine}>Ajustar com IA</Button>
             </div>
           </div>
         </div>
