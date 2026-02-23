@@ -18,7 +18,16 @@ import {
   Layout,
   ChevronRight,
   FileEdit,
+  MoreVertical,
+  Archive,
+  RefreshCw,
+  Edit3,
 } from 'lucide-react';
+
+/**
+ * 🪄 TEMPLETERIA DASHBOARD V2
+ * High-usability management tool for AI sites.
+ */
 
 export function TempleteriaDashboard() {
   const navigate = useNavigate();
@@ -28,6 +37,7 @@ export function TempleteriaDashboard() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'published'>('all');
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile?.account_id) loadSites();
@@ -46,10 +56,33 @@ export function TempleteriaDashboard() {
     }
   };
 
+  const handleDuplicate = async (siteId: string) => {
+    if (!profile?.account_id || !profile?.id) return;
+    setActionLoading(siteId);
+    try {
+      await templeteriaService.duplicateSite(siteId, profile.account_id, profile.id);
+      await loadSites();
+      alert('Projeto duplicado com sucesso!');
+    } catch (err: any) {
+      alert(`Erro ao duplicar: ${err.message}`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleArchive = async (siteId: string) => {
+    if (!window.confirm('Deseja realmente arquivar este projeto?')) return;
+    try {
+      await templeteriaService.updateSiteInfo(siteId, { status: 'archived' });
+      await loadSites();
+    } catch (err: any) {
+      alert(`Erro ao arquivar: ${err.message}`);
+    }
+  };
+
   const handlePublish = async (siteId: string) => {
     setPublishingId(siteId);
     try {
-      // Get the latest version number
       const { data: ver } = await supabase
         .from('templeteria_site_versions')
         .select('version')
@@ -94,7 +127,7 @@ export function TempleteriaDashboard() {
     lastActivity: sites[0]?.updated_at || sites[0]?.created_at || null,
   };
 
-  if (loading)
+  if (loading && sites.length === 0)
     return (
       <div className="p-10 animate-pulse space-y-8">
         <div className="h-10 bg-slate-200 rounded-xl w-1/4" />
@@ -110,27 +143,35 @@ export function TempleteriaDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-            Meus Sites
+            Sites
           </h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic">
-            Gerenciamento de Projetos Templeteria
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic">
+            Dashboard v2 • Webflow style
           </p>
         </div>
-        <Button
-          onClick={() => navigate('/app/templeteria/wizard')}
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-8 py-6 h-auto rounded-2xl font-black uppercase tracking-widest gap-3 transition-all hover:scale-105 active:scale-95"
-        >
-          <Plus className="w-5 h-5" /> Novo Projeto
-        </Button>
+        <div className="flex items-center gap-4">
+           <button 
+             onClick={loadSites}
+             className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm"
+           >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+           </button>
+           <Button
+             onClick={() => navigate('/app/templeteria/wizard')}
+             className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-8 py-6 h-auto rounded-2xl font-black uppercase tracking-widest gap-3 transition-all hover:scale-105 active:scale-95"
+           >
+             <Plus className="w-5 h-5" /> Criar Novo Site
+           </Button>
+        </div>
       </div>
 
       {/* KPI ROW */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MiniStat label="Total" value={String(stats.total)} icon={Layout} color="text-blue-600" bg="bg-blue-50" />
-        <MiniStat label="Drafts" value={String(stats.draft)} icon={FileEdit} color="text-amber-500" bg="bg-amber-50" />
-        <MiniStat label="Live" value={String(stats.published)} icon={Rocket} color="text-emerald-500" bg="bg-emerald-50" />
+        <MiniStat label="Projetos" value={String(stats.total)} icon={Layout} color="text-blue-600" bg="bg-blue-50" />
+        <MiniStat label="Rascunhos" value={String(stats.draft)} icon={FileEdit} color="text-amber-500" bg="bg-amber-50" />
+        <MiniStat label="No Ar" value={String(stats.published)} icon={Rocket} color="text-emerald-500" bg="bg-emerald-50" />
         <MiniStat 
-          label="Atividade" 
+          label="Ultima Edicao" 
           value={stats.lastActivity ? new Date(stats.lastActivity).toLocaleDateString('pt-BR') : '--'} 
           icon={Clock} 
           color="text-slate-400" 
@@ -138,7 +179,7 @@ export function TempleteriaDashboard() {
         />
       </div>
 
-      {/* LIST CONTROL */}
+      {/* TOOLBAR */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
          <div className="flex p-1.5 bg-slate-100 rounded-2xl">
             {(['all', 'draft', 'published'] as const).map(tab => (
@@ -151,11 +192,11 @@ export function TempleteriaDashboard() {
                </button>
             ))}
          </div>
-         <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+         <div className="relative w-full md:w-80 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
             <input 
               type="text"
-              placeholder="Buscar..."
+              placeholder="Buscar por nome ou slug..."
               className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-[10px] font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -167,15 +208,25 @@ export function TempleteriaDashboard() {
       {filteredSites.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
            {filteredSites.map((site) => (
-             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
+             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="flex items-center gap-6">
-                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner ${site.status === 'published' ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'}`}>
+                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner transition-all ${site.status === 'published' ? 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-blue-600 group-hover:text-white'}`}>
                       <Globe className="w-7 h-7" />
                    </div>
                    <div>
-                      <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">{site.name}</h3>
+                      <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight flex items-center gap-2">
+                        {site.name}
+                        <button onClick={() => {
+                          const n = prompt("Novo nome do site:", site.name);
+                          if(n) templeteriaService.updateSiteInfo(site.id, { name: n }).then(() => loadSites());
+                        }} className="p-1 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-blue-600 transition-all"><Edit3 className="w-3 h-3" /></button>
+                      </h3>
                       <div className="flex items-center gap-3 mt-1.5">
-                         <span className="text-[10px] font-bold text-slate-400 tracking-widest">/s/{site.slug}</span>
+                         <span className="text-[10px] font-bold text-slate-400 tracking-widest cursor-pointer hover:text-blue-600" onClick={() => {
+                            const s = prompt("Novo slug do site:", site.slug);
+                            if(s) templeteriaService.updateSiteInfo(site.id, { slug: s }).then(() => loadSites()).catch(e => alert("Slug ja em uso."));
+                         }}>/s/{site.slug}</span>
+                         <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                          <Badge variant={site.status === 'published' ? 'success' : 'neutral'} className="text-[8px] px-2 py-0">
                             {site.status.toUpperCase()}
                          </Badge>
@@ -189,20 +240,20 @@ export function TempleteriaDashboard() {
                       onClick={() => navigate(`/app/refiner/${site.id}`)}
                       className="gap-2 px-6 border-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-bold uppercase text-[10px]"
                    >
-                      Editar <ChevronRight className="w-3.5 h-3.5" />
+                      Abrir Refiner <ChevronRight className="w-3.5 h-3.5" />
                    </Button>
                    
                    {site.status === 'published' ? (
                       <>
                         <button 
                           onClick={() => window.open(`/s/${site.slug}`, '_blank')}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all" title="Ver Site"
                         >
                            <ExternalLink className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => copyToClipboard(site.slug)}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" title="Copiar Link"
                         >
                            <Copy className="w-4 h-4" />
                         </button>
@@ -216,7 +267,26 @@ export function TempleteriaDashboard() {
                          <Rocket className="w-4 h-4" /> Publicar
                       </Button>
                    )}
+
+                   {/* DROPDOWN ACTIONS SIMULATED */}
+                   <div className="relative group/menu">
+                      <button className="p-3 text-slate-300 hover:text-slate-900 transition-all"><MoreVertical className="w-5 h-5" /></button>
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 overflow-hidden">
+                         <button onClick={() => handleDuplicate(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 flex items-center gap-3">
+                            <Copy className="w-3.5 h-3.5" /> Duplicar
+                         </button>
+                         <button onClick={() => handleArchive(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 flex items-center gap-3 border-t border-slate-50">
+                            <Archive className="w-3.5 h-3.5" /> Arquivar
+                         </button>
+                      </div>
+                   </div>
                 </div>
+                
+                {actionLoading === site.id && (
+                   <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+                      <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+                   </div>
+                )}
              </div>
            ))}
         </div>
