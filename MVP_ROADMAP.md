@@ -73,8 +73,10 @@ Este arquivo e o nosso centro de comando para o desenvolvimento do MVP. Aqui mon
     - Arquivos: `supabase/migrations/20260223_fiscal_and_checklist.sql`, `src/pages/app/AccountChecklist.tsx`
 - [x] **Agenda Fiscal**: Central de vencimentos (DAS, Pro-labore) com calendario visual.
     - Arquivos: `src/pages/app/FiscalAgenda.tsx`
-- [ ] **Solicitador de Nota Fiscal**: Formulario para pedido de emissao (CNPJ, Valor, Descricao).
-- [ ] **Dashboard Financeiro Simplificado**: Resumo de faturamento e impostos.
+- [x] **Dashboard Financeiro Simplificado**: Resumo de faturamento e impostos.
+    - Arquivos: `supabase/migrations/20260223_fiscal_dashboard_3_0.sql`, `src/pages/app/CompanyFinance.tsx`, `src/pages/app/OperatorFinanceEditor.tsx`
+- [x] **Solicitador de Nota Fiscal**: Formulario para pedido de emissao (CNPJ, Valor, Descricao).
+    - Arquivos: `supabase/migrations/20260223_fiscal_motor_2_0.sql`, `src/pages/app/NfSolicitator.tsx`, `src/pages/app/FiscalOperatorQueue.tsx`
 
 ---
 

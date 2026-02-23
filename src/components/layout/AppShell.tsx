@@ -12,7 +12,8 @@ import {
   Calendar,
   CheckSquare,
   FileSpreadsheet,
-  ClipboardCheck
+  ClipboardCheck,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -30,6 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: Calendar, label: 'Agenda Fiscal', path: '/app/company/agenda-fiscal' },
     { icon: CheckSquare, label: 'Ativacao', path: '/app/company/checklist' },
     { icon: FileSpreadsheet, label: 'Notas Fiscais', path: '/app/company/nf-requests' },
+    { icon: TrendingUp, label: 'Financas', path: '/app/company/finance' },
     { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
     { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];

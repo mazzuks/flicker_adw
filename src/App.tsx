@@ -15,6 +15,8 @@ import { FiscalAgenda } from './pages/app/FiscalAgenda';
 import { AccountChecklist } from './pages/app/AccountChecklist';
 import { NfSolicitator } from './pages/app/NfSolicitator';
 import { FiscalOperatorQueue } from './pages/app/FiscalOperatorQueue';
+import { CompanyFinance } from './pages/app/CompanyFinance';
+import { OperatorFinanceEditor } from './pages/app/OperatorFinanceEditor';
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,8 @@ function AppRoutes() {
         <Route path="company/checklist" element={<AccountChecklist />} />
         <Route path="company/nf-requests" element={<NfSolicitator />} />
         <Route path="operator/fiscal-queue" element={<FiscalOperatorQueue />} />
+        <Route path="company/finance" element={<CompanyFinance />} />
+        <Route path="operator/finance/:accountId" element={<OperatorFinanceEditor />} />
       </Route>
 
       <Route path="/s/:slug" element={<PublicSiteView />} />
