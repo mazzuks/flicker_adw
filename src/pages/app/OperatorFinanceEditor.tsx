@@ -24,6 +24,7 @@ export function OperatorFinanceEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [account, setAccount] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     revenue_month: 0,
@@ -33,10 +34,16 @@ export function OperatorFinanceEditor() {
   });
 
   useEffect(() => {
-    if (accountId) loadData();
+    if (!accountId) {
+      setError('ID da conta nao fornecido');
+      setLoading(false);
+      return;
+    }
+    loadData();
   }, [accountId]);
 
   const loadData = async () => {
+    if (!accountId) return;
     setLoading(true);
     try {
       const { data: acc } = await supabase.from('accounts').select('name').eq('id', accountId).single();
@@ -69,6 +76,7 @@ export function OperatorFinanceEditor() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accountId) return;
     setSaving(true);
 
     const now = new Date();
@@ -92,6 +100,7 @@ export function OperatorFinanceEditor() {
   };
 
   if (loading) return <div className="p-10 animate-pulse font-black text-slate-300">CARREGANDO DADOS...</div>;
+  if (error) return <div className="p-10 text-red-500 font-bold uppercase">{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">

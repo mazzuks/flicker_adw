@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { 
   FilePlus2, 
-  Search, 
   Clock, 
-  CheckCircle2, 
-  XCircle, 
   FileText,
-  AlertCircle
 } from 'lucide-react';
 
 /**
@@ -95,7 +91,6 @@ export function NfSolicitator() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* REQUEST FORM (5/12) */}
         <div className="lg:col-span-5 space-y-6">
            <Card className="p-8 border border-slate-200 shadow-xl shadow-slate-200/50 rounded-[2.5rem]">
               <h3 className="text-sm font-black uppercase tracking-widest mb-8 italic text-slate-900 flex items-center gap-2">
@@ -139,7 +134,6 @@ export function NfSolicitator() {
            </Card>
         </div>
 
-        {/* HISTORY LIST (7/12) */}
         <div className="lg:col-span-7">
            <Card noPadding className="border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">

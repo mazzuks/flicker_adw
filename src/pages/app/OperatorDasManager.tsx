@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
@@ -6,10 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { 
   ArrowLeft, 
   Upload, 
-  Calendar,
-  CheckCircle2,
   FileText,
-  AlertCircle
 } from 'lucide-react';
 
 /**
@@ -23,13 +20,20 @@ export function OperatorDasManager() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [account, setAccount] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01`);
 
   useEffect(() => {
-    if (accountId) loadAccount();
+    if (!accountId) {
+      setError('ID da conta nao fornecido');
+      setLoading(false);
+      return;
+    }
+    loadAccount();
   }, [accountId]);
 
   const loadAccount = async () => {
+    if (!accountId) return;
     const { data } = await supabase.from('accounts').select('name').eq('id', accountId).single();
     setAccount(data);
     setLoading(false);
@@ -45,20 +49,17 @@ export function OperatorDasManager() {
       const fileName = `${monthRef}.pdf`;
       const storagePath = `${accountId}/${fileName}`;
 
-      // 1. Upload to Storage
       const { error: uploadError } = await supabase.storage
         .from('das-guides')
         .upload(storagePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // 2. Upsert record in DB
       const { error: dbError } = await supabase.from('das_guides').upsert({
         account_id: accountId,
         month_ref: monthRef,
         storage_path: storagePath,
-        status: 'available',
-        updated_at: new Date().toISOString()
+        status: 'available'
       }, { onConflict: 'account_id, month_ref' });
 
       if (dbError) throw dbError;
@@ -72,6 +73,7 @@ export function OperatorDasManager() {
   };
 
   if (loading) return <div className="p-10 animate-pulse font-black text-slate-300">CARREGANDO CONTA...</div>;
+  if (error) return <div className="p-10 text-red-500 font-bold uppercase">{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
@@ -112,16 +114,6 @@ export function OperatorDasManager() {
             </label>
          </div>
       </Card>
-
-      <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[2.5rem] flex items-start gap-4">
-         <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
-         <div>
-            <p className="text-xs font-black text-emerald-900 uppercase tracking-tight italic">Publicacao Imediata</p>
-            <p className="text-xs text-emerald-800/70 font-medium leading-relaxed mt-1 uppercase italic">
-               Ao subir o arquivo, o cliente recebera uma notificacao e a guia ficara disponivel para download instantaneo na dashboard dele.
-            </p>
-         </div>
-      </div>
     </div>
   );
 }

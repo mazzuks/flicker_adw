@@ -19,6 +19,11 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string
+  ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   isAdworks: boolean;
 }
@@ -84,6 +89,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const signUp = async (email: string, password: string, fullName: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        }
+      }
+    });
+
+    if (data.user && !error) {
+       // Create account and profile manually for the new tenant
+       const { data: account } = await supabase.from('accounts').insert({
+         name: `Empresa de ${fullName}`,
+         plan: 'trial'
+       }).select().single();
+
+       if (account) {
+         await supabase.from('user_profiles').insert({
+           id: data.user.id,
+           email,
+           full_name: fullName,
+           account_id: account.id,
+           role_global: 'CLIENT_OWNER'
+         });
+       }
+    }
+
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -102,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading,
         signIn,
+        signUp,
         signOut,
         isAdworks,
       }}
