@@ -25,8 +25,14 @@ import {
   Edit3,
   Link,
   Check,
-  AlertCircle
+  AlertCircle,
+  Share2
 } from 'lucide-react';
+
+/**
+ * 🪄 TEMPLETERIA DASHBOARD V2.6
+ * Supports Share Preview, Duplication, and Archiving.
+ */
 
 export function TempleteriaDashboard() {
   const navigate = useNavigate();
@@ -73,6 +79,24 @@ export function TempleteriaDashboard() {
     }
   };
 
+  const handleSharePreview = async (siteId: string) => {
+     setActionLoading(siteId);
+     try {
+        const { data, error } = await supabase.functions.invoke('templeteria-preview-link', {
+           body: { siteId }
+        });
+        if (error) throw error;
+        
+        const url = `${window.location.origin}/p/${data.slug}?t=${data.token}`;
+        await navigator.clipboard.writeText(url);
+        alert('Link de Preview (7 dias) copiado para a area de transferencia!');
+     } catch (err: any) {
+        alert(`Erro ao gerar preview: ${err.message}`);
+     } finally {
+        setActionLoading(null);
+     }
+  };
+
   const handleArchive = async (siteId: string) => {
     if (!window.confirm('Deseja realmente arquivar este projeto?')) return;
     try {
@@ -112,7 +136,7 @@ export function TempleteriaDashboard() {
   const copyToClipboard = (slug: string) => {
     const url = `${window.location.origin}/s/${slug}`;
     navigator.clipboard.writeText(url);
-    alert('Link copiado!');
+    alert('Link publico copiado!');
   };
 
   const startEditSlug = (site: any) => {
@@ -176,7 +200,7 @@ export function TempleteriaDashboard() {
             Sites
           </h1>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic leading-none">
-            Ecossistema Templeteria v2.5
+            Ecossistema Templeteria v2.6
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -190,7 +214,7 @@ export function TempleteriaDashboard() {
              onClick={() => navigate('/app/templeteria/wizard')}
              className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-8 py-6 h-auto rounded-2xl font-black uppercase tracking-widest gap-3 transition-all hover:scale-105 active:scale-95"
            >
-             <Plus className="w-5 h-5" /> Novo Projeto
+             <Plus className="w-5 h-5" /> Criar Novo Site
            </Button>
         </div>
       </div>
@@ -226,7 +250,7 @@ export function TempleteriaDashboard() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
             <input 
               type="text"
-              placeholder="Buscar..."
+              placeholder="Buscar por nome ou slug..."
               className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-[10px] font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -316,7 +340,10 @@ export function TempleteriaDashboard() {
                    <div className="relative group/menu">
                       <button className="p-3 text-slate-300 hover:text-slate-900 transition-all"><MoreVertical className="w-5 h-5" /></button>
                       <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 overflow-hidden">
-                         <button onClick={() => handleDuplicate(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 flex items-center gap-3">
+                         <button onClick={() => handleSharePreview(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-50 flex items-center gap-3">
+                            <Share2 className="w-3.5 h-3.5" /> Compartilhar Preview
+                         </button>
+                         <button onClick={() => handleDuplicate(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-t border-slate-50">
                             <Copy className="w-3.5 h-3.5" /> Duplicar
                          </button>
                          <button onClick={() => handleArchive(site.id)} className="w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 flex items-center gap-3 border-t border-slate-50">

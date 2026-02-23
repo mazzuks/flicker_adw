@@ -28,6 +28,7 @@ const CompanyDas = lazy(() => import('./pages/app/CompanyDas').then(m => ({ defa
 const OperatorDasManager = lazy(() => import('./pages/app/OperatorDasManager').then(m => ({ default: m.OperatorDasManager })));
 
 const PublicSiteView = lazy(() => import('./pages/public/PublicSiteView').then(m => ({ default: m.PublicSiteView })));
+const PublicPreviewView = lazy(() => import('./pages/public/PublicPreviewView').then(m => ({ default: m.PublicPreviewView })));
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ function AppRoutes() {
         </Route>
 
         <Route path="/s/:slug" element={<PublicSiteView />} />
+        <Route path="/p/:slug" element={<PublicPreviewView />} />
 
         <Route path="*" element={<Navigate to="/app/overview" replace />} />
       </Routes>
