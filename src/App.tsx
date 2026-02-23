@@ -17,6 +17,7 @@ import { NfSolicitator } from './pages/app/NfSolicitator';
 import { FiscalOperatorQueue } from './pages/app/FiscalOperatorQueue';
 import { CompanyFinance } from './pages/app/CompanyFinance';
 import { OperatorFinanceEditor } from './pages/app/OperatorFinanceEditor';
+import { AdminFinanceBI } from './pages/app/AdminFinanceBI';
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ function AppRoutes() {
         <Route path="operator/fiscal-queue" element={<FiscalOperatorQueue />} />
         <Route path="company/finance" element={<CompanyFinance />} />
         <Route path="operator/finance/:accountId" element={<OperatorFinanceEditor />} />
+        <Route path="admin/finance" element={<AdminFinanceBI />} />
       </Route>
 
       <Route path="/s/:slug" element={<PublicSiteView />} />

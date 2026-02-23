@@ -13,7 +13,8 @@ import {
   CheckSquare,
   FileSpreadsheet,
   ClipboardCheck,
-  TrendingUp
+  TrendingUp,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -23,6 +24,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { closeDrawer } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isSuperAdmin = profile?.role_global === 'ADWORKS_SUPERADMIN';
 
   const clientItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
@@ -44,7 +47,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];
 
-  const navItems = isAdworks ? operatorItems : clientItems;
+  const adminItems = [
+    { icon: ShieldCheck, label: 'Admin BI', path: '/app/admin/finance' },
+    ...operatorItems
+  ];
+
+  const navItems = isSuperAdmin ? adminItems : (isAdworks ? operatorItems : clientItems);
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex font-sans text-[#0B1220]">
