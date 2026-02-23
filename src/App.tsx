@@ -15,6 +15,7 @@ const Companies = lazy(() => import('./pages/app/Companies').then(m => ({ defaul
 const Inbox = lazy(() => import('./pages/app/Inbox').then(m => ({ default: m.Inbox })));
 
 const TempleteriaDashboard = lazy(() => import('./pages/app/TempleteriaDashboard').then(m => ({ default: m.TempleteriaDashboard })));
+const TempleteriaSitesDashboard = lazy(() => import('./pages/app/TempleteriaSitesDashboard').then(m => ({ default: m.TempleteriaSitesDashboard })));
 const TempleteriaWizard = lazy(() => import('./pages/app/TempleteriaWizard').then(m => ({ default: m.TempleteriaWizard })));
 const TempleteriaRefiner = lazy(() => import('./pages/app/TempleteriaRefiner').then(m => ({ default: m.TempleteriaRefiner })));
 
@@ -75,6 +76,7 @@ function AppRoutes() {
           <Route path="settings" element={<Settings />} />
           
           <Route path="templeteria" element={<TempleteriaDashboard />} />
+          <Route path="templeteria/sites" element={<TempleteriaSitesDashboard />} />
           <Route path="templeteria/wizard" element={<TempleteriaWizard />} />
           <Route path="refiner/:siteId" element={<TempleteriaRefiner />} />
           

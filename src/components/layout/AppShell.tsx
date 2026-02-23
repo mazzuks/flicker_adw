@@ -18,7 +18,8 @@ import {
   FileText,
   Globe,
   Home,
-  Plus
+  Plus,
+  Layout
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -36,7 +37,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   ];
 
   const templeteriaItems = [
-    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    { icon: Globe, label: 'Templeteria', path: '/app/templeteria' },
+    { icon: Layout, label: 'Sites', path: '/app/templeteria/sites', isSubItem: true },
     { icon: Plus, label: 'Criar site', path: '/app/templeteria/wizard', isSubItem: true },
   ];
 
