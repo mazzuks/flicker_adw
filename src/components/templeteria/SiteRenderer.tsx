@@ -1,46 +1,36 @@
 import React from 'react';
+import { normalizeTempleteriaSchema } from './schema/normalize';
 
 /**
  * SITE RENDERER ENGINE
- * Stable contract for declarative JSON sites.
- * No emojis.
+ * Versioned rendering based on standardized contracts.
  */
 
-interface SiteSection {
-  id?: string;
-  type: string;
-  props: {
-    headline?: string;
-    content?: string;
-    ctaText?: string;
-    items?: { title: string; desc: string }[];
-  };
-}
+export function SiteRenderer({ schema: rawSchema }: { schema: any }) {
+  const schema = normalizeTempleteriaSchema(rawSchema);
 
-interface SiteSchema {
-  metadata: { title: string; description: string };
-  theme: { palette?: string; primaryColor?: string; font: string };
-  pages: { id: string; title?: string; blocks: SiteSection[] }[];
-}
-
-export function SiteRenderer({ schema }: { schema: SiteSchema }) {
-  if (!schema || !schema.pages || schema.pages.length === 0) {
+  if (!schema.pages || schema.pages.length === 0) {
     return (
-      <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-[0.2em] italic">
-        Nenhum conteudo disponivel para renderizacao
+      <div className="p-20 text-center text-slate-400 font-black uppercase tracking-[0.2em] italic">
+        Nenhum conteudo disponivel
       </div>
     );
   }
 
+  // Currently only supporting V1
+  return renderV1(schema);
+}
+
+function renderV1(schema: any) {
   const primaryPage = schema.pages[0];
-  const themeColor = schema.theme?.palette || schema.theme?.primaryColor || '#2563eb';
+  const themeColor = schema.theme?.primaryColor || '#2563eb';
 
   return (
     <div style={{ fontFamily: schema.theme.font || 'Inter' }} className="min-h-screen bg-white">
-      {primaryPage.blocks?.map((block, idx) => (
+      {primaryPage.blocks?.map((block: any, idx: number) => (
         <RenderSection key={block.id || idx} block={block} themeColor={themeColor} />
       )) || (
-        <div className="p-20 text-center text-slate-300 italic uppercase font-bold tracking-widest">
+        <div className="p-20 text-center text-slate-300 italic uppercase font-black tracking-widest">
           Pagina sem blocos estruturados
         </div>
       )}
@@ -48,7 +38,7 @@ export function SiteRenderer({ schema }: { schema: SiteSchema }) {
   );
 }
 
-function RenderSection({ block, themeColor }: { block: SiteSection; themeColor: string }) {
+function RenderSection({ block, themeColor }: { block: any; themeColor: string }) {
   switch (block.type) {
     case 'hero':
       return (
@@ -57,7 +47,7 @@ function RenderSection({ block, themeColor }: { block: SiteSection; themeColor: 
              {block.props.headline || 'Seja bem vindo'}
            </h1>
            <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium tracking-tight leading-relaxed">
-             {block.props.content || 'Estamos preparando uma experiencia incrível para voce.'}
+             {block.props.content || 'Estamos preparando uma experiencia incrivel para voce.'}
            </p>
            {block.props.ctaText && (
              <button 
@@ -77,7 +67,7 @@ function RenderSection({ block, themeColor }: { block: SiteSection; themeColor: 
              {block.props.headline || 'Nossos Servicos'}
            </h2>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {block.props.items?.map((item, i) => (
+              {block.props.items?.map((item: any, i: number) => (
                 <div key={i} className="space-y-4 p-10 rounded-[2rem] border border-slate-100 bg-white shadow-xl shadow-slate-100/50 hover:border-blue-200 transition-all group">
                    <div style={{ color: themeColor }} className="text-[10px] font-black uppercase tracking-[0.4em] mb-4 opacity-50">Destaque 0{i+1}</div>
                    <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight">{item.title}</h3>

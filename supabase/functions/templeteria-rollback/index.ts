@@ -21,7 +21,7 @@ serve(async (req) => {
   const { siteId, versionNumber } = await req.json()
 
   try {
-    // 1. Fetch the selected version data
+    // 1. Fetch target version
     const { data: version, error: verErr } = await supabase
       .from('templeteria_site_versions')
       .select('*')
@@ -29,15 +29,14 @@ serve(async (req) => {
       .eq('version', versionNumber)
       .single()
 
-    if (verErr || !version) throw new Error("Version not found")
+    if (verErr || !version) throw new Error("Target version not found")
 
     // 2. Ownership Validation
     const { data: site } = await supabase.from('templeteria_sites').select('*').eq('id', siteId).single()
     if (!site || site.created_by !== user.id) throw new Error("Unauthorized or project not found")
 
-    // 3. Freeze Snapshot on Site record
+    // 3. Revert Snapshot
     const { error: updateError } = await supabase.from('templeteria_sites').update({
-        status: 'published',
         published_version_id: version.id,
         published_version: version.version,
         published_schema_json: version.schema_json,
@@ -47,10 +46,11 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    // 4. Log Job
+    // 4. Log Rollback Job
     await supabase.from('templeteria_ai_jobs').insert({
        site_id: siteId,
-       job_type: 'publish',
+       version_id: version.id,
+       job_type: 'rollback',
        status: 'done',
        created_by: user.id
     })

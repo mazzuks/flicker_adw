@@ -6,7 +6,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 /**
  * PUBLIC SITE VIEWER
- * Fetches only published versions from versioned architecture.
+ * Fetches the frozen published snapshot from templeteria_sites.
+ * Safe for production: immutable even if current draft changes.
  * No emojis.
  */
 
@@ -22,14 +23,15 @@ export function PublicSiteView() {
   }, [slug]);
 
   const loadPublishedSite = async () => {
+    if (!slug) return;
     setLoading(true);
     try {
-      // 1. Fetch site by slug with PUBLISHED status and join version
+      // 1. Fetch site by slug with snapshot data
       const { data: site, error: siteError } = await supabase
         .from('templeteria_sites')
-        .select('*, version:published_version_id(*)')
+        .select('status, published_schema_json, published_at')
         .eq('slug', slug)
-        .eq('status', 'PUBLISHED')
+        .eq('status', 'published')
         .maybeSingle();
 
       if (siteError) throw siteError;
@@ -39,13 +41,12 @@ export function PublicSiteView() {
         return;
       }
 
-      if (!site.version) {
-        setError('Site sem versao publicada configurada');
+      if (!site.published_schema_json) {
+        setError('O snapshot desta pagina ainda nao foi gerado');
         return;
       }
 
-      // site.version is the result of the join on templeteria_site_versions
-      setSchema(site.version.schema_json);
+      setSchema(site.published_schema_json);
     } catch (err: any) {
       console.error('Public View Error:', err);
       setError(err.message);
@@ -67,16 +68,16 @@ export function PublicSiteView() {
       <div className="flex h-screen flex-col items-center justify-center gap-6 bg-slate-50 p-8 text-center">
         <AlertCircle className="h-16 w-16 text-slate-200" />
         <div className="space-y-2">
-          <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 italic">
+          <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 italic leading-none">
             Pagina indisponivel
           </h2>
-          <p className="text-slate-400 font-medium max-w-xs uppercase text-[10px] tracking-widest leading-relaxed">
+          <p className="text-slate-400 font-bold max-w-xs uppercase text-[10px] tracking-widest leading-relaxed">
             {error}
           </p>
         </div>
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 hover:text-blue-800 transition-all"
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-blue-600 hover:text-blue-800 transition-all italic"
         >
           <ArrowLeft className="w-4 h-4" /> Voltar ao Inicio
         </button>

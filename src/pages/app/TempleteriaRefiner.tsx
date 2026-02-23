@@ -12,15 +12,19 @@ import {
   AlertCircle,
   Loader2,
   MessageSquare,
+  History as HistoryIcon,
+  Eye,
+  RotateCcw
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
+import { Badge } from '../../components/ui/Badge';
 
 /**
- * TEMPLETERIA REFINER
- * Loads real versioned schema from DB.
+ * TEMPLETERIA REFINER (Fase 2)
+ * Supports version preview, snapshot preview, and rollback.
  * No mocks. No emojis.
  */
 
@@ -32,10 +36,14 @@ export function TempleteriaRefiner() {
   const [loading, setLoading] = useState(true);
   const [refining, setRefining] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [schema, setSchema] = useState<any>(null);
+  const [rollingBack, setRollingBack] = useState(false);
+  
+  // Data State
   const [site, setSite] = useState<any>(null);
   const [versions, setVersions] = useState<any[]>([]);
-  const [currentVersionNumber, setCurrentVersionNumber] = useState<number>(1);
+  const [activeSchema, setActiveSchema] = useState<any>(null);
+  const [activeVersionNumber, setActiveVersionNumber] = useState<number | 'published'>(1);
+  
   const [instruction, setInstruction] = useState('');
   const [showRefineModal, setShowRefineModal] = useState(false);
 
@@ -46,6 +54,7 @@ export function TempleteriaRefiner() {
   const loadSiteData = async () => {
     setLoading(true);
     try {
+      // 1. Fetch site registry
       const { data: siteData, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('*')
@@ -53,6 +62,7 @@ export function TempleteriaRefiner() {
         .single();
       if (siteError) throw siteError;
 
+      // 2. Fetch all versions
       const { data: verData, error: verError } = await supabase
         .from('templeteria_site_versions')
         .select('*')
@@ -63,15 +73,27 @@ export function TempleteriaRefiner() {
       setSite(siteData);
       setVersions(verData || []);
       
+      // Default view: Latest version
       if (verData && verData.length > 0) {
-        setSchema(verData[0].schema_json);
-        setCurrentVersionNumber(verData[0].version);
+        setActiveSchema(verData[0].schema_json);
+        setActiveVersionNumber(verData[0].version);
       }
     } catch (err) {
       console.error('Error loading site:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const selectVersion = (v: any) => {
+    setActiveSchema(v.schema_json);
+    setActiveVersionNumber(v.version);
+  };
+
+  const previewPublished = () => {
+    if (!site?.published_schema_json) return;
+    setActiveSchema(site.published_schema_json);
+    setActiveVersionNumber('published');
   };
 
   const handleRefine = async () => {
@@ -83,10 +105,9 @@ export function TempleteriaRefiner() {
         instruction,
         account_id: profile.account_id,
       });
-      setSchema(result.schema);
       setInstruction('');
       setShowRefineModal(false);
-      await loadSiteData(); // Refresh versions
+      await loadSiteData(); // Full reload to get new version list
     } catch (err) {
       console.error('Refine error:', err);
       alert('Erro ao ajustar conteudo via IA');
@@ -96,10 +117,13 @@ export function TempleteriaRefiner() {
   };
 
   const handlePublish = async () => {
-    if (!siteId || !currentVersionNumber) return;
+    if (!siteId || typeof activeVersionNumber !== 'number') {
+       alert("Selecione uma versao numerada para publicar.");
+       return;
+    }
     setPublishing(true);
     try {
-      const result = await templeteriaEngine.publishSite(siteId, currentVersionNumber);
+      const result = await templeteriaEngine.publishSite(siteId, activeVersionNumber);
       if (result.success) {
          window.open(`/s/${result.slug}`, '_blank');
          await loadSiteData();
@@ -112,6 +136,24 @@ export function TempleteriaRefiner() {
     }
   };
 
+  const handleRollback = async (vNumber: number) => {
+    if (!siteId || !window.confirm(`Confirmar rollback para Versao ${vNumber}?`)) return;
+    setRollingBack(true);
+    try {
+       const { error } = await supabase.functions.invoke('templeteria-rollback', {
+          body: { siteId, versionNumber: vNumber }
+       });
+       if (error) throw error;
+       await loadSiteData();
+       alert(`Site revertido para Versao ${vNumber}`);
+    } catch (err) {
+       console.error('Rollback error:', err);
+       alert('Erro ao processar rollback');
+    } finally {
+       setRollingBack(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -119,7 +161,7 @@ export function TempleteriaRefiner() {
       </div>
     );
 
-  if (!site || !schema)
+  if (!site || !activeSchema)
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-50">
         <AlertCircle className="h-12 w-12 text-red-500" />
@@ -145,7 +187,7 @@ export function TempleteriaRefiner() {
               Refino de Projeto
             </h1>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">
-              Ajustes Finais de IA
+              {activeVersionNumber === 'published' ? 'Snapshot Publicado' : `Visualizando Versao ${activeVersionNumber}`}
             </p>
           </div>
         </div>
@@ -166,19 +208,29 @@ export function TempleteriaRefiner() {
         </div>
 
         <div className="flex items-center gap-4">
+          {site.status === 'published' && (
+             <Button 
+               variant="secondary" 
+               onClick={previewPublished}
+               className={`gap-2 text-[10px] font-black uppercase tracking-widest ${activeVersionNumber === 'published' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : ''}`}
+             >
+                <Eye className="w-3.5 h-3.5" /> Ver Publicado
+             </Button>
+          )}
           <Button
             variant="secondary"
             onClick={() => setShowRefineModal(true)}
             className="gap-2 text-[11px] font-black uppercase tracking-widest"
           >
-            <MessageSquare className="h-3.5 w-3.5" /> Re-Gerar Texto
+            <MessageSquare className="h-3.5 w-3.5" /> Refinar com IA
           </Button>
           <Button
             onClick={handlePublish}
             isLoading={publishing}
-            className="flex items-center gap-2 bg-blue-600 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 hover:bg-blue-700"
+            disabled={activeVersionNumber === 'published' || activeVersionNumber === site.published_version}
+            className="flex items-center gap-2 bg-blue-600 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 hover:bg-blue-700 disabled:opacity-50"
           >
-            <ShieldCheck className="h-4 w-4" /> Aprovar Publicacao
+            <ShieldCheck className="h-4 w-4" /> Aprovar e Publicar
           </Button>
         </div>
       </header>
@@ -195,12 +247,12 @@ export function TempleteriaRefiner() {
                 <div className="flex gap-2">
                   <div
                     className="h-10 w-10 rounded-lg border border-slate-100"
-                    style={{ backgroundColor: schema.theme?.primaryColor || '#2563eb' }}
+                    style={{ backgroundColor: activeSchema.theme?.primaryColor || '#2563eb' }}
                   />
                   <input
                     type="text"
                     readOnly
-                    value={schema.theme?.primaryColor || '#2563eb'}
+                    value={activeSchema.theme?.primaryColor || '#2563eb'}
                     className="flex-1 rounded-lg border border-slate-100 bg-slate-50 px-3 text-xs font-bold uppercase"
                   />
                 </div>
@@ -210,22 +262,33 @@ export function TempleteriaRefiner() {
 
           <div className="space-y-6">
             <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
-              <LayoutIcon className="h-3.5 w-3.5" /> Historico
+              <HistoryIcon className="h-3.5 w-3.5" /> Historico de Versoes
             </h3>
-            <div className="space-y-2">
-              {versions.map((v: any, i: number) => (
+            <div className="space-y-3">
+              {versions.map((v) => (
                 <div
                   key={v.id}
-                  onClick={() => { setSchema(v.schema_json); setCurrentVersionNumber(v.version); }}
-                  className={`group flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all ${currentVersionNumber === v.version ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100 bg-slate-50 hover:border-blue-200'}`}
+                  onClick={() => selectVersion(v)}
+                  className={`group relative flex cursor-pointer flex-col rounded-2xl border p-4 transition-all ${activeVersionNumber === v.version ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100 bg-slate-50 hover:border-blue-200'}`}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-1">
                     <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 leading-none">
                       Versao {v.version}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase mt-1 leading-none">{v.notes || 'Ajuste'}</span>
+                    {site.published_version === v.version && <Badge variant="success" className="text-[8px] px-1.5 py-0">LIVE</Badge>}
                   </div>
-                  {site.published_version === v.version && <Badge variant="success" className="text-[8px]">LIVE</Badge>}
+                  <span className="text-[9px] font-bold text-slate-400 uppercase leading-none">{v.notes || 'Ajuste de IA'}</span>
+                  
+                  {/* Rollback action */}
+                  {site.status === 'published' && site.published_version !== v.version && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleRollback(v.version); }}
+                      className="absolute bottom-3 right-3 p-1.5 bg-white rounded-lg border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                      title="Fazer Rollback para esta versao"
+                    >
+                       <RotateCcw className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -236,7 +299,7 @@ export function TempleteriaRefiner() {
           <div
             className={`h-fit min-h-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl transition-all duration-500 ${viewMode === 'mobile' ? 'w-[375px] min-h-[667px]' : 'w-full max-w-5xl'}`}
           >
-            <SiteRenderer schema={schema} />
+            <SiteRenderer schema={activeSchema} />
           </div>
         </main>
       </div>
@@ -249,7 +312,7 @@ export function TempleteriaRefiner() {
             </h3>
             <textarea
               className="h-32 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Deixe o texto do heroi mais focado em resultados..."
+              placeholder="Ex: Altere o titulo para algo mais agressivo focado em tecnologia..."
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
             />
