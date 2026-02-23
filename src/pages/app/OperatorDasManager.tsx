@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
 import { 
   ArrowLeft, 
   Upload, 
@@ -104,7 +103,7 @@ export function OperatorDasManager() {
                <input type="file" accept=".pdf" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileUpload} disabled={uploading} />
                <div className="space-y-4">
                   <div className={`w-16 h-16 rounded-[1.5rem] mx-auto flex items-center justify-center ${uploading ? 'bg-blue-600 shadow-blue-100' : 'bg-white border border-slate-100 shadow-sm'}`}>
-                     {uploading ? <Upload className="w-8 h-8 text-white animate-bounce" /> : <FileText className="w-8 h-8 text-slate-300" />}
+                     <Upload className="w-8 h-8 text-white animate-bounce" />
                   </div>
                   <div>
                      <p className="text-sm font-black text-slate-700 uppercase tracking-tight italic">{uploading ? 'PROCESSANDO ENVIO...' : 'CLIQUE OU ARRASTE O PDF AQUI'}</p>

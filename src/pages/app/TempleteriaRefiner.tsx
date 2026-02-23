@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import {
-  Settings2,
   Monitor,
   Smartphone,
   ArrowLeft,
   Palette,
-  Layout as LayoutIcon,
   ShieldCheck,
   AlertCircle,
   Loader2,
@@ -36,7 +34,6 @@ export function TempleteriaRefiner() {
   const [loading, setLoading] = useState(true);
   const [refining, setRefining] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [rollingBack, setRollingBack] = useState(false);
   
   // Data State
   const [site, setSite] = useState<any>(null);
@@ -100,7 +97,7 @@ export function TempleteriaRefiner() {
     if (!instruction.trim() || !siteId || !profile?.account_id) return;
     setRefining(true);
     try {
-      const result = await templeteriaEngine.refineSite({
+      await templeteriaEngine.refineSite({
         siteId,
         instruction,
         account_id: profile.account_id,
@@ -138,7 +135,6 @@ export function TempleteriaRefiner() {
 
   const handleRollback = async (vNumber: number) => {
     if (!siteId || !window.confirm(`Confirmar rollback para Versao ${vNumber}?`)) return;
-    setRollingBack(true);
     try {
        const { error } = await supabase.functions.invoke('templeteria-rollback', {
           body: { siteId, versionNumber: vNumber }
@@ -149,8 +145,6 @@ export function TempleteriaRefiner() {
     } catch (err) {
        console.error('Rollback error:', err);
        alert('Erro ao processar rollback');
-    } finally {
-       setRollingBack(false);
     }
   };
 
@@ -312,7 +306,7 @@ export function TempleteriaRefiner() {
             </h3>
             <textarea
               className="h-32 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Altere o titulo para algo mais agressivo focado em tecnologia..."
+              placeholder="Ex: Altere o titulo para algo mais agressivo focado em resultados..."
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
             />
