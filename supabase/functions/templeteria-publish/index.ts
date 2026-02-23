@@ -25,14 +25,12 @@ serve(async (req) => {
     const { data: site } = await supabase.from('templeteria_sites').select('*').eq('id', siteId).single()
     if (!site || site.created_by !== user.id) throw new Error("Unauthorized or project not found")
 
-    // 2. Publish Update
-    const { error: updateError } = await supabase.from('templeteria_sites').update({
+    // 2. Publish Update (Standardized)
+    await supabase.from('templeteria_sites').update({
         status: 'published',
         published_version: version,
         updated_at: new Date().toISOString()
     }).eq('id', siteId)
-
-    if (updateError) throw updateError;
 
     return new Response(JSON.stringify({ success: true, slug: site.slug }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

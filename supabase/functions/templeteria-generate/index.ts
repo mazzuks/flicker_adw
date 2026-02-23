@@ -27,18 +27,16 @@ serve(async (req) => {
       status: 'running', 
       job_type: 'generate', 
       created_by: user.id,
-      prompt: `Generate site for ${siteName}`
+      input_payload: { siteName, businessType, tone, palette, sections }
     }).select().single()
     jobId = job.id
 
-    // 2. Real Gemini Call
+    // 2. Real Gemini Call (Standard Contract)
     const API_KEY = Deno.env.get('GEMINI_API_KEY')
-    if (!API_KEY) throw new Error("GEMINI_API_KEY not configured")
-
     const prompt = `Generate a modern business website schema for "${siteName}". 
     Type: ${businessType}. Tone: ${tone}. Colors: ${palette}.
-    Sections: ${sections.join(', ')}.
-    Return ONLY valid JSON (no markdown): 
+    Required Sections: ${sections.join(', ')}.
+    Return ONLY valid JSON in this structure:
     {
       "metadata": {"title": "...", "description": "..."},
       "theme": {"primaryColor": "...", "font": "Inter"},
@@ -50,38 +48,31 @@ serve(async (req) => {
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     })
 
-    const result = await response.json()
-    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error("AI failed to return content")
-    }
+    const aiResult = await response.json()
+    const rawText = aiResult.candidates[0].content.parts[0].text
+    const schema = JSON.parse(rawText.replace(/```json|```/g, '').trim())
 
-    const rawText = result.candidates[0].content.parts[0].text
-    const cleanJson = rawText.replace(/```json|```/g, '').trim()
-    const schema = JSON.parse(cleanJson)
-
-    // 3. Persistent Data Creation
+    // 3. Persistent Data Creation (Unified Schema)
     const slug = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(7)}`
-    const { data: site, error: siteErr } = await supabase.from('templeteria_sites').insert({
+    const { data: site } = await supabase.from('templeteria_sites').insert({
       account_id, created_by: user.id, name: siteName, slug, status: 'draft'
     }).select().single()
-    if (siteErr) throw siteErr
 
-    const { data: version, error: verErr } = await supabase.from('templeteria_site_versions').insert({
+    const { data: version } = await supabase.from('templeteria_site_versions').insert({
       site_id: site.id, version: 1, schema_json: schema, created_by: user.id, notes: 'Initial AI generation'
     }).select().single()
-    if (verErr) throw verErr
 
     // 4. Update Job
     await supabase.from('templeteria_ai_jobs').update({
-      status: 'done', site_id: site.id, version_id: version.id, result_json: schema, provider: 'gemini-1.5-flash'
+      status: 'done', output_payload: schema
     }).eq('id', jobId)
 
-    return new Response(JSON.stringify({ siteId: site.id, slug, versionId: version.id, schema }), {
+    return new Response(JSON.stringify({ siteId: site.id, slug, version: 1, schema }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
   } catch (err: any) {
-    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error: err.message }).eq('id', jobId)
+    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error_message: err.message }).eq('id', jobId)
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

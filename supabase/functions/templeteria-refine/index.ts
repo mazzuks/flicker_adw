@@ -18,7 +18,7 @@ serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-  const { siteId, instruction, account_id } = await req.json()
+  const { siteId, instruction } = await req.json()
   let jobId: string | null = null
 
   try {
@@ -31,13 +31,13 @@ serve(async (req) => {
     // 2. Log Job
     const { data: job } = await supabase.from('templeteria_ai_jobs').insert({
       site_id: siteId, status: 'running', job_type: 'refine', created_by: user.id,
-      prompt: instruction
+      input_payload: { instruction }
     }).select().single()
     jobId = job.id
 
-    // 3. AI Refinement
+    // 3. AI Refinement (Gemini)
     const API_KEY = Deno.env.get('GEMINI_API_KEY')
-    const prompt = `Refine the following website schema according to: "${instruction}".
+    const prompt = `Refine the following business website JSON schema according to: "${instruction}".
     Current Schema: ${JSON.stringify(lastVer.schema_json)}
     Return ONLY valid updated JSON schema.`
 
@@ -46,8 +46,8 @@ serve(async (req) => {
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     })
 
-    const result = await response.json()
-    const updatedSchema = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim())
+    const aiResult = await response.json()
+    const updatedSchema = JSON.parse(aiResult.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim())
 
     // 4. Create New Version
     const { data: nextVer } = await supabase.from('templeteria_site_versions').insert({
@@ -56,15 +56,15 @@ serve(async (req) => {
 
     // 5. Finalize Job
     await supabase.from('templeteria_ai_jobs').update({
-      status: 'done', version_id: nextVer.id, result_json: updatedSchema, provider: 'gemini-1.5-flash'
+      status: 'done', output_payload: updatedSchema
     }).eq('id', jobId)
 
-    return new Response(JSON.stringify({ schema: updatedSchema, versionId: nextVer.id }), {
+    return new Response(JSON.stringify({ schema: updatedSchema, version: nextVer.version }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
   } catch (err: any) {
-    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error: err.message }).eq('id', jobId)
+    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error_message: err.message }).eq('id', jobId)
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

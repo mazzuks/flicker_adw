@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Wand2,
   ArrowRight,
@@ -8,7 +9,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
 import { Badge } from '../../components/ui/Badge';
@@ -65,7 +65,6 @@ export function TempleteriaWizard() {
         sections: ['hero', 'services', 'contact'],
       });
 
-      if (!site?.siteId) throw new Error('Falha ao obter ID do projeto');
       navigate(`/app/refiner/${site.siteId}`);
     } catch (err: any) {
       console.error('Generation failure:', err);
@@ -85,10 +84,10 @@ export function TempleteriaWizard() {
               <Wand2 className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase italic">
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight uppercase italic">
                 Templeteria
               </h1>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-none">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none">
                 Criacao Guiada por IA
               </p>
             </div>
