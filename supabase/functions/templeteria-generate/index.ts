@@ -18,7 +18,7 @@ serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-  const { siteName, businessType, tone, palette, sections, account_id } = await req.json()
+  const { siteName, businessType, tone, palette, sections, account_id, slug } = await req.json()
   let jobId: string | null = null
 
   try {
@@ -27,7 +27,7 @@ serve(async (req) => {
       status: 'running', 
       job_type: 'generate', 
       created_by: user.id,
-      input_payload: { siteName, businessType, tone, palette, sections }
+      prompt: `Generate site for ${siteName}`
     }).select().single()
     jobId = job.id
 
@@ -53,7 +53,7 @@ serve(async (req) => {
     const schema = JSON.parse(rawText.replace(/```json|```/g, '').trim())
 
     // 3. Persistent Data Creation (Unified Schema)
-    const slug = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(7)}`
+    // Slug is now passed from front-end after unique generation
     const { data: site } = await supabase.from('templeteria_sites').insert({
       account_id, created_by: user.id, name: siteName, slug, status: 'draft'
     }).select().single()
@@ -64,7 +64,7 @@ serve(async (req) => {
 
     // 4. Update Job
     await supabase.from('templeteria_ai_jobs').update({
-      status: 'done', output_payload: schema
+      status: 'done', result_json: schema
     }).eq('id', jobId)
 
     return new Response(JSON.stringify({ siteId: site.id, slug, version: 1, schema }), {
@@ -72,7 +72,7 @@ serve(async (req) => {
     })
 
   } catch (err: any) {
-    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error_message: err.message }).eq('id', jobId)
+    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error: err.message }).eq('id', jobId)
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

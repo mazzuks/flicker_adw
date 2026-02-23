@@ -11,6 +11,7 @@ export const templeteriaEngine = {
   async generateSiteDraft(payload: {
     account_id: string;
     siteName: string;
+    slug: string;
     businessType: string;
     tone: string;
     palette: string;

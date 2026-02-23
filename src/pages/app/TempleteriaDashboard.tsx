@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import { templeteriaService } from '../../services/templeteria';
+import { slugUtils } from '../../lib/slugUtils';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -22,12 +23,10 @@ import {
   Archive,
   RefreshCw,
   Edit3,
+  Link,
+  Check,
+  AlertCircle
 } from 'lucide-react';
-
-/**
- * 🪄 TEMPLETERIA DASHBOARD V2
- * High-usability management tool for AI sites.
- */
 
 export function TempleteriaDashboard() {
   const navigate = useNavigate();
@@ -38,6 +37,11 @@ export function TempleteriaDashboard() {
   const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'published'>('all');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Slug Edit State
+  const [editingSlugId, setEditingSlugId] = useState<string | null>(null);
+  const [newSlug, setNewSlug] = useState('');
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
   useEffect(() => {
     if (profile?.account_id) loadSites();
@@ -62,7 +66,6 @@ export function TempleteriaDashboard() {
     try {
       await templeteriaService.duplicateSite(siteId, profile.account_id, profile.id);
       await loadSites();
-      alert('Projeto duplicado com sucesso!');
     } catch (err: any) {
       alert(`Erro ao duplicar: ${err.message}`);
     } finally {
@@ -112,6 +115,33 @@ export function TempleteriaDashboard() {
     alert('Link copiado!');
   };
 
+  const startEditSlug = (site: any) => {
+    setEditingSlugId(site.id);
+    setNewSlug(site.slug);
+    setSlugStatus('available');
+  };
+
+  const validateAndSaveSlug = async () => {
+    if (!editingSlugId || slugStatus !== 'available') return;
+    try {
+      await templeteriaService.updateSiteInfo(editingSlugId, { slug: slugUtils.slugify(newSlug) });
+      setEditingSlugId(null);
+      await loadSites();
+    } catch (e) {
+      alert("Erro ao salvar slug.");
+    }
+  };
+
+  useEffect(() => {
+    if (!editingSlugId || !newSlug) return;
+    const delay = setTimeout(async () => {
+      setSlugStatus('checking');
+      const available = await slugUtils.isSlugAvailable(slugUtils.slugify(newSlug), editingSlugId);
+      setSlugStatus(available ? 'available' : 'taken');
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [newSlug, editingSlugId]);
+
   const filteredSites = sites.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -145,8 +175,8 @@ export function TempleteriaDashboard() {
           <h1 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
             Sites
           </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic">
-            Dashboard v2 • Webflow style
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-3 italic leading-none">
+            Ecossistema Templeteria v2.5
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -160,7 +190,7 @@ export function TempleteriaDashboard() {
              onClick={() => navigate('/app/templeteria/wizard')}
              className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-8 py-6 h-auto rounded-2xl font-black uppercase tracking-widest gap-3 transition-all hover:scale-105 active:scale-95"
            >
-             <Plus className="w-5 h-5" /> Criar Novo Site
+             <Plus className="w-5 h-5" /> Novo Projeto
            </Button>
         </div>
       </div>
@@ -179,7 +209,7 @@ export function TempleteriaDashboard() {
         />
       </div>
 
-      {/* TOOLBAR */}
+      {/* FILTERS */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
          <div className="flex p-1.5 bg-slate-100 rounded-2xl">
             {(['all', 'draft', 'published'] as const).map(tab => (
@@ -196,7 +226,7 @@ export function TempleteriaDashboard() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
             <input 
               type="text"
-              placeholder="Buscar por nome ou slug..."
+              placeholder="Buscar..."
               className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-[10px] font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -208,7 +238,7 @@ export function TempleteriaDashboard() {
       {filteredSites.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
            {filteredSites.map((site) => (
-             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+             <div key={site.id} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="flex items-center gap-6">
                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner transition-all ${site.status === 'published' ? 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-blue-600 group-hover:text-white'}`}>
                       <Globe className="w-7 h-7" />
@@ -219,13 +249,28 @@ export function TempleteriaDashboard() {
                         <button onClick={() => {
                           const n = prompt("Novo nome do site:", site.name);
                           if(n) templeteriaService.updateSiteInfo(site.id, { name: n }).then(() => loadSites());
-                        }} className="p-1 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-blue-600 transition-all"><Edit3 className="w-3 h-3" /></button>
+                        }} className="p-1 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-blue-600 transition-all"><Edit3 className="w-3.5 h-3.5" /></button>
                       </h3>
-                      <div className="flex items-center gap-3 mt-1.5">
-                         <span className="text-[10px] font-bold text-slate-400 tracking-widest cursor-pointer hover:text-blue-600" onClick={() => {
-                            const s = prompt("Novo slug do site:", site.slug);
-                            if(s) templeteriaService.updateSiteInfo(site.id, { slug: s }).then(() => loadSites()).catch(e => alert("Slug ja em uso."));
-                         }}>/s/{site.slug}</span>
+                      <div className="flex items-center gap-3 mt-2">
+                         {editingSlugId === site.id ? (
+                            <div className="flex items-center gap-2 animate-in slide-in-from-left-2">
+                               <input 
+                                 autoFocus
+                                 className={`bg-slate-50 border-2 rounded-lg px-2 py-1 text-[10px] font-bold outline-none uppercase ${slugStatus === 'taken' ? 'border-red-200 text-red-500' : 'border-blue-100 text-blue-600'}`}
+                                 value={newSlug}
+                                 onChange={e => setNewSlug(e.target.value)}
+                                 onBlur={validateAndSaveSlug}
+                                 onKeyDown={e => e.key === 'Enter' && validateAndSaveSlug()}
+                               />
+                               {slugStatus === 'checking' && <RefreshCw className="w-3 h-3 animate-spin text-slate-300" />}
+                               {slugStatus === 'available' && <Check className="w-3 h-3 text-emerald-500" />}
+                               {slugStatus === 'taken' && <AlertCircle className="w-3 h-3 text-red-500" title="Slug ja em uso" />}
+                            </div>
+                         ) : (
+                            <span className="text-[10px] font-bold text-slate-400 tracking-widest cursor-pointer hover:text-blue-600 flex items-center gap-1.5" onClick={() => startEditSlug(site)}>
+                               <Link className="w-3 h-3" /> /s/{site.slug}
+                            </span>
+                         )}
                          <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                          <Badge variant={site.status === 'published' ? 'success' : 'neutral'} className="text-[8px] px-2 py-0">
                             {site.status.toUpperCase()}
@@ -247,13 +292,13 @@ export function TempleteriaDashboard() {
                       <>
                         <button 
                           onClick={() => window.open(`/s/${site.slug}`, '_blank')}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all" title="Ver Site"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all"
                         >
                            <ExternalLink className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => copyToClipboard(site.slug)}
-                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" title="Copiar Link"
+                          className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
                         >
                            <Copy className="w-4 h-4" />
                         </button>
@@ -268,7 +313,6 @@ export function TempleteriaDashboard() {
                       </Button>
                    )}
 
-                   {/* DROPDOWN ACTIONS SIMULATED */}
                    <div className="relative group/menu">
                       <button className="p-3 text-slate-300 hover:text-slate-900 transition-all"><MoreVertical className="w-5 h-5" /></button>
                       <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all z-20 overflow-hidden">

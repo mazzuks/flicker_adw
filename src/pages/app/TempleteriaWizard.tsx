@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
+import { slugUtils } from '../../lib/slugUtils';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -56,9 +57,13 @@ export function TempleteriaWizard() {
     setError(null);
 
     try {
+      const siteName = answers[11] || 'Novo Projeto';
+      const slug = await slugUtils.generateUniqueSlug(siteName);
+
       const site = await templeteriaEngine.generateSiteDraft({
         account_id: profile.account_id,
-        siteName: answers[11] || 'Novo Projeto',
+        siteName: siteName,
+        slug: slug, // Pass robust slug
         businessType: answers[1] || 'Negocio Geral',
         tone: answers[5] || 'Neutro',
         palette: answers[6] || '#2563eb',
