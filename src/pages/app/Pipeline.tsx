@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Building2,
   Globe,
@@ -12,18 +11,12 @@ import {
   Paperclip,
   CheckCircle2,
   MoreHorizontal,
-  User,
-  DollarSign,
-  Calendar,
-  X,
-  ExternalLink,
-  History,
+  ChevronRight,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useDealsBoard, useMoveDeal } from '../../lib/queries';
 import { Badge } from '../../components/ui/Badge';
 import { useUIStore } from '../../store/useUIStore';
-import { EmptyState } from '../../components/ui/EmptyState';
 import { DealDrawer } from '../../components/DealDrawer';
 
 const STAGES = [
@@ -41,7 +34,7 @@ const STAGES = [
 export default function Pipeline() {
   const { data: deals, isLoading } = useDealsBoard();
   const moveDeal = useMoveDeal();
-  const { isDrawerOpen, selectedDealId, openDeal, closeDrawer, activeDrawerTab, setTab } =
+  const { isDrawerOpen, selectedDealId, openDeal, closeDrawer } =
     useUIStore();
 
   const onDragEnd = (result: any) => {
@@ -51,8 +44,8 @@ export default function Pipeline() {
 
   if (isLoading)
     return (
-      <div className="p-12 animate-pulse font-black text-slate-300 tracking-widest">
-        SYNCING ENGINE...
+      <div className="p-12 animate-pulse font-black text-slate-300 tracking-[0.5em] uppercase italic">
+        Syncing Engine...
       </div>
     );
 
@@ -62,11 +55,11 @@ export default function Pipeline() {
     <div className="h-full flex flex-col space-y-6 overflow-hidden relative">
       <div className="flex items-center justify-between shrink-0 border-b border-slate-200 pb-6 px-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase italic">
             Strategic Pipeline
           </h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-            Fila de Execução em Tempo Real
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 italic">
+            Fila de Execucao em Tempo Real
           </p>
         </div>
       </div>
@@ -81,7 +74,7 @@ export default function Pipeline() {
               <div className="p-4 flex items-center justify-between border-b border-slate-200 bg-white rounded-t-2xl shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <stage.icon className="w-4 h-4 text-slate-400" />
-                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider italic">
                     {stage.label}
                   </span>
                 </div>
@@ -115,64 +108,38 @@ export default function Pipeline() {
                                 >
                                   <Clock className="w-4 h-4" />
                                   {deal.sla_status === 'breached'
-                                    ? 'Atrasado 1d'
+                                    ? 'Atrasado'
                                     : deal.sla_status === 'warning'
                                       ? 'Vence 48h'
-                                      : 'OK 5d'}
+                                      : 'No Prazo'}
                                 </span>
                                 <button
                                   className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-slate-900 rounded-full hover:bg-slate-50 transition-all"
-                                  title="Opções"
                                 >
                                   <MoreHorizontal className="w-4 h-4" />
                                 </button>
                               </div>
 
-                              <h4 className="font-semibold text-[14px] text-slate-900 leading-tight mb-1 uppercase tracking-tight">
+                              <h4 className="font-bold text-[14px] text-slate-900 leading-tight mb-1 uppercase tracking-tight italic">
                                 {deal.company_name}
                               </h4>
                               <p className="text-[12px] text-slate-500 font-medium">{deal.title}</p>
 
                               <div className="mt-5 pt-3 border-t border-slate-50 flex items-center justify-between">
-                                <div className="text-[12px] font-semibold text-slate-900">
+                                <div className="text-[11px] font-black text-slate-900 italic uppercase">
                                   R$ {(deal.value_cents / 100).toLocaleString('pt-BR')}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openDeal(deal.id, 'comments');
-                                    }}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-blue-600 transition-all gap-1"
-                                    title="Mensagens"
-                                  >
-                                    <MessageSquare className="w-[18px] h-[18px]" />
-                                    <span className="text-[12px]">2</span>
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openDeal(deal.id, 'files');
-                                    }}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-emerald-600 transition-all gap-1"
-                                    title="Documentos"
-                                  >
-                                    <Paperclip className="w-[18px] h-[18px]" />
-                                    <span className="text-[12px]">{deal.docs_count}</span>
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openDeal(deal.id, 'tasks');
-                                    }}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-amber-600 transition-all gap-1"
-                                    title="Checklist"
-                                  >
-                                    <CheckCircle2 className="w-[18px] h-[18px]" />
-                                    <span className="text-[12px]">
-                                      {deal.checklist_done}/{deal.checklist_total}
-                                    </span>
-                                  </button>
+                                  <div className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 gap-1">
+                                    <MessageSquare className="w-4 h-4" />
+                                  </div>
+                                  <div className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 gap-1">
+                                    <Paperclip className="w-4 h-4" />
+                                  </div>
+                                  <div className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 gap-1">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  </div>
+                                  <ChevronRight className="w-4 h-4 text-slate-200" />
                                 </div>
                               </div>
                             </div>
@@ -185,7 +152,7 @@ export default function Pipeline() {
               </Droppable>
 
               <div className="p-2 border border-slate-200 border-t-0 rounded-b-xl bg-white/30">
-                <button className="w-full py-2 bg-white rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 hover:shadow-md transition-all">
+                <button className="w-full py-2 bg-white rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 hover:shadow-md transition-all italic">
                   + Add Deal
                 </button>
               </div>

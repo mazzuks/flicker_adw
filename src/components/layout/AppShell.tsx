@@ -1,4 +1,3 @@
-import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Layers,
@@ -17,6 +16,7 @@ import {
   ShieldCheck,
   FileText
 } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
 
@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <div className="flex items-center gap-3 pl-4 border-l border-[#E6E8EC]">
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold text-[#0B1220] leading-none">
+                <p className="text-xs font-bold text-[#0B1220] leading-none uppercase italic">
                   {profile?.full_name || 'User'}
                 </p>
                 <p className="text-[10px] font-black text-[#2563EB] uppercase tracking-widest mt-1">

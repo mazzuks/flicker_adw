@@ -85,10 +85,10 @@ export function TempleteriaWizard() {
               <Wand2 className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight uppercase italic">
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight uppercase italic leading-none">
                 Templeteria
               </h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none mt-1">
                 Criacao Guiada por IA
               </p>
             </div>
@@ -116,7 +116,7 @@ export function TempleteriaWizard() {
               <div className="absolute inset-0 border-4 border-blue-200 rounded-[2rem] border-t-blue-600 animate-spin" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight italic">
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">
                 O Motor de IA esta criando seu site...
               </h3>
               <p className="text-sm text-slate-400 font-bold italic mt-2 uppercase tracking-widest">
@@ -135,7 +135,7 @@ export function TempleteriaWizard() {
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight uppercase italic">
                   {WIZARD_STEPS[currentStep - 1].label}
                 </h2>
-                <p className="text-lg text-slate-500 font-bold tracking-tight uppercase italic opacity-60">
+                <p className="text-lg text-slate-500 font-bold tracking-tight uppercase italic opacity-60 leading-tight">
                   {WIZARD_STEPS[currentStep - 1].desc}
                 </p>
               </div>

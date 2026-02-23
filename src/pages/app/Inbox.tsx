@@ -1,7 +1,6 @@
 import {
   Search,
   MessageSquare,
-  User,
   Check,
   Send,
   Paperclip,
@@ -11,6 +10,11 @@ import { Badge } from '../../components/ui/Badge';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
+
+/**
+ * 💬 INBOX OPERACIONAL (Final 2.0)
+ * Real-time chat with Supabase + Internal Notes + Full History.
+ */
 
 export function Inbox() {
   const { profile } = useAuth();
@@ -22,6 +26,7 @@ export function Inbox() {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 1. Fetch Threads
   useEffect(() => {
     loadThreads();
     const subscription = supabase
@@ -31,6 +36,7 @@ export function Inbox() {
     return () => { subscription.unsubscribe(); };
   }, []);
 
+  // 2. Fetch Messages for selected thread
   useEffect(() => {
     if (!selectedThreadId) return;
     loadMessages();
@@ -73,7 +79,7 @@ export function Inbox() {
   };
 
   const markAsRead = async (id: string) => {
-    await supabase.rpc('mark_thread_read', { p_thread_id: id });
+    await supabase.rpc('mark_thread_read' as any, { p_thread_id: id });
   };
 
   const sendMessage = async () => {
@@ -81,7 +87,7 @@ export function Inbox() {
     const body = newMessage;
     setNewMessage('');
     
-    const { error } = await supabase.rpc('send_chat_message', {
+    const { error } = await supabase.rpc('send_chat_message' as any, {
       p_thread_id: selectedThreadId,
       p_body: body,
       p_is_internal: isInternal
@@ -94,12 +100,14 @@ export function Inbox() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (loading) return <div className="p-10 animate-pulse font-black text-slate-300">CARREGANDO CONVERSAS...</div>;
+  if (loading) return <div className="p-10 animate-pulse font-black text-slate-300 italic uppercase">Carregando Conversas...</div>;
 
   const currentThread = threads.find(t => t.id === selectedThreadId);
 
   return (
     <div className="h-[calc(100vh-140px)] flex bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
+      
+      {/* 1. THREAD LIST */}
       <aside className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/30 shrink-0">
         <div className="p-6 border-b border-slate-100 bg-white">
           <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-4 italic">Inbox</h2>
@@ -137,6 +145,7 @@ export function Inbox() {
         </div>
       </aside>
 
+      {/* 2. CHAT AREA */}
       <main className="flex-1 flex flex-col bg-white">
         {selectedThreadId ? (
           <>
@@ -146,18 +155,19 @@ export function Inbox() {
                     {Array.isArray(currentThread?.companies) ? currentThread.companies[0]?.name?.charAt(0) : currentThread?.companies?.name?.charAt(0) || '?'}
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight italic leading-none">
                       {Array.isArray(currentThread?.companies) ? currentThread.companies[0]?.name : currentThread?.companies?.name}
                     </h3>
-                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 mt-1.5 leading-none">
                        <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Canal de Suporte Ativo
                     </p>
                   </div>
                </div>
             </header>
 
+            {/* MESSAGE HISTORY */}
             <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[#FDFDFD]">
-               <div className="flex justify-center"><Badge variant="neutral" className="bg-slate-100 text-slate-400 border-none text-[8px] font-black tracking-[0.2em] px-4 py-1 uppercase italic">Criptografia Ponta-a-Ponta</Badge></div>
+               <div className="flex justify-center"><Badge variant="neutral" className="bg-slate-100 text-slate-400 border-none text-[8px] font-black tracking-[0.2em] px-4 py-1 uppercase italic leading-none">Criptografia Ponta-a-Ponta</Badge></div>
 
                {messages.map((m) => {
                  const isMine = m.author_id === profile?.id;
@@ -170,11 +180,11 @@ export function Inbox() {
                             ? 'bg-blue-600 border-blue-500 text-white shadow-blue-100' 
                             : 'bg-white border-slate-100 text-slate-700'
                       } ${isMine ? 'rounded-tr-none' : 'rounded-tl-none'}`}>
-                         {m.is_internal && <div className="flex items-center gap-2 mb-2 text-[8px] font-black uppercase text-amber-500 tracking-widest border-b border-amber-200/50 pb-1"><ShieldCheck className="w-3 h-3" /> Nota Interna (Privado)</div>}
+                         {m.is_internal && <div className="flex items-center gap-2 mb-2 text-[8px] font-black uppercase text-amber-500 tracking-widest border-b border-amber-200/50 pb-1 leading-none"><ShieldCheck className="w-3 h-3" /> Nota Interna (Privado)</div>}
                          <p className="text-[13px] font-medium leading-relaxed">{m.body}</p>
                       </div>
                       <div className="flex items-center gap-1.5 px-1">
-                         <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">
+                         <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter leading-none">
                             {new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                          </span>
                          {isMine && <Check className="w-2.5 h-2.5 text-blue-400" />}
@@ -185,6 +195,7 @@ export function Inbox() {
                <div ref={messagesEndRef} />
             </div>
 
+            {/* INPUT AREA */}
             <footer className="p-6 border-t border-slate-100 bg-white">
                <div className={`relative transition-all rounded-[2rem] border-2 ${isInternal ? 'border-amber-200 bg-amber-50/30' : 'border-slate-100 bg-slate-50'}`}>
                   <textarea 
@@ -213,8 +224,8 @@ export function Inbox() {
                        className="w-4 h-4 rounded-lg border-slate-200 text-amber-500 focus:ring-amber-500 transition-all" 
                      />
                      <div className="flex flex-col">
-                        <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isInternal ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-600'}`}>Nota Interna</span>
-                        <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tight">O cliente não verá esta mensagem</span>
+                        <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isInternal ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-600'} leading-none`}>Nota Interna</span>
+                        <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tight mt-1 leading-none">O cliente não verá esta mensagem</span>
                      </div>
                   </label>
                </div>
@@ -226,8 +237,8 @@ export function Inbox() {
                 <MessageSquare className="w-12 h-12 group-hover:rotate-12 transition-transform" />
              </div>
              <div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Selecione uma conversa</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto mt-2">
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic leading-none">Selecione uma conversa</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto mt-4">
                    Central de Atendimento e Histórico Global Adworks.
                 </p>
              </div>

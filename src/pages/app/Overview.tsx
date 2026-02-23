@@ -1,14 +1,9 @@
 import { useKpis, useDealsBoard } from '../../lib/queries';
-import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import {
   AlertTriangle,
-  BarChart3,
-  History,
   ChevronRight,
   Clock,
-  Users,
-  Zap,
   Building2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -141,9 +136,6 @@ export function Overview() {
               <h3 className="text-xs font-black text-slate-900 tracking-tight uppercase italic">
                 RESUMO DO FUNIL
               </h3>
-              <div className="flex gap-4 text-[9px] font-black text-slate-300 uppercase tracking-widest italic">
-                <span>PROCESSOS</span>
-              </div>
             </div>
             <div className="divide-y divide-slate-50">
               {stages.map((s, i) => (
@@ -186,7 +178,7 @@ export function Overview() {
                  <div key={i} className="flex items-center justify-between p-4 px-6 hover:bg-slate-50 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                        <div className="w-8 h-8 bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center">
-                          <Users className="w-4 h-4 text-slate-400" />
+                          <span className="text-[8px] font-black text-slate-400">DM</span>
                        </div>
                        <span className="text-[12px] font-black text-slate-700 uppercase italic tracking-tight">{m.name}</span>
                     </div>

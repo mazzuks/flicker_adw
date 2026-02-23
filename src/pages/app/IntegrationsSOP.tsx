@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { useState } from 'react';
 import { 
   Globe, 
   CheckCircle2, 
@@ -8,6 +6,8 @@ import {
   ShieldCheck, 
   AlertCircle
 } from 'lucide-react';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 
 /**
  * 🌐 DOMAIN & BRAND SOP (Strategic Operational Procedures)
@@ -78,7 +78,7 @@ export function IntegrationsSOP() {
                <Button className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold uppercase text-[11px] py-4 h-auto">Abrir Registro.br <ExternalLink className="w-4 h-4 ml-2" /></Button>
             </Card>
 
-            <div className="p-8 bg-amber-50 rounded-[2rem] border border-amber-100 space-y-4">
+            <div className="p-8 bg-amber-50 rounded-[2.5rem] border border-amber-100 space-y-4">
                <div className="flex items-center gap-2 text-amber-600">
                   <AlertCircle className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">Atencao Operador</span>

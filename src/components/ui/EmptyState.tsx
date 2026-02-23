@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
-import { Badge } from './ui/Badge';
+import { Badge } from './Badge';
 
 interface EmptyStateProps {
   title: string;

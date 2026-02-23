@@ -76,8 +76,8 @@ export function LeadForm() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 space-y-8 border border-slate-100">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">{account?.name}</h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Formulario de Contato Oficial</p>
+          <h1 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">{account?.name}</h1>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">Formulario de Contato Oficial</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
