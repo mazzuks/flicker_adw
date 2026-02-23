@@ -1,28 +1,30 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../components/ui/Button';
+import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
+import { templeteriaEngine } from '../../services/templeteriaEngine';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
 import {
   Monitor,
   Smartphone,
   ArrowLeft,
   Palette,
+  Layout as LayoutIcon,
   ShieldCheck,
   AlertCircle,
   Loader2,
   MessageSquare,
   History as HistoryIcon,
   Eye,
-  RotateCcw
+  RotateCcw,
+  Settings2
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/auth';
-import { templeteriaEngine } from '../../services/templeteriaEngine';
-import { Badge } from '../../components/ui/Badge';
 
 /**
- * TEMPLETERIA REFINER (Fase 2)
- * Supports version preview, snapshot preview, and rollback.
+ * TEMPLETERIA REFINER
+ * Loads real versioned schema from DB.
  * No mocks. No emojis.
  */
 
@@ -171,7 +173,7 @@ export function TempleteriaRefiner() {
       <header className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => navigate('/app/overview')}
+            onClick={() => navigate('/app/templeteria')}
             className="rounded-xl p-2 transition-all hover:bg-slate-100"
           >
             <ArrowLeft className="h-5 w-5 text-slate-400" />

@@ -1,8 +1,8 @@
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 /**
  * PUBLIC SITE VIEWER
@@ -19,13 +19,16 @@ export function PublicSiteView() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (slug) loadPublishedSite();
+    if (slug) {
+      loadPublishedSite();
+    }
   }, [slug]);
 
   const loadPublishedSite = async () => {
     if (!slug) return;
     setLoading(true);
     try {
+      // Fetch site by slug with snapshot data (Direct from sites table as requested)
       const { data: site, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('status, published_schema_json, published_at')
@@ -67,7 +70,7 @@ export function PublicSiteView() {
       <div className="flex h-screen flex-col items-center justify-center gap-6 bg-slate-50 p-8 text-center">
         <AlertCircle className="h-16 w-16 text-slate-200" />
         <div className="space-y-2">
-          <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 italic leading-none">
+          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
             Pagina indisponivel
           </h2>
           <p className="text-slate-400 font-bold max-w-xs uppercase text-[10px] tracking-widest leading-relaxed">
