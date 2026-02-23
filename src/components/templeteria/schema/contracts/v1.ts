@@ -24,12 +24,9 @@ export type TempleteriaSchemaV1 = {
   }[];
 };
 
-export function validateSchemaV1(input: any): { ok: boolean; normalized?: TempleteriaSchemaV1; errors?: string[] } {
-  const errors: string[] = [];
+export function validateSchemaV1(input: any): { ok: boolean; normalized?: TempleteriaSchemaV1 } {
+  if (!input) return { ok: false };
   
-  if (!input) return { ok: false, errors: ['Input is null'] };
-  
-  // Minimal normalization
   const normalized: TempleteriaSchemaV1 = {
     schema_version: 1,
     metadata: {

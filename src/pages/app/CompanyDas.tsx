@@ -10,7 +10,6 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
-  AlertCircle
 } from 'lucide-react';
 
 /**

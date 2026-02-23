@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -6,11 +6,8 @@ import { Badge } from '../../components/ui/Badge';
 import { 
   ClipboardList, 
   Search, 
-  User, 
   ChevronRight, 
   MessageSquare, 
-  FileText,
-  AlertTriangle,
   History
 } from 'lucide-react';
 
@@ -81,7 +78,6 @@ export function FiscalOperatorQueue() {
                   <div key={ticket.id} className="p-6 flex items-center justify-between hover:bg-slate-50 transition-all group">
                      <div className="flex items-center gap-6">
                         <div className={`w-12 h-12 rounded-2xl border flex flex-col items-center justify-center shrink-0 ${getPriorityColor(ticket.priority)}`}>
-                           {ticket.priority === 'urgent' && <AlertTriangle className="w-4 h-4 animate-pulse" />}
                            <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5">{ticket.priority}</span>
                         </div>
                         <div>

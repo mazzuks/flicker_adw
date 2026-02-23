@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Wand2,
   ArrowRight,
@@ -9,6 +8,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
 import { Badge } from '../../components/ui/Badge';
@@ -65,6 +65,7 @@ export function TempleteriaWizard() {
         sections: ['hero', 'services', 'contact'],
       });
 
+      if (!site?.siteId) throw new Error('Falha ao obter ID do projeto');
       navigate(`/app/refiner/${site.siteId}`);
     } catch (err: any) {
       console.error('Generation failure:', err);
@@ -115,7 +116,7 @@ export function TempleteriaWizard() {
               <div className="absolute inset-0 border-4 border-blue-200 rounded-[2rem] border-t-blue-600 animate-spin" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">
+              <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight italic">
                 O Motor de IA esta criando seu site...
               </h3>
               <p className="text-sm text-slate-400 font-bold italic mt-2 uppercase tracking-widest">

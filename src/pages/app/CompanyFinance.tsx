@@ -8,7 +8,6 @@ import {
   BarChart3, 
   CheckCircle2, 
   AlertCircle, 
-  Calendar,
   Wallet
 } from 'lucide-react';
 
@@ -27,7 +26,6 @@ export function CompanyFinance() {
   }, [profile?.account_id]);
 
   const loadMetrics = async () => {
-    // Get first day of current month in Sao Paulo
     const now = new Date();
     const monthRef = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 

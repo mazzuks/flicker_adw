@@ -8,8 +8,6 @@ import {
   Clock, 
   AlertCircle, 
   CheckCircle2, 
-  FileText, 
-  UserCheck 
 } from 'lucide-react';
 
 /**

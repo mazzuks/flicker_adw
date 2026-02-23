@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { 
   TrendingUp, 
-  Users, 
   UserMinus, 
   DollarSign, 
   ArrowUpRight,
-  ChevronRight,
   Activity
 } from 'lucide-react';
 
@@ -29,11 +26,9 @@ export function AdminFinanceBI() {
   const loadBI = async () => {
     setLoading(true);
     try {
-      // 1. Fetch Aggregated BI View
       const { data: biData } = await supabase.from('v_product_finance_bi').select('*').single();
       setStats(biData);
 
-      // 2. Fetch Recent Cancellations
       const { data: cancellations } = await supabase
         .from('subscriptions')
         .select('*, accounts(name)')
@@ -68,7 +63,6 @@ export function AdminFinanceBI() {
         </div>
       </div>
 
-      {/* KPI GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <BiKpi 
            label="Receita Acumulada (MRR)" 
@@ -101,8 +95,6 @@ export function AdminFinanceBI() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* RECENT CANCELLATIONS (8/12) */}
         <div className="lg:col-span-8">
            <Card noPadding className="border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -135,25 +127,6 @@ export function AdminFinanceBI() {
               </div>
            </Card>
         </div>
-
-        {/* LOGIC & RULES (4/12) */}
-        <div className="lg:col-span-4 space-y-6">
-           <Card className="bg-slate-900 text-white border-none shadow-2xl p-8 rounded-[2rem]">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-6 text-white/30 italic uppercase">Metrica de Churn</h3>
-              <p className="text-xs text-white/60 leading-relaxed font-medium uppercase italic">
-                 Calculado via formula: [Cancelados 30d] / ([Ativos] + [Cancelados 30d]).<br/><br/>
-                 Considera apenas contas que passaram do periodo de trial.
-              </p>
-           </Card>
-
-           <div className="p-8 bg-blue-50/50 rounded-[2rem] border border-blue-100/50 flex flex-col items-center gap-4">
-              <Users className="w-8 h-8 text-blue-600 opacity-20" />
-              <p className="text-[10px] font-black text-blue-900/40 uppercase tracking-widest text-center italic leading-relaxed">
-                 Dados sincronizados em tempo real com a tabela de assinaturas do Supabase.
-              </p>
-           </div>
-        </div>
-
       </div>
     </div>
   );

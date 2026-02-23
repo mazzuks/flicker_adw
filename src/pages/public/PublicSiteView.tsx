@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 /**
  * PUBLIC SITE VIEWER
@@ -26,7 +26,6 @@ export function PublicSiteView() {
     if (!slug) return;
     setLoading(true);
     try {
-      // 1. Fetch site by slug with snapshot data
       const { data: site, error: siteError } = await supabase
         .from('templeteria_sites')
         .select('status, published_schema_json, published_at')

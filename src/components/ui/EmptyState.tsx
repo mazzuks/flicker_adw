@@ -1,37 +1,45 @@
-import React from 'react';
-import { LucideIcon } from 'lucide-react';
-import { Button } from './Button';
+import { ShieldCheck } from 'lucide-react';
+import { Badge } from './ui/Badge';
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon?: LucideIcon;
+  icon?: any;
   actionLabel?: string;
   onAction?: () => void;
 }
 
-export function EmptyState({
-  title,
-  description,
-  icon: Icon,
+export function EmptyState({ 
+  title, 
+  description, 
+  icon: Icon = ShieldCheck,
   actionLabel,
-  onAction,
+  onAction
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 text-center animate-in fade-in zoom-in duration-500">
-      <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mb-6">
-        {Icon ? (
-          <Icon className="w-10 h-10 text-slate-400 opacity-40" />
-        ) : (
-          <div className="w-10 h-10 bg-slate-200 rounded-lg" />
-        )}
+    <div className="flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-200 border-dashed rounded-[2.5rem] animate-in fade-in duration-700">
+      <div className="p-4 bg-slate-50 text-slate-400 rounded-3xl mb-6">
+        <Icon className="w-10 h-10" />
       </div>
-      <h3 className="text-xl font-semibold text-slate-900 tracking-tight">{title}</h3>
-      <p className="text-slate-500 text-sm mt-2 max-w-sm leading-relaxed">{description}</p>
+      
+      <div className="space-y-2 mb-8">
+        <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">{title}</h3>
+        <p className="text-sm text-slate-500 font-medium max-w-xs mx-auto leading-relaxed">{description}</p>
+      </div>
+
       {actionLabel && onAction && (
-        <Button variant="primary" size="md" className="mt-8" onClick={onAction}>
+        <button
+          onClick={onAction}
+          className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-slate-200"
+        >
           {actionLabel}
-        </Button>
+        </button>
+      )}
+
+      {!actionLabel && (
+        <Badge variant="neutral" className="text-[8px] uppercase tracking-[0.4em] font-black py-1 px-4">
+          Aguardando Interação
+        </Badge>
       )}
     </div>
   );

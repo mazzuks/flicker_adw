@@ -19,6 +19,39 @@ export type UserRoleGlobal =
 export interface Database {
   public: {
     Tables: {
+      leads: {
+        Row: {
+          id: string;
+          client_id: string;
+          name: string;
+          email: string | null;
+          phone: string | null;
+          stage: string;
+          owner_user_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          name: string;
+          email?: string | null;
+          phone?: string | null;
+          stage?: string;
+          owner_user_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          name?: string;
+          email?: string | null;
+          phone?: string | null;
+          stage?: string;
+          owner_user_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       accounts: {
         Row: {
           id: string

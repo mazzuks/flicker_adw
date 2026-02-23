@@ -1,10 +1,9 @@
-import React from 'react';
-import { normalizeTempleteriaSchema } from './schema/normalize';
-
 /**
  * SITE RENDERER ENGINE
  * Versioned rendering based on standardized contracts.
  */
+
+import { normalizeTempleteriaSchema } from './schema/normalize';
 
 export function SiteRenderer({ schema: rawSchema }: { schema: any }) {
   const schema = normalizeTempleteriaSchema(rawSchema);
