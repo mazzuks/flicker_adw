@@ -18,14 +18,16 @@ serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
   if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-  const { siteName, businessType, tone, palette, sections, client_id } = await req.json()
+  const { siteName, businessType, tone, palette, sections, account_id } = await req.json()
   let jobId: string | null = null
 
   try {
     // 1. Initial Job Logging
     const { data: job } = await supabase.from('templeteria_ai_jobs').insert({
-      client_id, status: 'RUNNING', mode: 'GENERATE', created_by: user.id,
-      input_payload_json: { siteName, businessType, tone, palette, sections }
+      status: 'running', 
+      job_type: 'generate', 
+      created_by: user.id,
+      prompt: `Generate site for ${siteName}`
     }).select().single()
     jobId = job.id
 
@@ -36,7 +38,7 @@ serve(async (req) => {
     const prompt = `Generate a modern business website schema for "${siteName}". 
     Type: ${businessType}. Tone: ${tone}. Colors: ${palette}.
     Sections: ${sections.join(', ')}.
-    Return ONLY valid JSON (no markdown blocks): 
+    Return ONLY valid JSON (no markdown): 
     {
       "metadata": {"title": "...", "description": "..."},
       "theme": {"primaryColor": "...", "font": "Inter"},
@@ -60,18 +62,18 @@ serve(async (req) => {
     // 3. Persistent Data Creation
     const slug = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(7)}`
     const { data: site, error: siteErr } = await supabase.from('templeteria_sites').insert({
-      client_id, created_by: user.id, name: siteName, slug, status: 'DRAFT'
+      account_id, created_by: user.id, name: siteName, slug, status: 'draft'
     }).select().single()
     if (siteErr) throw siteErr
 
     const { data: version, error: verErr } = await supabase.from('templeteria_site_versions').insert({
-      site_id: site.id, client_id, version: 1, schema_json: schema, theme_json: schema.theme, created_by: user.id, notes: 'Initial AI generation'
+      site_id: site.id, version: 1, schema_json: schema, created_by: user.id, notes: 'Initial AI generation'
     }).select().single()
     if (verErr) throw verErr
 
     // 4. Update Job
     await supabase.from('templeteria_ai_jobs').update({
-      status: 'DONE', site_id: site.id, output_payload_json: schema, provider: 'gemini-1.5-flash'
+      status: 'done', site_id: site.id, version_id: version.id, result_json: schema, provider: 'gemini-1.5-flash'
     }).eq('id', jobId)
 
     return new Response(JSON.stringify({ siteId: site.id, slug, versionId: version.id, schema }), {
@@ -79,7 +81,7 @@ serve(async (req) => {
     })
 
   } catch (err: any) {
-    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'ERROR', error_message: err.message }).eq('id', jobId)
+    if (jobId) await supabase.from('templeteria_ai_jobs').update({ status: 'error', error: err.message }).eq('id', jobId)
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

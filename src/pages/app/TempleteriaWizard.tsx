@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Wand2,
   ArrowRight,
@@ -9,6 +8,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
 import { Badge } from '../../components/ui/Badge';
@@ -31,7 +31,7 @@ const WIZARD_STEPS = [
 ];
 
 export function TempleteriaWizard() {
-  const { currentClientId } = useAuth();
+  const { profile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [isGenerating, setIsGenerating] = useState(false);
@@ -48,8 +48,8 @@ export function TempleteriaWizard() {
   };
 
   const handleGenerate = async () => {
-    if (!currentClientId) {
-      setError('Sessao invalida ou cliente nao selecionado');
+    if (!profile?.account_id) {
+      setError('Sessao invalida: account_id nao encontrado');
       return;
     }
     setIsGenerating(true);
@@ -57,7 +57,7 @@ export function TempleteriaWizard() {
 
     try {
       const site = await templeteriaEngine.generateSiteDraft({
-        client_id: currentClientId,
+        account_id: profile.account_id,
         siteName: answers[11] || 'Novo Projeto',
         businessType: answers[1] || 'Negocio Geral',
         tone: answers[5] || 'Neutro',
@@ -85,10 +85,10 @@ export function TempleteriaWizard() {
               <Wand2 className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight uppercase">
+              <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase italic">
                 Templeteria
               </h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-none">
                 Criacao Guiada por IA
               </p>
             </div>
@@ -116,10 +116,10 @@ export function TempleteriaWizard() {
               <div className="absolute inset-0 border-4 border-blue-200 rounded-[2rem] border-t-blue-600 animate-spin" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight">
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">
                 O Motor de IA esta criando seu site...
               </h3>
-              <p className="text-sm text-slate-400 font-medium italic mt-2">
+              <p className="text-sm text-slate-400 font-bold italic mt-2 uppercase tracking-widest">
                 Processando nicho e componentes visuais.
               </p>
             </div>
@@ -135,7 +135,7 @@ export function TempleteriaWizard() {
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight uppercase italic">
                   {WIZARD_STEPS[currentStep - 1].label}
                 </h2>
-                <p className="text-lg text-slate-500 font-medium tracking-tight">
+                <p className="text-lg text-slate-500 font-bold tracking-tight uppercase italic opacity-60">
                   {WIZARD_STEPS[currentStep - 1].desc}
                 </p>
               </div>
@@ -151,12 +151,12 @@ export function TempleteriaWizard() {
                 {error && (
                   <div className="flex items-center gap-2 text-red-500">
                     <AlertCircle className="w-4 h-4" />
-                    <p className="text-xs font-bold uppercase">{error}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest">{error}</p>
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-slate-400">
                   <Info className="w-4 h-4" />
-                  <p className="text-[10px] font-bold uppercase tracking-widest italic">
+                  <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50">
                     A IA usara sua resposta para gerar textos profissionais.
                   </p>
                 </div>
@@ -170,7 +170,7 @@ export function TempleteriaWizard() {
         <button
           onClick={handleBack}
           disabled={currentStep === 1 || isGenerating}
-          className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 disabled:opacity-0 transition-all"
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 disabled:opacity-0 transition-all italic"
         >
           <ArrowLeft className="w-4 h-4" /> Voltar
         </button>
@@ -179,7 +179,7 @@ export function TempleteriaWizard() {
           <Button
             onClick={handleNext}
             disabled={isGenerating}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-12 py-7 h-auto rounded-3xl text-sm font-black uppercase tracking-[0.3em] flex items-center gap-4 transition-all hover:scale-105 active:scale-95 group"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-200 px-12 py-7 h-auto rounded-3xl text-xs font-black uppercase tracking-[0.3em] flex items-center gap-4 transition-all hover:scale-105 active:scale-95 group italic"
           >
             {currentStep === 12 ? 'GERAR MEU SITE' : 'PROXIMO PASSO'}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

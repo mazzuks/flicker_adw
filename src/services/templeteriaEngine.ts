@@ -3,12 +3,13 @@ import { supabase } from '../lib/supabase';
 /**
  * TEMPLETERIA ENGINE SERVICE
  * Production implementation with real Edge Function calls and versioning.
+ * Unified to use account_id and schema_json.
  * No emojis.
  */
 
 export const templeteriaEngine = {
   async generateSiteDraft(payload: {
-    client_id: string;
+    account_id: string;
     siteName: string;
     businessType: string;
     tone: string;
@@ -28,7 +29,7 @@ export const templeteriaEngine = {
 
   async refineSite(payload: {
     siteId: string;
-    client_id: string;
+    account_id: string;
     instruction: string;
   }) {
     // 1. Invoke refinement edge function
@@ -40,10 +41,10 @@ export const templeteriaEngine = {
     return data; // { schema, versionId }
   },
 
-  async publishSite(siteId: string, versionId: string) {
+  async publishSite(siteId: string, version: number) {
     // 1. Invoke publish edge function
     const { data, error } = await supabase.functions.invoke('templeteria-publish', {
-      body: { siteId, versionId }
+      body: { siteId, version }
     });
 
     if (error) throw error;

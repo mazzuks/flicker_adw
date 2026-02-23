@@ -8,8 +8,9 @@ export function useKpis() {
     queryFn: async () => {
       const { data, error } = await supabase.from('v_deals_board').select('*');
       if (error) throw error;
+      if (!data) return { totalPipeline: 'R$ 0,00', activeDeals: 0, overdueCount: 0, slaAvg: '0.0d' };
 
-      const totalPipeline = data.reduce((acc, d) => acc + Number(d.value_cents), 0);
+      const totalPipeline = data.reduce((acc, d) => acc + (d.value_cents || 0), 0);
       const activeDeals = data.length;
       const overdueCount = data.filter((d) => d.sla_status === 'breached').length;
 
@@ -20,6 +21,7 @@ export function useKpis() {
 
       if (slaDeals.length > 0) {
         const totalDiffMs = slaDeals.reduce((acc, d) => {
+          if (!d.sla_due_at) return acc;
           const due = new Date(d.sla_due_at);
           return acc + (due.getTime() - now.getTime());
         }, 0);
@@ -46,7 +48,7 @@ export function useDealsBoard() {
     queryFn: async () => {
       const { data, error } = await supabase.from('v_deals_board').select('*');
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 }
@@ -58,7 +60,7 @@ export function useMoveDeal() {
     mutationFn: async ({ dealId, stageKey }: { dealId: string; stageKey: string }) => {
       const { error } = await supabase
         .from('deals')
-        .update({ stage_key: stageKey, updated_at: new Date().toISOString() })
+        .update({ stage_key: stageKey })
         .eq('id', dealId);
       if (error) throw error;
     },

@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '../../components/ui/Button';
+import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 import {
   Settings2,
   Monitor,
@@ -11,12 +14,9 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import { templeteriaEngine } from '../../services/templeteriaEngine';
-import { Button } from '../../components/ui/Button';
-import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 
 /**
  * TEMPLETERIA REFINER
@@ -27,14 +27,15 @@ import { SiteRenderer } from '../../components/templeteria/SiteRenderer';
 export function TempleteriaRefiner() {
   const { siteId } = useParams();
   const navigate = useNavigate();
-  const { currentClientId } = useAuth();
+  const { profile } = useAuth();
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [loading, setLoading] = useState(true);
   const [refining, setRefining] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [schema, setSchema] = useState<any>(null);
   const [site, setSite] = useState<any>(null);
-  const [currentVersionId, setCurrentVersionId] = useState<string | null>(null);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [currentVersionNumber, setCurrentVersionNumber] = useState<number>(1);
   const [instruction, setInstruction] = useState('');
   const [showRefineModal, setShowRefineModal] = useState(false);
 
@@ -56,14 +57,16 @@ export function TempleteriaRefiner() {
         .from('templeteria_site_versions')
         .select('*')
         .eq('site_id', siteId as string)
-        .order('version', { ascending: false })
-        .limit(1)
-        .single();
+        .order('version', { ascending: false });
       if (verError) throw verError;
 
       setSite(siteData);
-      setSchema(verData.schema_json);
-      setCurrentVersionId(verData.id);
+      setVersions(verData || []);
+      
+      if (verData && verData.length > 0) {
+        setSchema(verData[0].schema_json);
+        setCurrentVersionNumber(verData[0].version);
+      }
     } catch (err) {
       console.error('Error loading site:', err);
     } finally {
@@ -72,18 +75,18 @@ export function TempleteriaRefiner() {
   };
 
   const handleRefine = async () => {
-    if (!instruction.trim() || !siteId || !currentClientId) return;
+    if (!instruction.trim() || !siteId || !profile?.account_id) return;
     setRefining(true);
     try {
       const result = await templeteriaEngine.refineSite({
         siteId,
         instruction,
-        client_id: currentClientId,
+        account_id: profile.account_id,
       });
       setSchema(result.schema);
-      setCurrentVersionId(result.versionId);
       setInstruction('');
       setShowRefineModal(false);
+      await loadSiteData(); // Refresh versions
     } catch (err) {
       console.error('Refine error:', err);
       alert('Erro ao ajustar conteudo via IA');
@@ -93,12 +96,14 @@ export function TempleteriaRefiner() {
   };
 
   const handlePublish = async () => {
-    if (!siteId || !currentVersionId) return;
+    if (!siteId || !currentVersionNumber) return;
     setPublishing(true);
     try {
-      const result = await templeteriaEngine.publishSite(siteId, currentVersionId);
-      window.open(`/s/${result.slug}`, '_blank');
-      loadSiteData();
+      const result = await templeteriaEngine.publishSite(siteId, currentVersionNumber);
+      if (result.success) {
+         window.open(`/s/${result.slug}`, '_blank');
+         await loadSiteData();
+      }
     } catch (err) {
       console.error('Publish error:', err);
       alert('Erro ao publicar versao');
@@ -118,7 +123,7 @@ export function TempleteriaRefiner() {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-50">
         <AlertCircle className="h-12 w-12 text-red-500" />
-        <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+        <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900 leading-none">
           Projeto nao encontrado
         </h2>
         <Button onClick={() => navigate('/app/overview')}>Voltar</Button>
@@ -126,7 +131,7 @@ export function TempleteriaRefiner() {
     );
 
   return (
-    <div className="fixed inset-0 z-[100] flex animate-in fade-in flex-col bg-[#F1F5F9] duration-500">
+    <div className="fixed inset-0 z-[100] flex animate-in fade-in flex-col bg-[#F1F5F9] duration-500 font-sans">
       <header className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
         <div className="flex items-center gap-6">
           <button
@@ -181,7 +186,7 @@ export function TempleteriaRefiner() {
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-80 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-6 space-y-10">
           <div className="space-y-4">
-            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400">
+            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
               <Palette className="h-3.5 w-3.5" /> Identidade
             </h3>
             <div className="space-y-4">
@@ -190,12 +195,12 @@ export function TempleteriaRefiner() {
                 <div className="flex gap-2">
                   <div
                     className="h-10 w-10 rounded-lg border border-slate-100"
-                    style={{ backgroundColor: schema.theme.primaryColor || '#2563eb' }}
+                    style={{ backgroundColor: schema.theme?.primaryColor || '#2563eb' }}
                   />
                   <input
                     type="text"
                     readOnly
-                    value={schema.theme.primaryColor || '#2563eb'}
+                    value={schema.theme?.primaryColor || '#2563eb'}
                     className="flex-1 rounded-lg border border-slate-100 bg-slate-50 px-3 text-xs font-bold uppercase"
                   />
                 </div>
@@ -204,19 +209,23 @@ export function TempleteriaRefiner() {
           </div>
 
           <div className="space-y-6">
-            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400">
-              <LayoutIcon className="h-3.5 w-3.5" /> Secoes
+            <h3 className="flex items-center gap-2 text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 leading-none">
+              <LayoutIcon className="h-3.5 w-3.5" /> Historico
             </h3>
             <div className="space-y-2">
-              {schema.pages[0].blocks?.map((s: any, i: number) => (
+              {versions.map((v: any, i: number) => (
                 <div
-                  key={i}
-                  className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition-all"
+                  key={v.id}
+                  onClick={() => { setSchema(v.schema_json); setCurrentVersionNumber(v.version); }}
+                  className={`group flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all ${currentVersionNumber === v.version ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100 bg-slate-50 hover:border-blue-200'}`}
                 >
-                  <span className="text-xs font-bold uppercase tracking-tight text-slate-600">
-                    {s.type}
-                  </span>
-                  <Settings2 className="h-4 w-4 text-slate-300" />
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 leading-none">
+                      Versao {v.version}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase mt-1 leading-none">{v.notes || 'Ajuste'}</span>
+                  </div>
+                  {site.published_version === v.version && <Badge variant="success" className="text-[8px]">LIVE</Badge>}
                 </div>
               ))}
             </div>
@@ -253,7 +262,7 @@ export function TempleteriaRefiner() {
                 Cancelar
               </Button>
               <Button
-                className="flex-1 bg-blue-600 text-white"
+                className="flex-1 bg-blue-600 text-white font-bold uppercase text-[11px]"
                 isLoading={refining}
                 onClick={handleRefine}
               >
