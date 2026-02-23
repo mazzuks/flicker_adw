@@ -41,6 +41,8 @@ Este arquivo e o nosso centro de comando para o desenvolvimento do MVP. Aqui mon
     - Arquivo: `src/pages/app/Companies.tsx`
 - [x] **Smoke Test**: Sistema de diagnostico de integridade do banco de dados.
     - Arquivos: `src/services/smokeTest.ts`, `src/pages/app/Settings.tsx`
+- [x] **Code Splitting & Performance**: Implementacao de lazy loading para rotas pesadas.
+    - Arquivo: `src/App.tsx`
 
 ---
 
