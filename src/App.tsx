@@ -35,8 +35,8 @@ const queryClient = new QueryClient();
 
 function LoadingFallback() {
   return (
-    <div className="flex h-64 items-center justify-center font-black animate-pulse text-slate-300 tracking-[0.3em] uppercase italic text-xs">
-      Loading Module...
+    <div className="flex h-64 items-center justify-center font-black animate-pulse text-slate-300 tracking-[0.3em] uppercase italic text-[10px]">
+      Aguarde • Carregando Modulo...
     </div>
   );
 }
