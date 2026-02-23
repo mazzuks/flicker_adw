@@ -7,6 +7,7 @@ import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/Login';
 
 // --- LAZY LOADED ROUTES (Performance Pass) ---
+const AppHome = lazy(() => import('./pages/app/AppHome').then(m => ({ default: m.AppHome })));
 const Overview = lazy(() => import('./pages/app/Overview').then(m => ({ default: m.Overview })));
 const Pipeline = lazy(() => import('./pages/app/Pipeline'));
 const Settings = lazy(() => import('./pages/app/Settings').then(m => ({ default: m.Settings })));
@@ -53,7 +54,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/app/overview" replace />} />
+        <Route path="/login" element={!user ? <Login /> : <Navigate to="/app/home" replace />} />
 
         <Route
           path="/app"
@@ -65,7 +66,8 @@ function AppRoutes() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Navigate to="/app/overview" replace />} />
+          <Route index element={<Navigate to="/app/home" replace />} />
+          <Route path="home" element={<AppHome />} />
           <Route path="overview" element={<Overview />} />
           <Route path="pipeline" element={<Pipeline />} />
           <Route path="companies" element={<Companies />} />
@@ -92,7 +94,7 @@ function AppRoutes() {
         <Route path="/s/:slug" element={<PublicSiteView />} />
         <Route path="/p/:slug" element={<PublicPreviewView />} />
 
-        <Route path="*" element={<Navigate to="/app/overview" replace />} />
+        <Route path="*" element={<Navigate to="/app/home" replace />} />
       </Routes>
     </Suspense>
   );

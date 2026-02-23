@@ -16,7 +16,8 @@ import {
   TrendingUp,
   ShieldCheck,
   FileText,
-  Globe
+  Globe,
+  Home
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
@@ -29,7 +30,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const isSuperAdmin = profile?.role_global === 'ADWORKS_SUPERADMIN';
 
+  const commonItems = [
+    { icon: Home, label: 'Home', path: '/app/home' },
+  ];
+
   const clientItems = [
+    ...commonItems,
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Globe, label: 'Sites', path: '/app/templeteria' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
@@ -44,6 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   ];
 
   const operatorItems = [
+    ...commonItems,
     { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
     { icon: Globe, label: 'Sites', path: '/app/templeteria' },
     { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
@@ -53,8 +60,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   ];
 
   const adminItems = [
+    ...commonItems,
     { icon: ShieldCheck, label: 'Admin BI', path: '/app/admin/finance' },
-    ...operatorItems
+    { icon: LayoutDashboard, label: 'Overview', path: '/app/overview' },
+    { icon: Globe, label: 'Sites', path: '/app/templeteria' },
+    { icon: Layers, label: 'Pipeline', path: '/app/pipeline' },
+    { icon: ClipboardCheck, label: 'Fila Fiscal', path: '/app/operator/fiscal-queue' },
+    { icon: InboxIcon, label: 'Inbox', path: '/app/inbox' },
+    { icon: SettingsIcon, label: 'Settings', path: '/app/settings' },
   ];
 
   const navItems = isSuperAdmin ? adminItems : (isAdworks ? operatorItems : clientItems);
