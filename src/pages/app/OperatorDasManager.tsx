@@ -5,7 +5,6 @@ import { Card } from '../../components/ui/Card';
 import { 
   ArrowLeft, 
   Upload, 
-  FileText,
 } from 'lucide-react';
 
 /**
