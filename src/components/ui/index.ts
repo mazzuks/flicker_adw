@@ -1,5 +1,5 @@
-export * from './Button';
-export * from './Card';
-export * from './Badge';
-export * from './EmptyState';
-export * from './DashboardUI';
+export { Button } from './Button';
+export { Card } from './Card';
+export { Badge } from './Badge';
+export { EmptyState } from './EmptyState';
+export { DashboardUI } from './DashboardUI';
