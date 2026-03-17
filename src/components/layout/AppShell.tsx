@@ -30,6 +30,7 @@ import { useAuth } from '../../lib/auth';
 import { useUIStore } from '../../store/useUIStore';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
+import { Badge } from '../ui';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { profile, signOut, isAdworks } = useAuth();
@@ -113,9 +114,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const delayDebounceFn = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const { data, error } = await supabase.rpc('global_search', { p_query: searchQuery });
+        const { data, error } = await (supabase as any).rpc('global_search', { p_query: searchQuery });
         if (!error) {
-          setSearchResults(data || []);
+          setSearchResults((data as any[]) || []);
           setShowResults(true);
         }
       } catch (err) {

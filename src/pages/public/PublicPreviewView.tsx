@@ -48,7 +48,7 @@ export function PublicPreviewView() {
       }
 
       // 2. Double check expiration
-      if (new Date(site.preview_expires_at) < new Date()) {
+      if (new Date((site as any).preview_expires_at) < new Date()) {
          setError('Este link de preview ja expirou');
          return;
       }
@@ -57,7 +57,7 @@ export function PublicPreviewView() {
       const { data: version, error: verError } = await supabase
         .from('templeteria_site_versions')
         .select('schema_json')
-        .eq('site_id', site.id)
+        .eq('site_id', (site as any).id)
         .order('version', { ascending: false })
         .limit(1)
         .single();

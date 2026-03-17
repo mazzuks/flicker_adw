@@ -37,12 +37,12 @@ export function PublicSiteView() {
         return;
       }
 
-      if (!site.published_schema_json) {
+      if (!(site as any).published_schema_json) {
         setError('O snapshot desta pagina ainda nao foi gerado');
         return;
       }
 
-      setSchema(site.published_schema_json);
+      setSchema((site as any).published_schema_json);
     } catch (err: any) {
       console.error('Public View Error:', err);
       setError(err.message);

@@ -51,6 +51,10 @@ export function TempleteriaSitesDashboard() {
     if (profile?.account_id) loadSites();
   }, [profile?.account_id]);
 
+  const handleSharePreview = async (siteId: string) => {
+    console.log('share preview', siteId);
+  };
+
   const loadSites = async () => {
     setLoading(true);
     try {
@@ -275,7 +279,7 @@ export function TempleteriaSitesDashboard() {
                                />
                                {slugStatus === 'checking' && <RefreshCw className="w-3 h-3 animate-spin text-slate-300" />}
                                {slugStatus === 'available' && <Check className="w-3 h-3 text-emerald-500" />}
-                               {slugStatus === 'taken' && <AlertCircle className="w-3 h-3 text-red-500" title="Slug ja em uso" />}
+                               {slugStatus === 'taken' && <AlertCircle className="w-3 h-3 text-red-500" />}
                             </div>
                          ) : (
                             <span className="text-[10px] font-bold text-slate-400 tracking-widest cursor-pointer hover:text-blue-600 flex items-center gap-1.5" onClick={() => startEditSlug(site)}>

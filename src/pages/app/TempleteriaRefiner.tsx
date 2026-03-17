@@ -76,7 +76,7 @@ export function TempleteriaRefiner() {
 
       // 3. Fetch publish events
       const { data: pubData } = await supabase
-        .from('templeteria_publish_events')
+        .from('templeteria_publish_events' as any)
         .select('*, version:version_id(version)')
         .eq('site_id', siteId as string)
         .order('published_at', { ascending: false });

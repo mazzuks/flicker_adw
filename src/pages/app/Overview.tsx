@@ -39,7 +39,7 @@ export function Overview() {
 
   const loadAuditEvents = async () => {
     const { data } = await supabase
-      .from('events_audit')
+      .from('events_audit' as any)
       .select('*, user_profiles:actor_id(full_name), deals:entity_id(title, company_name:companies(name))')
       .order('created_at', { ascending: false })
       .limit(6);

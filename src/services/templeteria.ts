@@ -74,7 +74,7 @@ export const templeteriaService = {
     if (!sourceSite || !lastVer) throw new Error("Source project not found");
 
     // 2. Create new site record
-    const newName = `${sourceSite.name} (Copy)`;
+    const newName = `${(sourceSite.title || 'Site')} (Copy)`;
     const newSlug = `${sourceSite.slug}-copy-${Math.random().toString(36).substring(7)}`;
     
     const { data: newSite, error: siteErr } = await supabase.from('templeteria_sites').insert({
@@ -94,7 +94,7 @@ export const templeteriaService = {
       schema_json: lastVer.schema_json,
       theme_json: lastVer.theme_json,
       created_by: createdBy,
-      notes: `Duplicated from ${sourceSite.name}`
+      notes: `Duplicated from ${(sourceSite.title || 'Site')}`
     });
 
     if (verErr) throw verErr;

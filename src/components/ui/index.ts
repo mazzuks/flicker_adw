@@ -2,4 +2,4 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { Badge } from './Badge';
 export { EmptyState } from './EmptyState';
-export { DashboardUI } from './DashboardUI';
+export { KpiCard } from './DashboardUI';
